@@ -1,0 +1,66 @@
+{
+  "extends": [
+    "next",
+    "plugin:prettier/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+    "eslint:recommended",
+    "plugin:promise/recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "allowImportExportEverywhere": false
+  },
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["unused-imports", "no-relative-import-paths", "@typescript-eslint", "import"],
+  "rules": {
+    "@typescript-eslint/consistent-type-imports": "error",
+    "unused-imports/no-unused-imports": "error",
+    "no-empty": ["error", { "allowEmptyCatch": true }],
+    "promise/no-nesting": "off",
+    "promise/always-return": "off",
+    "promise/catch-or-return": [
+      "error",
+      {
+        "allowFinally": true
+      }
+    ],
+    "no-console": [
+      "error",
+      {
+        "allow": ["warn", "error"]
+      }
+    ],
+    "no-debugger": "error",
+    "prefer-const": "error",
+    "import/no-anonymous-default-export": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "args": "none"
+      }
+    ],
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/require-await": "off",
+    "@typescript-eslint/ban-types": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "react/jsx-filename-extension": [
+      "error",
+      {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    ],
+    "linebreak-style": "off",
+    "no-relative-import-paths/no-relative-import-paths": ["error", { "allowSameFolder": false, "prefix": "@" }],
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      }
+    ]
+  }
+}
