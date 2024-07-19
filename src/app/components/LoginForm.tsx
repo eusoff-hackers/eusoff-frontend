@@ -2,11 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 
-import type { User , User} from '@/src/app/redux/Resources/userSlice';
-import { setUser, selectUser } from '@/src/app/redux/Resources/userSlice';
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 
+import type { User } from "@/src/app/redux/Resources/userSlice";
 import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
 
 const axios = require("axios").default;

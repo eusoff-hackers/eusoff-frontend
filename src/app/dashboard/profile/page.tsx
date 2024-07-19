@@ -3,13 +3,13 @@
 // This is a client component 👈🏽
 import React, { useEffect, useState } from "react";
 
-import type { ProfileTableItems } from "@/app/components/Profile/ProfileTable";
-import ProfileTable from "@/app/components/Profile/ProfileTable";
 import type { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 
 import Loading from "@/src/app/components/Loading";
+import type { ProfileTableItems } from "@/src/app/components/Profile/ProfileTable";
+import ProfileTable from "@/src/app/components/Profile/ProfileTable";
 import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
 
 const axios = require("axios");

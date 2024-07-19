@@ -1,8 +1,8 @@
 "use client";
 
 // This is a client component
-import React from 'react'
-import { removeUser } from '@/src/app/redux/Resources/userSlice';
+import React from "react";
+
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 

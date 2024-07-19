@@ -1,15 +1,7 @@
 "use client";
 
 import React from "react";
-import {useEffect, useState} from "react";
-
-import { useSelector } from 'react-redux';
-import { selectUser, setUser } from '@/src/app/redux/Resources/userSlice';
-import { useRouter } from 'next/navigation';
-import { useDispatch } from 'react-redux';
-import type { RoomInfoType, RoomType } from '@/src/app/dashboard/profile/page';
-import type { AxiosError } from 'axios';
-import LeaderboardDialog from '@/src/app/components/LeaderboardDialog'
+import { useEffect, useState } from "react";
 
 // Room Dialog Imports
 import Button from "@mui/material/Button";
@@ -26,8 +18,8 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 
 import LeaderboardDialog from "@/src/app/components/LeaderboardDialog";
-import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
 import type { RoomInfoType, RoomType } from "@/src/app/dashboard/profile/page";
+import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
 
 export interface Room {
   _id: string;
