@@ -255,7 +255,7 @@ const Jersey: React.FC = () => {
         )}
 
         </div>
-      </div> */}
+      </div>  */}
     </div>
   );
 };

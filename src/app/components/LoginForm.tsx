@@ -2,12 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 
-import type { AxiosError } from "axios";
-import { useRouter } from "next/router";
+import type { User , User} from '@/src/app/redux/Resources/userSlice';
+import { setUser, selectUser } from '@/src/app/redux/Resources/userSlice';
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 
-import type { User } from "@/src/app/redux/Resources/userSlice";
 import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
 
 const axios = require("axios").default;
@@ -39,6 +38,7 @@ export default function LoginForm() {
       });
 
       if (response.data.success) {
+        console.log("This is the auth response" + JSON.stringify(response.data.data));
         const newUser: User = {
           username: response.data.data.user.username,
           role: response.data.data.user.role,

@@ -3,13 +3,13 @@
 // This is a client component 👈🏽
 import React, { useEffect, useState } from "react";
 
+import type { ProfileTableItems } from "@/app/components/Profile/ProfileTable";
+import ProfileTable from "@/app/components/Profile/ProfileTable";
 import type { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 
 import Loading from "@/src/app/components/Loading";
-import type { ProfileTableItems } from "@/src/app/components/Profile/ProfileTable";
-import ProfileTable from "@/src/app/components/Profile/ProfileTable";
 import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
 
 const axios = require("axios");
@@ -17,10 +17,21 @@ const axiosWithCredentials = axios.create({
   withCredentials: true,
 });
 
-interface RoomInfoType {
+export interface RoomInfoType {
   isEligible: boolean;
   points: number;
   canBid: boolean;
+  bids: RoomType[];
+}
+
+export interface RoomType {
+  room: {
+    block: string;
+    number: number;
+    capacity: number;
+    occupancy: number;
+    allowedGenders: string[];
+  };
 }
 
 const ProfilePage = () => {
@@ -57,6 +68,7 @@ const ProfilePage = () => {
           isEligible: response.data.data.info.isEligible,
           points: response.data.data.info.points,
           canBid: response.data.data.info.canBid,
+          bids: response.data.data.bids,
         };
         setRoomBidInfo(roomBidInfo);
 
@@ -91,6 +103,8 @@ const ProfilePage = () => {
     ];
     setUserInfo(userData);
   };
+
+  console.log(roomBidInfo);
 
   return !isClient || user == null ? (
     <Loading />
@@ -129,8 +143,8 @@ const ProfilePage = () => {
             ) : (
               <ul>
                 <li>{`Total Bidding points: ${roomBidInfo.points}`}</li>
-                {/* <li>{`Eligible for room bidding: ${roomBidInfo.isEligible} `}</li>
-                <li>{`Can bid: ${roomBidInfo.canBid}`}</li> */}
+                <li>{`Qualified to stay: ${roomBidInfo.isEligible ? `Yes` : `No`} `}</li>
+                {/* <li>{`Can bid: ${roomBidInfo.canBid}`}</li> */}
               </ul>
             )}
             <div className="px-5 py-5">

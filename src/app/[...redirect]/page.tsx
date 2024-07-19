@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { redirect } from "next/dist/server/api-utils";
 import { useRouter } from "next/navigation";
 
-export default function Redirect() {
+export default function Redirect({ params }: { params: { redirect: string } }) {
   const router = useRouter();
   const validPaths = ["dashboard", "instructions", "profile", "login"];
 

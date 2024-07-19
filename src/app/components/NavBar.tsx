@@ -4,9 +4,6 @@ import React from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-
-import { removeUser } from "@/src/app/redux/Resources/userSlice";
 
 const axios = require("axios");
 axios.defaults.withCredentials = true;
@@ -31,7 +28,7 @@ export default function NavBar() {
   };
 
   return (
-    <nav className="max-w-full bg-gray-800 p-5 text-white lg:fixed lg:h-full">
+    <nav className="w-full bg-gray-800 p-5 text-white lg:min-h-screen">
       <p className="mb-5 text-2xl">Dashboard</p>
       <ul className="space-y-2">
         <li className="hover:translate-x-1">
@@ -75,11 +72,12 @@ export default function NavBar() {
               <line x1="3" y1="11" x2="17" y2="11" />
               <line x1="3" y1="15" x2="17" y2="15" />
             </svg>
-            <span>Jersey Instructions</span>
+            <span>Bidding Instructions</span>
           </Link>
         </li>
+
         <li className="hover:translate-x-1">
-          <Link className="flex items-center gap-3 py-2" href="/dashboard/jersey" onClick={e => e.preventDefault()}>
+          <Link className="flex items-center gap-3 py-2" href="/dashboard/roomBidding">
             <svg
               className="h-5 w-5"
               fill="none"
@@ -97,7 +95,7 @@ export default function NavBar() {
               <line x1="3" y1="11" x2="17" y2="11" />
               <line x1="3" y1="15" x2="17" y2="15" />
             </svg>
-            <span>Jersey Bidding</span>
+            <span>Room Bidding</span>
           </Link>
         </li>
         <li className="hover:translate-x-1">
@@ -124,3 +122,56 @@ export default function NavBar() {
     </nav>
   );
 }
+/*  const menus = [
+      { name: "Profile", link: "/profile", icon: MdOutlineDashboard },
+      { name: "Instructions", link: "/dashboard/instructions", icon: AiOutlineUser },
+      { name: "Room Bidding", link: "/roomBidding", icon: FiMessageSquare },
+      { name: "Logout", link: "/", icon: TbReportAnalytics, margin: true },
+      { name: "File Manager", link: "/", icon: FiFolder },
+      { name: "Cart", link: "/", icon: FiShoppingCart },
+      { name: "Saved", link: "/", icon: AiOutlineHeart, margin: true },
+      { name: "Setting", link: "/", icon: RiSettings4Line },
+    ]; 
+
+
+const menus = [
+  { name: "Profile", link: "/profile", icon: MdOutlineDashboard },
+  { name: "Instructions", link: "/dashboard/instructions", icon: AiOutlineUser },
+  { name: "Room Bidding", link: "/roomBidding", icon: FiMessageSquare },
+  { name: "Logout", link: "/", icon: TbReportAnalytics, margin: true },
+];
+
+    console.log(open)
+
+   return (
+      <section className={`absolute ${ open ? "w-full lg:w-48" : "hidden"}  flex gap-6`}>
+        <div
+          className={`bg-[#0e0e0e] min-h-screen duration-1000 text-gray-100 px-4`}>
+          
+          <div className="mt-4 flex flex-col gap-4 relative">
+            {menus?.map((menu, i) => (
+              <>
+                <h2
+                  style={{
+                    transitionDelay: `${i }00ms`,
+                  }}
+                  className={`whitespace-pre duration-500 ${
+                    !open && "opacity-0 translate-x-28 overflow-hidden"
+                  }`}
+                >
+                  {menu?.name}
+                </h2>
+                <h2
+                  className={`${
+                    open && "hidden"
+                  } absolute left-48 bg-white font-semibold whitespace-pre text-gray-900 rounded-md drop-shadow-lg px-0 py-0 w-0 overflow-hidden group-hover:px-2 group-hover:py-1 group-hover:left-14 group-hover:duration-300 group-hover:w-fit  `}
+                >
+                  {menu?.name}
+                </h2>
+                </>
+            ))}
+          </div>
+        </div>
+    </section>
+  )
+}*/
