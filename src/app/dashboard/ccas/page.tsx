@@ -361,37 +361,36 @@ const CCAComponent:React.FC = () => {
       )}
       {isContactDialogOpen && (
   <Dialog open={isContactDialogOpen} onOpenChange={setIsContactDialogOpen}>
-    <DialogContent className="sm:max-w-[500px]">
-      <DialogHeader className="font-bold text-md">
-        Contact Information
-      </DialogHeader>
-      <div className="space-y-4">
-        <Input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Name"
-        />
-        <Input
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-        />
-        <Input
-          value={telegramHandle}
-          onChange={(e) => setTelegramHandle(e.target.value)}
-          placeholder="Telegram Handle"
-        />
-      </div>
-      <div>
-        </div>
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={() => setIsContactDialogOpen(false)}>
-          Cancel
-        </Button>
-        <Button onClick={submitCCA}>Submit</Button>
-      </div>
-    </DialogContent>
-  </Dialog>
+  <DialogContent className="max-w-full sm:max-w-[500px] mx-4 sm:mx-auto">
+    <DialogHeader className="font-bold text-lg sm:text-md">
+      Contact Information
+    </DialogHeader>
+    <div className="space-y-4">
+      <Input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Name"
+      />
+      <Input
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
+      <Input
+        value={telegramHandle}
+        onChange={(e) => setTelegramHandle(e.target.value)}
+        placeholder="Telegram Handle"
+      />
+    </div>
+    <div className="flex justify-end gap-2 mt-4">
+      <Button variant="outline" onClick={() => setIsContactDialogOpen(false)}>
+        Cancel
+      </Button>
+      <Button onClick={submitCCA}>Submit</Button>
+    </div>
+  </DialogContent>
+</Dialog>
+
 )}
       </div>
     </>
