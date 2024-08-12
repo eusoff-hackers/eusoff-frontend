@@ -70,7 +70,7 @@ export default function NavBar() {
               <line x1="3" y1="11" x2="17" y2="11" />
               <line x1="3" y1="15" x2="17" y2="15" />
             </svg>
-            <span>CCA Booklet & Instructions</span>
+            <span>CCA Booklet</span>
           </Link>
         </li>
 
@@ -93,7 +93,7 @@ export default function NavBar() {
               <line x1="3" y1="11" x2="17" y2="11" />
               <line x1="3" y1="15" x2="17" y2="15" />
             </svg>
-            <span>CCA Fair</span>
+            <span>CCA Signup</span>
           </Link>
         </li>
         <li className="hover:translate-x-1">
