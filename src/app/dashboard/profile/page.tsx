@@ -3,24 +3,32 @@
 // This is a client component 👈🏽
 import React, { useEffect, useState } from "react";
 
-import type { ProfileTableItems } from "@/app/components/Profile/ProfileTable";
-import ProfileTable from "@/app/components/Profile/ProfileTable";
 import type { AxiosError } from "axios";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import Loading from "@/src/app/components/Loading";
+import type { ProfileTableItems } from "@/src/app/components/Profile/ProfileTable";
+import ProfileTable from "@/src/app/components/Profile/ProfileTable";
 import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
 
 const axios = require("axios");
-const axiosWithCredentials = axios.create({
-  withCredentials: true,
-});
 
-interface RoomInfoType {
+export interface RoomType {
+  block: string;
+  number: number;
+  capacity: number;
+  occupancy: number;
+  allowedGenders: string[];
+}
+
+export interface RoomInfoType {
   isEligible: boolean;
   points: number;
   canBid: boolean;
+  bids?: { room: RoomType }[];
 }
 
 const ProfilePage = () => {
@@ -42,6 +50,7 @@ const ProfilePage = () => {
     setIsClient(true);
     fetchRoomBidInfo();
     getUserInfo();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, route]);
 
   // api call to fetch user's room bidding points, eligibility
@@ -50,8 +59,6 @@ const ProfilePage = () => {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/info`);
 
       if (response.data.success) {
-        console.log("This is eligible bids info " + JSON.stringify(response.data.data));
-
         // set user general room bid info
         const roomBidInfo: RoomInfoType = {
           isEligible: response.data.data.info.isEligible,
@@ -63,12 +70,13 @@ const ProfilePage = () => {
         // set user cca points info
         const ccaData = response.data.data.info.pointsDistribution;
         const ccaInfoTemp: ProfileTableItems[] = [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ccaData.forEach((element: any) => {
           ccaInfoTemp.push({ title: element.cca, value: element.points });
         });
         setCcaInfo(ccaInfoTemp);
       } else {
-        console.log({ message: "Failed to fetch data" });
+        console.error({ message: "Failed to fetch data" });
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -107,9 +115,12 @@ const ProfilePage = () => {
           <div className="divide-y-5 m-auto mb-3 mt-10 grid w-5/6 grid-flow-row gap-0 rounded-lg bg-slate-200 px-5 py-10 font-mono text-3xl shadow-2xl md:grid-flow-col md:items-center">
             {/*Placeholder image and log in text*/}
             <div className="bg-slate-200 text-center">
-              <img
+              <Image
                 className="m-auto h-48 w-48 rounded-full border-4 border-dashed border-indigo-950 shadow-2xl shadow-sky-200"
                 src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+                alt="profile picture"
+                width={48}
+                height={48}
               />
               <br />
               <h1 className="text-black">

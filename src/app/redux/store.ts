@@ -24,7 +24,6 @@ const loadState = () => {
   try {
     if (typeof window === `undefined`) return null;
     const serialisedState = localStorage.getItem("user_state");
-    console.log("Session saved:" + serialisedState);
 
     // Passing undefined to createStore will result in our app getting the default state
     // If no data is saved, return undefined
@@ -49,8 +48,6 @@ const savedUser: User | null =
         gender: oldState.gender,
         room: oldState.room,
       };
-console.log("This is saved user :" + JSON.stringify(savedUser));
-
 export const store = configureStore({
   reducer: {
     user: userReducer,
@@ -59,7 +56,6 @@ export const store = configureStore({
 });
 
 store.subscribe(() => {
-  console.log("This is store state:" + store.getState().user);
   saveState(store.getState().user);
 });
 

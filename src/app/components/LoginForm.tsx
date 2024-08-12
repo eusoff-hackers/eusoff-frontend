@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 import type { AxiosError } from "axios";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 

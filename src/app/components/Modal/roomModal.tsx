@@ -16,6 +16,8 @@ interface ModalProps {
 
 interface User {
   username: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  teams: any[];
   points: number;
 }
 
@@ -30,31 +32,31 @@ const Modal: React.FC<ModalProps> = ({
   setBiddings,
   setToast,
   handleOpen,
-  // currentList,
+  currentList,
 }) => {
   const [bidders, setBidders] = useState(null);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // const compareLists = (list: any[]): boolean => {
-  //   for (let i = 0; i < currentList.length; i++) {
-  //     for (let j = 0; j < list.length; j++) {
-  //       if (currentList[i].name == list[j].name) {
-  //         return true;
-  //       }
-  //     }
-  //   }
-  //   return false;
-  // };
+  const compareLists = (list: any[]): boolean => {
+    for (let i = 0; i < currentList.length; i++) {
+      for (let j = 0; j < list.length; j++) {
+        if (currentList[i].name == list[j].name) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
 
-  // // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // const getNames = (list: any[]): string => {
-  //   const names: string[] = [];
-  //   for (let j = 0; j < list.length; j++) {
-  //     names.push(list[j].name);
-  //   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getNames = (list: any[]): string => {
+    const names: string[] = [];
+    for (let j = 0; j < list.length; j++) {
+      names.push(list[j].name);
+    }
 
-  //   return names.join(", ");
-  // };
+    return names.join(", ");
+  };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fetchList: any = async () => {
@@ -148,13 +150,13 @@ const Modal: React.FC<ModalProps> = ({
                             </tr>
                             {bidders[category].map((item: User, subIndex: number) => (
                               <tr
-                                // className={`mx-2 text-${compareLists(item.teams) ? "red" : "black"}-500`}
+                                className={`mx-2 text-${compareLists(item.teams) ? "red" : "black"}-500`}
                                 key={subIndex}
                               >
                                 <td className="px-4 py-2"></td>
                                 <td className="px-4 py-2">{item.username}</td>
                                 <td className="px-4 py-2">{item.points}</td>
-                                {/* <td className="px-4 py-2">{getNames(item.teams)}</td> */}
+                                <td className="px-4 py-2">{getNames(item.teams)}</td>
                               </tr>
                             ))}
                           </>
