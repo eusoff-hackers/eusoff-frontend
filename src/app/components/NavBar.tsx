@@ -4,6 +4,7 @@ import React from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 
 const axios = require("axios");
 axios.defaults.withCredentials = true;
@@ -18,10 +19,9 @@ export default function NavBar() {
   };
 
   const route = useRouter();
-  const dispatch = useDispatch();
-
+  const dispatch = useDispatch()
+  
   const logout = () => {
-    dispatch(removeUser());
     localStorage.clear();
     handleLogout();
     route.push("/");
@@ -72,12 +72,12 @@ export default function NavBar() {
               <line x1="3" y1="11" x2="17" y2="11" />
               <line x1="3" y1="15" x2="17" y2="15" />
             </svg>
-            <span>Bidding Instructions</span>
+            <span>CCA Booklet & Instructions</span>
           </Link>
         </li>
 
         <li className="hover:translate-x-1">
-          <Link className="flex items-center gap-3 py-2" href="/dashboard/roomBidding">
+          <Link className="flex items-center gap-3 py-2" href="/dashboard/ccas">
             <svg
               className="h-5 w-5"
               fill="none"
@@ -95,7 +95,7 @@ export default function NavBar() {
               <line x1="3" y1="11" x2="17" y2="11" />
               <line x1="3" y1="15" x2="17" y2="15" />
             </svg>
-            <span>Room Bidding</span>
+            <span>CCA Fair</span>
           </Link>
         </li>
         <li className="hover:translate-x-1">

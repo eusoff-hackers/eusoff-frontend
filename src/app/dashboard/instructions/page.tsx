@@ -7,22 +7,14 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 
 import PDFViewer from "@/src/app/components/PDFViewer";
-import { removeUser } from "@/src/app/redux/Resources/userSlice";
 
 const InstructionsPage = () => {
-  const route = useRouter();
-  const dispatch = useDispatch();
+
   /*const [isNav, setIsNav] = useState(false);
 
   useEffect(() => {
     setIsNav(true);
-  }, [])*/
-
-  const logout = () => {
-    dispatch(removeUser());
-    route.push("/");
-  };
-
+  }, [])*/ 
   return (
     /*<div className="bg-gradient-to-tl h-full w-full flex flex-col lg:flex-row">
       <main className="bg-gradient-to-tl h-fit w-full">

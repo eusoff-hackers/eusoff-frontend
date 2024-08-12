@@ -1,30 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { CircularProgress } from "@mui/material";
-import TableCell, { tableCellClasses } from "@mui/material/TableCell";
-import TableRow from "@mui/material/TableRow";
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
-  },
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  "&:nth-of-type(odd)": {
-    backgroundColor: theme.palette.action.hover,
-  },
-  // hide last border
-  "&:last-child td, &:last-child th": {
-    border: 0,
-  },
-}));
+import Image from "next/image"; // Import the Image component from next/image
+import axios from "axios"; // Import axios
 
 export interface Match {
   red: { _id: string; name: string };
@@ -44,120 +23,61 @@ export interface Point {
 }
 
 const sortMatchesByTimestamp = (matches: Match[]): Match[] => {
-  // Use the Array.sort method to sort the matches based on timestamp
   return matches.sort((a, b) => a.timestamp - b.timestamp);
 };
 
-const sortPoints = (points: Point[]): Point[] => {
-  // Use the Array.sort method to sort the matches based on points
-  return points.sort((a, b) => b.points - a.points);
-};
-
 function getCapitalLetters(word: string): string {
-  return word.match(/[A-Z]/g)?.join("");
+  return word.match(/[A-Z]/g)?.join("") || "";
 }
-
-const STORAGE_KEY = "keyisnotihgbuteusofftothefore";
-const axios = require("axios");
 
 const Leaderboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [matches, setMatches] = useState<Match[]>([]);
   const [points, setPoints] = useState<Point[]>([]);
-  /* 
-    const [matches, setMatches] = useState<Match[]>(
-      JSON.parse(localStorage.getItem(`${STORAGE_KEY}_matches`) || '[]')
-    );
-    const [points, setPoints] = useState<Point[]>(
-      JSON.parse(localStorage.getItem(`${STORAGE_KEY}_points`) || '[]')
-    );
-    const [lastFetchTime, setLastFetchTime] = useState<number>(
-      parseInt(localStorage.getItem('lastFetchTime') || '0')
-    );*/
-
-  const heading = "";
-  /*
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const matchesResponse = await axios.get(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/ihg/matches`
-          );
-  
-          if (matchesResponse.data.success) {
-            const sortedMatches = sortMatchesByTimestamp(matchesResponse.data.data);
-            setMatches(sortedMatches);
-            localStorage.setItem(`${STORAGE_KEY}_matches`, JSON.stringify(sortedMatches));
-          }
-        } catch (error) {
-          console.error('Error fetching matches:', error);
-        }
-  
-        try {
-          const pointsResponse = await axios.get(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/ihg/points`
-          );  
-  
-          if (pointsResponse.data.success) {
-            setPoints(pointsResponse.data.data);
-            localStorage.setItem(`${STORAGE_KEY}_points`, JSON.stringify(pointsResponse.data.data));
-          }
-        } catch (error) {
-          console.error('Error fetching points:', error);
-        }
-  
-        // Update the last fetch time
-        setLastFetchTime(Date.now());
-        localStorage.setItem('lastFetchTime', Date.now().toString());
-        setLoading(false);
-      };
-  
-      // Fetch data only if more than 5 minutes have passed since the last fetch
-      if ((points==[] || matches==[]) || (Date.now() - lastFetchTime > 5 * 60 * 1000)) {
-        fetchData();
-      } else {
-        setLoading(false); // No need to fetch, set loading to false
-      }
-    }, [lastFetchTime]); // Only re-run the effect if lastFetchTime changes
-
-    const getLastFourLatestElements = (list) => {
-      if (!Array.isArray(list)) {
-        throw new Error('Input is not an array');
-      }
-    
-      const currentTime = new Date().getTime();
-
-      // Filter the values based on the current time
-      const nextValues = list.filter(value => {
-      const valueTime = new Date(value.timestamp).getTime();
-        return valueTime > currentTime;
-      });
-
-      // Return the next 4 values or fewer if there are not enough remaining values
-      return nextValues.slice(0, 4);
-    }*/
+  const [lastFetchTime, setLastFetchTime] = useState<number>(
+    parseInt(localStorage.getItem("lastFetchTime") || "0")
+  );
 
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/ihg/matches`)
-      .then((response: any) => {
-        if (response.data.success) {
-          setLoading(!response.data.success);
-          setMatches(sortMatchesByTimestamp(response.data.data));
-        }
-      })
-      .catch();
+    const fetchData = async () => {
+      try {
+        const matchesResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/ihg/matches`
+        );
 
-    axios
-      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/ihg/points`)
-      .then((response: any) => {
-        if (response.data.success) {
-          setLoading(!response.data.success);
-          setPoints(sortPoints(response.data.data));
+        if (matchesResponse.data.success) {
+          const sortedMatches = sortMatchesByTimestamp(matchesResponse.data.data);
+          setMatches(sortedMatches);
+          localStorage.setItem("matches", JSON.stringify(sortedMatches));
         }
-      })
-      .catch();
-  }, []);
+      } catch (error) {
+        console.error("Error fetching matches:", error);
+      }
+
+      try {
+        const pointsResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/ihg/points`
+        );
+
+        if (pointsResponse.data.success) {
+          setPoints(pointsResponse.data.data);
+          localStorage.setItem("points", JSON.stringify(pointsResponse.data.data));
+        }
+      } catch (error) {
+        console.error("Error fetching points:", error);
+      }
+
+      setLastFetchTime(Date.now());
+      localStorage.setItem("lastFetchTime", Date.now().toString());
+      setLoading(false);
+    };
+
+    if (!points.length || !matches.length || Date.now() - lastFetchTime > 5 * 60 * 1000) {
+      fetchData();
+    } else {
+      setLoading(false);
+    }
+  }, [lastFetchTime]);
 
   const getTime = (timestamp: number) => {
     const time = new Intl.DateTimeFormat("en-GB", {
@@ -228,98 +148,100 @@ const Leaderboard: React.FC = () => {
 
   const generateTable = (pointsArray: Point[]) => {
     return (
-      <div className={styles.tableContainer}>
-        <div className={styles.headerRow}>
-          <p className={styles.headerCell}>Hall Name</p>
-          <p className={styles.headerCell}>🥇</p>
-          <p className={styles.headerCell}>🥈</p>
-          <p className={styles.headerCell}>🥉</p>
-          <p className={styles.headerCell}>Points</p>
+      <div className="tableContainer">
+        <div className="headerRow">
+          <p className="headerCell">Hall Name</p>
+          <p className="headerCell">🥇</p>
+          <p className="headerCell">🥈</p>
+          <p className="headerCell">🥉</p>
+          <p className="headerCell">Points</p>
         </div>
-        {pointsArray.map(row => (
-          <div className={styles.contentRow} key={row.hall.id}>
-            <p className={styles.tableCell}>{row.hall.name}</p>
-            <p className={styles.tableCell}>{row.golds}</p>
-            <p className={styles.tableCell}>{row.silvers}</p>
-            <p className={styles.tableCell}>{row.bronzes}</p>
-            <p className={styles.tableCell}>{row.points}</p>
+        {pointsArray.map((row) => (
+          <div className="contentRow" key={row.hall.id}>
+            <p className="tableCell">{row.hall.name}</p>
+            <p className="tableCell">{row.golds}</p>
+            <p className="tableCell">{row.silvers}</p>
+            <p className="tableCell">{row.bronzes}</p>
+            <p className="tableCell">{row.points}</p>
           </div>
         ))}
       </div>
     );
   };
 
+  let heading = ""; // Move heading inside the component scope
+
   return loading ? (
-    <div className={styles.loadingContainer}>
-      <p>LOADING </p>
+    <div className="loadingContainer">
+      <p>LOADING</p>
       <CircularProgress />
     </div>
   ) : (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.left}>
-          <Image className={styles.eusoff} alt="eusoffLogo" src={eusoffLogo} />
-          <div className={styles.text}>
+    <div className="container">
+      <div className="header">
+        <div className="left">
+          <Image className="eusoff" alt="eusoffLogo" src="/path/to/eusoffLogo.png" />
+          <div className="text">
             <h1>Eusoff Hall</h1>
             <h5>Excellence and Glory</h5>
           </div>
         </div>
-        <div className={styles.right}>
+        <div className="right">
           <h1> Inter Hall Games-23/24</h1>
         </div>
       </div>
-      <div className={styles.content}>
-        <div className={styles.leaderboard}>
+      <div className="content">
+        <div className="leaderboard">
           <h1> Leaderboard</h1>
           {generateTable(points)}
         </div>
-        <div className={styles.matches}>
+        <div className="matches">
           <h1> Upcoming Matches </h1>
           {matches != null &&
             matches.map((match, index) => {
               const formattedDate = getDate(match.timestamp);
               const time = getTime(match.timestamp);
 
+              const renderHeading = heading !== formattedDate;
+              heading = formattedDate;
+
               return (
                 <>
-                  {heading !== formattedDate && <h2 className={styles.date}>{formattedDate}</h2>}
-                  <div className={styles.matchContainer} key={index}>
-                    <div className={styles.hallvs}>
-                      <div className={styles.logoContainer}>
+                  {renderHeading && <h2 className="date">{formattedDate}</h2>}
+                  <div className="matchContainer" key={index}>
+                    <div className="hallvs">
+                      <div className="logoContainer">
                         <Image
-                          className={styles.hallLogo}
+                          className="hallLogo"
                           alt="hall logo"
                           width={100}
                           height={100}
                           src={`/${match.red.name.replace(/\s+/g, "")}.png`}
                         />
-                        <span className={styles.hallNameSmall}>
-                          {" "}
-                          {getCapitalLetters(match.red.name.replace(/\s+/g, ""))}{" "}
+                        <span className="hallNameSmall">
+                          {getCapitalLetters(match.red.name.replace(/\s+/g, ""))}
                         </span>
                       </div>
-                      <span className={styles.versus}>VS</span>
-                      <div className={styles.logoContainer}>
+                      <span className="versus">VS</span>
+                      <div className="logoContainer">
                         <Image
-                          className={styles.hallLogo}
+                          className="hallLogo"
                           alt="hall logo"
                           width={100}
                           height={100}
                           src={`/${match.blue.name.replace(/\s+/g, "")}.png`}
                         />
-                        <span className={styles.hallNameSmall}>
-                          {" "}
-                          {getCapitalLetters(match.blue.name.replace(/\s+/g, ""))}{" "}
+                        <span className="hallNameSmall">{getCapitalLetters(match.blue.name.replace(/\s+/g, ""))}
                         </span>
                       </div>
                     </div>
-                    <div className={styles.sportName}>
+                    <div className="sportName">
                       <span>
                         {match.sport.name} - {match.stage}
                       </span>
-                      <span className={styles.venue}> {match.venue} </span>
+                      <span className="venue">{match.venue}</span>
                     </div>
-                    <div className={styles.timing}>
+                    <div className="timing">
                       <span>{convertTo12HourFormat(time)}</span>
                     </div>
                   </div>

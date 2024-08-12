@@ -12,7 +12,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
 import type { TransitionProps } from "@mui/material/transitions";
-import type { AxiosError } from "axios";
+import type { AxiosError, AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
@@ -81,11 +81,9 @@ const RoomBidding: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [userLoading, setUserLoading] = useState(true);
   const [roomList, setRoomList] = useState<Room[]>([]);
-  const [open, setOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [blockfilter, setBlockFilter] = useState<string>("A");
   const [userInfo, setUserInfo] = useState<RoomInfoType>();
-  const [unsaved, setUnsaved] = useState<boolean>(false);
   const [blockData, setBlockData] = useState<Record<string, BlockInfo>>({});
   const [roomSelect, setRoomSelect] = useState<Room>({
     _id: "",
@@ -97,8 +95,6 @@ const RoomBidding: React.FC = () => {
     bidders: [],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [currentBid, setCurrentBid] = useState<RoomDet>({ block: "", number: 0 });
 
   const objectify = (array: RoomBlock[]): Record<string, BlockInfo> => {
     const object: Record<string, BlockInfo> = {};
@@ -115,7 +111,7 @@ const RoomBidding: React.FC = () => {
       .flatMap(room => room.bidders);
 
     // Sort bidders by points in descending order
-    const sortedBidders: bidderInfo[] = getAllBiddersForBlock.sort((a: any, b: any) => b.info.points - a.info.points);
+    const sortedBidders: bidderInfo[] = getAllBiddersForBlock.sort((a: bidderInfo, b: bidderInfo) => b.info.points - a.info.points);
 
     return sortedBidders;
   };
@@ -136,7 +132,7 @@ const RoomBidding: React.FC = () => {
   };
 
   const handleBidAcceptance = (roomSelect: Room) => {
-    if (userInfo.bids[0] == null && userInfo.canBid) {
+    if (userInfo?.bids[0] == null && userInfo?.canBid) {
       const newRoom: RoomType = {
         room: {
           block: roomSelect.block,
@@ -151,8 +147,7 @@ const RoomBidding: React.FC = () => {
         ...userInfo,
         bids: [newRoom], // Adding the new room
       });
-    } else {
-      console.log(userInfo);
+    } else if (userInfo?.bids[0]) {
       userInfo.bids[0].room.block = roomSelect.block;
       userInfo.bids[0].room.number = roomSelect.number;
     }
@@ -175,40 +170,38 @@ const RoomBidding: React.FC = () => {
 
   // api call to make room bidding submission
   const submitBid = async () => {
-    await axios
-      .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/bid`, {
+    try {
+      const response: AxiosResponse<any> = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/bid`, {
         rooms: [{ _id: roomSelect._id }],
-      })
-      .then((response: any) => {
-        if (response.status == 200) {
-          setDialogOpen(false);
-        }
-      })
-      .catch();
+      });
+      if (response.status === 200) {
+        setDialogOpen(false);
+      }
+    } catch (error) {
+      console.error("Error during submission", error);
+    }
   };
 
   // api call to fetch all rooms
   const fetchRooms = async () => {
-    await axios
-      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/list`)
-      .then((response: any) => {
-        if (response.data.success) {
-          setLoading(!response.data.success);
-          setBlockData(objectify(response.data.data.blocks));
-          setRoomList(response.data.data.rooms);
-        }
-      })
-      .catch();
+    try {
+      const response: AxiosResponse<any> = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/list`);
+      if (response.data.success) {
+        setLoading(!response.data.success);
+        setBlockData(objectify(response.data.data.blocks));
+        setRoomList(response.data.data.rooms);
+      }
+    } catch (error) {
+      console.error("Error during fetching rooms", error);
+    }
   };
 
   // api call to fetch user's room bidding info (duplicate call in profile page, can be refactored to be more efficient)
   const fetchRoomBidInfo = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/info`);
+      const response: AxiosResponse<any> = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/info`);
 
       if (response.data.success) {
-        //console.log("This is eligible bids info " + JSON.stringify(response.data.data))
-
         const roomBidInfo: RoomInfoType = {
           isEligible: response.data.data.info.isEligible,
           points: response.data.data.info.points,
@@ -221,14 +214,10 @@ const RoomBidding: React.FC = () => {
         console.log({ message: "Failed to fetch data" });
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError;
-
-        if (axiosError.response.status == 401) {
-          console.error("Session Expired");
-          dispatch(setUser(null));
-          route.push("/");
-        }
+      if ((error as AxiosError).response?.status === 401) {
+        console.error("Session Expired");
+        dispatch(setUser(null));
+        route.push("/");
       }
       console.error("Error during fetching data", error);
     }
@@ -253,11 +242,11 @@ const RoomBidding: React.FC = () => {
         <div className="divide-y-5 m-auto mb-3 mt-10 flex w-5/6 flex-col justify-between rounded-lg bg-slate-200 px-5 py-10 font-mono text-xl shadow-2xl md:flex-row">
           <div className="text-left text-gray-900">
             Current Bid:{" "}
-            {userInfo.bids[0]?.room
+            {userInfo?.bids[0]?.room
               ? `${userInfo.bids[0].room.block}${userInfo.bids[0].room.number}`
               : "No Room Selected"}
           </div>
-          <div className="text-left text-gray-900 md:text-right">Points : {userInfo.points}</div>
+          <div className="text-left text-gray-900 md:text-right">Points : {userInfo?.points}</div>
         </div>
 
         {/*Main Content*/}

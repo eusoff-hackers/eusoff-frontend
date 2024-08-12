@@ -31,7 +31,6 @@ const BiddingTable: React.FC<BiddingList> = ({ biddings, setBiddings, updateUser
       });
 
       if (response.data.success) {
-        console.log("Successful bids");
         setToast({ message: "Bids submitted", severity: "success" });
         handleOpen();
         updateUser();

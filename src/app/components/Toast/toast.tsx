@@ -17,9 +17,7 @@ interface ToastProps {
 }
 
 const Toast: React.FC<ToastProps> = ({ title, message, duration, id }) => {
-  console.log(title);
-
-  const mappings: any = ["success", "error", "warning", "info"];
+  const mappings: string = ["success", "error", "warning", "info"];
 
   const [open, setOpen] = useState(true);
 

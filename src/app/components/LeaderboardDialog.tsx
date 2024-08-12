@@ -4,6 +4,7 @@ import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
+import { TableContainer , TableBody , TableRow} from "@mui/material";
 
 export interface bidderInfo {
   user: {
@@ -24,17 +25,6 @@ export interface lbProps {
 }
 
 const LeaderboardDialog: React.FC<lbProps> = ({ data }) => {
-  const [open, setOpen] = useState(false);
-
-  console.log(data);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   return (
     <div className="w-full">

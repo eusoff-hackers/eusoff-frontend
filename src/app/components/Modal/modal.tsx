@@ -59,9 +59,7 @@ const Modal: React.FC<ModalProps> = ({
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/info`);
 
       if (response.data.success) {
-        console.log(response.data);
         await setBidders(response.data.data[index]);
-        console.log("bids info" + JSON.stringify(response.data.data[index]));
       }
     } catch (error) {
       console.error("Error during update", error);
@@ -77,7 +75,6 @@ const Modal: React.FC<ModalProps> = ({
 
     if (duplicateArr.length !== 0) {
       // Include a popup to tell user to not bid for duplicates
-      console.log("Cannot bid for duplicate numbers");
       setToast({ message: "Cannot bid for duplicate numbers", severity: "error" });
       handleOpen();
       return;
@@ -86,7 +83,6 @@ const Modal: React.FC<ModalProps> = ({
     if (biddings.length > 4) {
       //number is 4 because when open modal for 5th number, will record 4 numbers in bidding
       // Include a popup to tell user not to bid for more than 5 numbers
-      console.log("Cannot bid for more than 5 numbers");
       setToast({ message: "Cannot bid for more than 5 numbers", severity: "error" });
       handleOpen();
       return;
@@ -137,7 +133,7 @@ const Modal: React.FC<ModalProps> = ({
                   </tr>
 
                   {Object.keys(bidders)
-                    .filter((category, index: number) => category == "Male" || category == "Female")
+                    .filter((category) => category == "Male" || category == "Female")
                     .map(
                       (category, index: number) =>
                         bidders[category].length > 0 && (
