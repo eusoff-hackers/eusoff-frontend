@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -81,6 +81,13 @@ const CCAComponent: React.FC = () => {
     });
   };
 
+  const preventPropagation = (e: Event) => e.preventDefault();
+
+  useEffect(() => {
+    window.addEventListener("beforeunload", preventPropagation);
+    return () => window.removeEventListener("beforeunload", preventPropagation);
+  }, [email, name, signedUpCCAs, telegramHandle]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -100,6 +107,9 @@ const CCAComponent: React.FC = () => {
 
         if (response.data.success) {
           setCCAs(response.data.data.signups);
+          setEmail(response.data.data.info.email);
+          setTelegramHandle(response.data.data.info.telegram);
+          setName(response.data.data.info.name);
           localStorage.setItem("ccaInfo", JSON.stringify(response.data.data.signups));
         }
       } catch (error) {
@@ -125,12 +135,20 @@ const CCAComponent: React.FC = () => {
   function openModal(activityName: string) {
     const activity = activities.find(a => a.name === activityName);
     setSelectedActivity(activity);
+    setReason("");
+
+    // Populate with old data if exists
+    const index = signedUpCCAs.findIndex(obj => obj.cca.name === activityName);
+
+    if (index != -1) {
+      const curData = signedUpCCAs[index];
+      setReason(curData.reason);
+      setSelectedActivity({ ...activity, subcommittees: curData.subcommittees });
+    }
+
     setIsModalOpen(true);
   }
 
-  function openInviteDialog() {
-    setIsInviteDialogOpen(true);
-  }
   async function submitCCA() {
     if (!email || !telegramHandle || !name) {
       toast({
@@ -157,8 +175,10 @@ const CCAComponent: React.FC = () => {
 
       if (response.status === 200) {
         toast({
+          variant: "success",
           title: "Submitted Successfully",
         });
+        window.removeEventListener("beforeunload", preventPropagation);
       } else {
         toast({
           variant: "destructive",
@@ -179,11 +199,7 @@ const CCAComponent: React.FC = () => {
       const index = signedUpCCAs.findIndex(obj => obj.cca._id === selectedActivity._id);
 
       if (index != -1) {
-        toast({
-          variant: "destructive",
-          title: "CCA Already Exists, Remove to Update CCA",
-        });
-        return;
+        signedUpCCAs.splice(index, 1);
       }
 
       const newSignupData: SignupData = {
@@ -205,7 +221,7 @@ const CCAComponent: React.FC = () => {
   }
 
   function handleSubmit() {
-    setIsContactDialogOpen(true);
+    submitCCA();
   }
 
   const deleteItems = (index: number) => {
@@ -214,21 +230,45 @@ const CCAComponent: React.FC = () => {
 
   return (
     <>
-      <h1 className="m-8 text-2xl font-bold text-black">CCA List</h1>
+      <div className="flex flex-row items-center">
+        <h1 className="m-8 text-2xl font-bold text-black">CCA List</h1>
+        <Button onClick={handleSubmit}>Submit</Button>
+      </div>
+
+      <Card className="mx-8 my-4 flex w-auto items-center">
+        <CardContent>
+          <div className="flex w-[73vw] flex-row justify-between sm:w-[77vw]">
+            <h2 className="my-6 text-xl font-bold">Contact Information</h2>
+          </div>
+          <div className="space-y-4">
+            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Name" />
+            <Input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
+            <Input
+              value={telegramHandle}
+              onChange={e => setTelegramHandle(e.target.value)}
+              placeholder="Telegram Handle"
+            />
+          </div>
+        </CardContent>
+      </Card>
       <Card className="m-8 flex w-auto items-center">
         <CardContent>
           <div className="flex w-[73vw] flex-row justify-between sm:w-[77vw]">
             <h2 className="my-6 text-xl font-bold">Signed-Up CCAs</h2>
-            <Button onClick={handleSubmit} className="my-6">
-              Submit
-            </Button>
           </div>
           <div className="flex items-center gap-4 overflow-x-auto pb-4">
             {signedUpCCAs.map((obj, i) => (
               <div key={i} className="flex items-center justify-between rounded-md bg-white p-4 shadow-md">
-                <span className="mx-2">{obj.cca.name}</span>
+                <button className="mx-2" onClick={e => openModal(obj.cca.name)}>
+                  {obj.cca.name}
+                </button>
                 <div className="flex space-x-2">
-                  <Button onClick={() => deleteItems(i)} className="rounded bg-white p-2 text-black hover:bg-gray-200">
+                  <Button
+                    onClick={() => {
+                      deleteItems(i);
+                    }}
+                    className="rounded bg-white p-2 text-black hover:bg-gray-200"
+                  >
                     ❌
                   </Button>
                 </div>
@@ -264,7 +304,7 @@ const CCAComponent: React.FC = () => {
         ))}
         {isModalOpen && selectedActivity && (
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogContent className="flex max-h-[90vh] min-w-[30vw] flex-col overflow-y-auto">
+            <DialogContent className="flex max-h-[90vh] min-w-[30vw] max-w-[95vw] flex-col overflow-y-auto lg:max-w-[50vw]">
               <DialogHeader>Why do you want to join {selectedActivity.name}?</DialogHeader>
               <div className="space-y-4">
                 <Input
@@ -274,8 +314,8 @@ const CCAComponent: React.FC = () => {
                   placeholder="Reason..."
                 />
               </div>
-              <div className="flex flex-col justify-between overflow-y-auto sm:flex-row">
-                <DialogHeader>
+              <div className="flex flex-col justify-between gap-4 overflow-y-auto sm:flex-row">
+                <DialogHeader className="flex-1">
                   <DialogTitle>{selectedActivity.name}</DialogTitle>
                   <DialogDescription>{selectedActivity.description}</DialogDescription>
                   <div>
@@ -287,11 +327,11 @@ const CCAComponent: React.FC = () => {
                     <p>{selectedActivity.contacts.join(", ")}</p>
                   </div>
                 </DialogHeader>
-                <div className="w-full sm:w-auto">
-                  <div className="grid gap-4">
+                <div className="w-full flex-1 grow sm:w-auto">
+                  <div className="grid w-full gap-4">
                     {selectedActivity.subcommittees.length !== 0 && (
-                      <div className="sm:w-2xl mx-auto flex w-full px-2 py-6 md:px-3">
-                        <div className="grid gap-4">
+                      <div className="mx-auto flex w-full px-2 py-6 md:px-3">
+                        <div className="grid w-full gap-4">
                           <div className="grid gap-1">
                             <h1 className="text-lg font-bold tracking-tight">Rank Your Sub-Committees</h1>
                           </div>
@@ -328,29 +368,18 @@ const CCAComponent: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    <Button className="mt-6" onClick={handleInvite}>
-                      Sign UP!
-                    </Button>
                   </div>
                 </div>
               </div>
+              <Button className="mt-6" onClick={handleInvite}>
+                Add to my list!
+              </Button>
             </DialogContent>
           </Dialog>
         )}
         {isContactDialogOpen && (
           <Dialog open={isContactDialogOpen} onOpenChange={setIsContactDialogOpen}>
             <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader className="text-md font-bold">Contact Information</DialogHeader>
-              <div className="space-y-4">
-                <Input value={name} onChange={e => setName(e.target.value)} placeholder="Name" />
-                <Input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
-                <Input
-                  value={telegramHandle}
-                  onChange={e => setTelegramHandle(e.target.value)}
-                  placeholder="Telegram Handle"
-                />
-              </div>
-              <div></div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setIsContactDialogOpen(false)}>
                   Cancel
