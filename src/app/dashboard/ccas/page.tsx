@@ -201,7 +201,7 @@ const CCAComponent: React.FC = () => {
       });
     }
     setReason("");
-    setIsInviteDialogOpen(false);
+    setIsModalOpen(false);
   }
 
   function handleSubmit() {
@@ -264,72 +264,8 @@ const CCAComponent: React.FC = () => {
         ))}
         {isModalOpen && selectedActivity && (
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogContent className="flex max-h-[90vh] min-w-[30vw] flex-col justify-between overflow-y-auto sm:flex-row">
-              <DialogHeader>
-                <DialogTitle>{selectedActivity.name}</DialogTitle>
-                <DialogDescription>{selectedActivity.description}</DialogDescription>
-                <div>
-                  <h4 className="text-sm font-medium">Heads</h4>
-                  <p>{selectedActivity.heads.join(", ")}</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium">Contacts</h4>
-                  <p>{selectedActivity.contacts.join(", ")}</p>
-                </div>
-              </DialogHeader>
-              <div className="w-full sm:w-auto">
-                <div className="grid gap-4">
-                  {selectedActivity.subcommittees.length !== 0 && (
-                    <div className="sm:w-2xl mx-auto flex w-full px-2 py-6 md:px-3">
-                      <div className="grid gap-4">
-                        <div className="grid gap-1">
-                          <h1 className="text-lg font-bold tracking-tight">Rank Your Sub-Committees</h1>
-                        </div>
-                        <Card>
-                          <CardContent className="p-6">
-                            <div className="grid gap-4">
-                              {selectedActivity.subcommittees.map((item, index) => (
-                                <div
-                                  key={index}
-                                  className="flex items-center justify-between rounded-md bg-white p-4 shadow-md"
-                                >
-                                  <span className="mx-2">{item.name}</span>
-                                  <div className="flex space-x-2">
-                                    <Button
-                                      onClick={() => moveUp(index, selectedActivity, setSelectedActivity)}
-                                      disabled={index === 0}
-                                      className="rounded bg-white p-2 text-black hover:bg-gray-200"
-                                    >
-                                      ↑
-                                    </Button>
-                                    <Button
-                                      onClick={() => moveDown(index, selectedActivity, setSelectedActivity)}
-                                      disabled={index === selectedActivity.subcommittees.length - 1}
-                                      className="rounded bg-white p-2 text-black hover:bg-gray-200"
-                                    >
-                                      ↓
-                                    </Button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
-                  )}
-                  <Button className="mt-6" onClick={openInviteDialog}>
-                    Sign UP!
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
-        {isInviteDialogOpen && (
-          <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>Reason to join {selectedActivity.name}</DialogHeader>
+            <DialogContent className="flex max-h-[90vh] min-w-[30vw] flex-col overflow-y-auto">
+              <DialogHeader>Why do you want to join {selectedActivity.name}?</DialogHeader>
               <div className="space-y-4">
                 <Input
                   className="h-16"
@@ -338,12 +274,65 @@ const CCAComponent: React.FC = () => {
                   placeholder="Reason..."
                 />
               </div>
-              <h1 className="font-bold text-red-500"> DO NOTE THAT THIS ACTION IS IRREVERSIBLE </h1>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsInviteDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleInvite}>Confirm</Button>
+              <div className="flex flex-col justify-between overflow-y-auto sm:flex-row">
+                <DialogHeader>
+                  <DialogTitle>{selectedActivity.name}</DialogTitle>
+                  <DialogDescription>{selectedActivity.description}</DialogDescription>
+                  <div>
+                    <h4 className="text-sm font-medium">Heads</h4>
+                    <p>{selectedActivity.heads.join(", ")}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium">Contacts</h4>
+                    <p>{selectedActivity.contacts.join(", ")}</p>
+                  </div>
+                </DialogHeader>
+                <div className="w-full sm:w-auto">
+                  <div className="grid gap-4">
+                    {selectedActivity.subcommittees.length !== 0 && (
+                      <div className="sm:w-2xl mx-auto flex w-full px-2 py-6 md:px-3">
+                        <div className="grid gap-4">
+                          <div className="grid gap-1">
+                            <h1 className="text-lg font-bold tracking-tight">Rank Your Sub-Committees</h1>
+                          </div>
+                          <Card>
+                            <CardContent className="p-6">
+                              <div className="grid gap-4">
+                                {selectedActivity.subcommittees.map((item, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-center justify-between rounded-md bg-white p-4 shadow-md"
+                                  >
+                                    <span className="mx-2">{item.name}</span>
+                                    <div className="flex space-x-2">
+                                      <Button
+                                        onClick={() => moveUp(index, selectedActivity, setSelectedActivity)}
+                                        disabled={index === 0}
+                                        className="rounded bg-white p-2 text-black hover:bg-gray-200"
+                                      >
+                                        ↑
+                                      </Button>
+                                      <Button
+                                        onClick={() => moveDown(index, selectedActivity, setSelectedActivity)}
+                                        disabled={index === selectedActivity.subcommittees.length - 1}
+                                        className="rounded bg-white p-2 text-black hover:bg-gray-200"
+                                      >
+                                        ↓
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </div>
+                    )}
+                    <Button className="mt-6" onClick={handleInvite}>
+                      Sign UP!
+                    </Button>
+                  </div>
+                </div>
               </div>
             </DialogContent>
           </Dialog>
