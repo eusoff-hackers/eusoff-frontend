@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,7 +47,6 @@ const CCAComponent: React.FC = () => {
   const { toast } = useToast();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<CCA>(null);
   const [telegramHandle, setTelegramHandle] = useState("");
@@ -259,7 +258,7 @@ const CCAComponent: React.FC = () => {
           <div className="flex items-center gap-4 overflow-x-auto pb-4">
             {signedUpCCAs.map((obj, i) => (
               <div key={i} className="flex items-center justify-between rounded-md bg-white p-4 shadow-md">
-                <button className="mx-2" onClick={e => openModal(obj.cca.name)}>
+                <button className="mx-2" onClick={() => openModal(obj.cca.name)}>
                   {obj.cca.name}
                 </button>
                 <div className="flex space-x-2">
