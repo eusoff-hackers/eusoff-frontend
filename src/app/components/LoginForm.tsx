@@ -74,7 +74,7 @@ export default function LoginForm() {
             id="username"
             value={username}
             onChange={e => setUsername(e.target.value)}
-            placeholder="Please insert your room number"
+            placeholder="Please insert your matric number"
             className="appearance-none rounded-lg border-2 border-gray-100 px-4 py-3 text-black placeholder-gray-300 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-600"
           />
         </div>

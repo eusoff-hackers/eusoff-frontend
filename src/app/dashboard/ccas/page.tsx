@@ -229,6 +229,7 @@ const CCAComponent: React.FC = () => {
 
   return (
     <>
+      <h1 className="m-8 mb-4 text-2xl font-bold text-red-500">Please do not forget to press submit</h1>
       <div className="flex flex-row items-center">
         <h1 className="m-8 text-2xl font-bold text-black">CCA List</h1>
         <Button onClick={handleSubmit}>Submit</Button>
@@ -236,12 +237,13 @@ const CCAComponent: React.FC = () => {
 
       <Card className="mx-8 my-4 flex w-auto items-center">
         <CardContent>
-          <div className="flex w-[73vw] flex-row justify-between sm:w-[77vw]">
-            <h2 className="my-6 text-xl font-bold">Contact Information</h2>
+          <div className="flex w-[73vw] flex-row items-end gap-4 py-6 sm:w-[77vw]">
+            <span className="text-xl font-bold">Contact Information</span>
+            <span className="row text-left align-text-bottom text-sm">Required</span>
           </div>
           <div className="space-y-4">
             <Input value={name} onChange={e => setName(e.target.value)} placeholder="Name" />
-            <Input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
+            <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
             <Input
               value={telegramHandle}
               onChange={e => setTelegramHandle(e.target.value)}
@@ -303,7 +305,7 @@ const CCAComponent: React.FC = () => {
         ))}
         {isModalOpen && selectedActivity && (
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogContent className="flex max-h-[90vh] min-w-[30vw] max-w-[95vw] flex-col overflow-y-auto lg:max-w-[50vw]">
+            <DialogContent className="flex max-h-[90vh] w-fit min-w-[30vw] max-w-[95vw] flex-col overflow-y-auto lg:max-w-[50vw]">
               <DialogHeader>Why do you want to join {selectedActivity.name}?</DialogHeader>
               <div className="space-y-4">
                 <Input
