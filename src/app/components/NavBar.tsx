@@ -4,6 +4,9 @@ import React from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+
+import { removeUser } from "@/src/app/redux/Resources/userSlice";
 
 const axios = require("axios");
 axios.defaults.withCredentials = true;
@@ -18,10 +21,12 @@ export default function NavBar() {
   };
 
   const route = useRouter();
+  const dispatch = useDispatch();
 
-  const logout = () => {
+  const logout = async () => {
+    dispatch(removeUser());
     localStorage.clear();
-    handleLogout();
+    await handleLogout();
     route.push("/");
   };
 
