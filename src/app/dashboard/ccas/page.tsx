@@ -327,13 +327,14 @@ const CCAComponent: React.FC = () => {
                     <p>{selectedActivity.contacts.join(", ")}</p>
                   </div>
                 </DialogHeader>
-                <div className="w-full flex-1 grow sm:w-auto">
-                  <div className="grid w-full gap-4">
-                    {selectedActivity.subcommittees.length !== 0 && (
+                {selectedActivity.subcommittees.length !== 0 && (
+                  <div className="w-full flex-1 grow sm:w-auto">
+                    <div className="grid w-full gap-4">
                       <div className="mx-auto flex w-full px-2 py-6 md:px-3">
                         <div className="grid w-full gap-4">
                           <div className="grid gap-1">
                             <h1 className="text-lg font-bold tracking-tight">Rank Your Sub-Committees</h1>
+                            <p>The subcommittees listed at the top are those that match your interests the most</p>
                           </div>
                           <Card>
                             <CardContent className="p-6">
@@ -367,9 +368,9 @@ const CCAComponent: React.FC = () => {
                           </Card>
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
               <Button className="mt-6" onClick={handleInvite}>
                 Add to my list!
