@@ -4,7 +4,6 @@ import React from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
 
 const axios = require("axios");
 axios.defaults.withCredentials = true;
@@ -12,15 +11,14 @@ axios.defaults.withCredentials = true;
 export default function NavBar() {
   const handleLogout = async () => {
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/logout`);
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/logout`);
     } catch (error) {
       console.error("Logout error");
     }
   };
 
   const route = useRouter();
-  const dispatch = useDispatch()
-  
+
   const logout = () => {
     localStorage.clear();
     handleLogout();

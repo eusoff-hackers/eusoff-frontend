@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import type { Bidding, ToastMessage } from "@/app/dashboard/jersey/page";
+import type { Bidding, ToastMessage } from "@/src/app/dashboard/jersey/page";
 
 interface ModalProps {
   closeModal: () => void;
@@ -10,12 +10,12 @@ interface ModalProps {
   setBiddings: React.Dispatch<React.SetStateAction<Bidding[]>>;
   setToast: React.Dispatch<React.SetStateAction<ToastMessage>>;
   handleOpen: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   currentList: any[];
 }
 
 interface User {
   username: string;
-  teams: any[];
   points: number;
 }
 
@@ -34,6 +34,7 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
   const [bidders, setBidders] = useState(null);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const compareLists = (list: any[]): boolean => {
     for (let i = 0; i < currentList.length; i++) {
       for (let j = 0; j < list.length; j++) {
@@ -45,6 +46,7 @@ const Modal: React.FC<ModalProps> = ({
     return false;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getNames = (list: any[]): string => {
     const names: string[] = [];
     for (let j = 0; j < list.length; j++) {
@@ -54,6 +56,7 @@ const Modal: React.FC<ModalProps> = ({
     return names.join(", ");
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fetchList: any = async () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/info`);
@@ -68,7 +71,7 @@ const Modal: React.FC<ModalProps> = ({
 
   useEffect(() => {
     fetchList(index);
-  }, []);
+  });
 
   const createBid = (ind: number) => {
     const duplicateArr = biddings.filter(bidding => bidding.number == ind);
@@ -133,7 +136,7 @@ const Modal: React.FC<ModalProps> = ({
                   </tr>
 
                   {Object.keys(bidders)
-                    .filter((category) => category == "Male" || category == "Female")
+                    .filter(category => category == "Male" || category == "Female")
                     .map(
                       (category, index: number) =>
                         bidders[category].length > 0 && (

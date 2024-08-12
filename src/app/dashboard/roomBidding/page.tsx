@@ -66,7 +66,7 @@ const hallBlocks = ["A", "B", "C", "D", "E"];
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
-    children: React.ReactElement<any, any>;
+    children: React.ReactElement;
   },
   ref: React.Ref<unknown>,
 ) {
@@ -111,7 +111,9 @@ const RoomBidding: React.FC = () => {
       .flatMap(room => room.bidders);
 
     // Sort bidders by points in descending order
-    const sortedBidders: bidderInfo[] = getAllBiddersForBlock.sort((a: bidderInfo, b: bidderInfo) => b.info.points - a.info.points);
+    const sortedBidders: bidderInfo[] = getAllBiddersForBlock.sort(
+      (a: bidderInfo, b: bidderInfo) => b.info.points - a.info.points,
+    );
 
     return sortedBidders;
   };
@@ -133,7 +135,7 @@ const RoomBidding: React.FC = () => {
 
   const handleBidAcceptance = (roomSelect: Room) => {
     if (userInfo?.bids[0] == null && userInfo?.canBid) {
-      const newRoom: RoomType = {
+      const newRoom: { room: RoomType } = {
         room: {
           block: roomSelect.block,
           number: roomSelect.number,
@@ -166,12 +168,12 @@ const RoomBidding: React.FC = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  });
 
   // api call to make room bidding submission
   const submitBid = async () => {
     try {
-      const response: AxiosResponse<any> = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/bid`, {
+      const response: AxiosResponse = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/bid`, {
         rooms: [{ _id: roomSelect._id }],
       });
       if (response.status === 200) {
@@ -185,7 +187,7 @@ const RoomBidding: React.FC = () => {
   // api call to fetch all rooms
   const fetchRooms = async () => {
     try {
-      const response: AxiosResponse<any> = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/list`);
+      const response: AxiosResponse = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/list`);
       if (response.data.success) {
         setLoading(!response.data.success);
         setBlockData(objectify(response.data.data.blocks));
@@ -199,7 +201,7 @@ const RoomBidding: React.FC = () => {
   // api call to fetch user's room bidding info (duplicate call in profile page, can be refactored to be more efficient)
   const fetchRoomBidInfo = async () => {
     try {
-      const response: AxiosResponse<any> = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/info`);
+      const response: AxiosResponse = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/info`);
 
       if (response.data.success) {
         const roomBidInfo: RoomInfoType = {
@@ -211,7 +213,7 @@ const RoomBidding: React.FC = () => {
         setUserInfo(roomBidInfo);
         setUserLoading(!response.data.success);
       } else {
-        console.log({ message: "Failed to fetch data" });
+        console.error({ message: "Failed to fetch data" });
       }
     } catch (error) {
       if ((error as AxiosError).response?.status === 401) {
@@ -332,7 +334,6 @@ const RoomBidding: React.FC = () => {
                   .map((room, index) => {
                     const block = room.block;
                     const number = room.number;
-                    const capacity = room.capacity;
 
                     return (
                       <div

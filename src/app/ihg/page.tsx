@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+
 import { CircularProgress } from "@mui/material";
-import Image from "next/image"; // Import the Image component from next/image
-import axios from "axios"; // Import axios
+// Import the Image component from next/image
+import axios from "axios";
+import Image from "next/image";
+
+// Import axios
 
 export interface Match {
   red: { _id: string; name: string };
@@ -34,16 +38,12 @@ const Leaderboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [matches, setMatches] = useState<Match[]>([]);
   const [points, setPoints] = useState<Point[]>([]);
-  const [lastFetchTime, setLastFetchTime] = useState<number>(
-    parseInt(localStorage.getItem("lastFetchTime") || "0")
-  );
+  const [lastFetchTime, setLastFetchTime] = useState<number>(parseInt(localStorage.getItem("lastFetchTime") || "0"));
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const matchesResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/ihg/matches`
-        );
+        const matchesResponse = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/ihg/matches`);
 
         if (matchesResponse.data.success) {
           const sortedMatches = sortMatchesByTimestamp(matchesResponse.data.data);
@@ -55,9 +55,7 @@ const Leaderboard: React.FC = () => {
       }
 
       try {
-        const pointsResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/ihg/points`
-        );
+        const pointsResponse = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/ihg/points`);
 
         if (pointsResponse.data.success) {
           setPoints(pointsResponse.data.data);
@@ -77,7 +75,7 @@ const Leaderboard: React.FC = () => {
     } else {
       setLoading(false);
     }
-  }, [lastFetchTime]);
+  }, [lastFetchTime, matches.length, points.length]);
 
   const getTime = (timestamp: number) => {
     const time = new Intl.DateTimeFormat("en-GB", {
@@ -156,7 +154,7 @@ const Leaderboard: React.FC = () => {
           <p className="headerCell">🥉</p>
           <p className="headerCell">Points</p>
         </div>
-        {pointsArray.map((row) => (
+        {pointsArray.map(row => (
           <div className="contentRow" key={row.hall.id}>
             <p className="tableCell">{row.hall.name}</p>
             <p className="tableCell">{row.golds}</p>
@@ -218,9 +216,7 @@ const Leaderboard: React.FC = () => {
                           height={100}
                           src={`/${match.red.name.replace(/\s+/g, "")}.png`}
                         />
-                        <span className="hallNameSmall">
-                          {getCapitalLetters(match.red.name.replace(/\s+/g, ""))}
-                        </span>
+                        <span className="hallNameSmall">{getCapitalLetters(match.red.name.replace(/\s+/g, ""))}</span>
                       </div>
                       <span className="versus">VS</span>
                       <div className="logoContainer">
@@ -231,8 +227,7 @@ const Leaderboard: React.FC = () => {
                           height={100}
                           src={`/${match.blue.name.replace(/\s+/g, "")}.png`}
                         />
-                        <span className="hallNameSmall">{getCapitalLetters(match.blue.name.replace(/\s+/g, ""))}
-                        </span>
+                        <span className="hallNameSmall">{getCapitalLetters(match.blue.name.replace(/\s+/g, ""))}</span>
                       </div>
                     </div>
                     <div className="sportName">

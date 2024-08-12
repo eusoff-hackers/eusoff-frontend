@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 
+import { TableBody, TableContainer, TableRow } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
-import { TableContainer , TableBody , TableRow} from "@mui/material";
 
 export interface bidderInfo {
   user: {
@@ -25,7 +25,6 @@ export interface lbProps {
 }
 
 const LeaderboardDialog: React.FC<lbProps> = ({ data }) => {
-
   return (
     <div className="w-full">
       <h1 className="border-b-2 border-b-slate-400 text-2xl text-black">Block LeaderBoard</h1>

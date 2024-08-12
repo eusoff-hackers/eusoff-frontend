@@ -6,7 +6,7 @@ import React from "react";
 export default function Loading() {
   return (
     <div className="flex min-h-full w-full flex-wrap content-center justify-center">
-      <div className="border-primary rounded-md border bg-white p-4">
+      <div className="rounded-md border border-primary bg-white p-4">
         <div className="flex">
           <div className="mr-4 h-16 w-16 animate-pulse rounded border border-gray-200 bg-gray-200"></div>
           <div className="flex w-full flex-col space-y-1">

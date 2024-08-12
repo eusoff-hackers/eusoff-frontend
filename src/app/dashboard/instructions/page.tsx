@@ -3,18 +3,14 @@
 // This is a client component
 import React from "react";
 
-import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-
 import PDFViewer from "@/src/app/components/PDFViewer";
 
 const InstructionsPage = () => {
-
   /*const [isNav, setIsNav] = useState(false);
 
   useEffect(() => {
     setIsNav(true);
-  }, [])*/ 
+  }, [])*/
   return (
     /*<div className="bg-gradient-to-tl h-full w-full flex flex-col lg:flex-row">
       <main className="bg-gradient-to-tl h-fit w-full">

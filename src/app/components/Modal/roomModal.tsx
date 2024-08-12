@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import type { Bidding, ToastMessage } from "@/app/dashboard/jersey/page";
+import type { Bidding, ToastMessage } from "@/src/app/dashboard/jersey/page";
 
 interface ModalProps {
   closeModal: () => void;
@@ -10,11 +10,13 @@ interface ModalProps {
   setBiddings: React.Dispatch<React.SetStateAction<Bidding[]>>;
   setToast: React.Dispatch<React.SetStateAction<ToastMessage>>;
   handleOpen: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   currentList: any[];
 }
 
 interface User {
   username: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   teams: any[];
   points: number;
 }
@@ -34,6 +36,7 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
   const [bidders, setBidders] = useState(null);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const compareLists = (list: any[]): boolean => {
     for (let i = 0; i < currentList.length; i++) {
       for (let j = 0; j < list.length; j++) {
@@ -45,6 +48,7 @@ const Modal: React.FC<ModalProps> = ({
     return false;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getNames = (list: any[]): string => {
     const names: string[] = [];
     for (let j = 0; j < list.length; j++) {
@@ -54,14 +58,13 @@ const Modal: React.FC<ModalProps> = ({
     return names.join(", ");
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fetchList: any = async () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/info`);
 
       if (response.data.success) {
-        console.log(response.data);
         await setBidders(response.data.data[index]);
-        console.log("bids info" + JSON.stringify(response.data.data[index]));
       }
     } catch (error) {
       console.error("Error during update", error);
@@ -70,14 +73,13 @@ const Modal: React.FC<ModalProps> = ({
 
   useEffect(() => {
     fetchList(index);
-  }, []);
+  });
 
   const createBid = (ind: number) => {
     const duplicateArr = biddings.filter(bidding => bidding.number == ind);
 
     if (duplicateArr.length !== 0) {
       // Include a popup to tell user to not bid for duplicates
-      console.log("Cannot bid for duplicate numbers");
       setToast({ message: "Cannot bid for duplicate numbers", severity: "error" });
       handleOpen();
       return;
@@ -86,7 +88,6 @@ const Modal: React.FC<ModalProps> = ({
     if (biddings.length > 4) {
       //number is 4 because when open modal for 5th number, will record 4 numbers in bidding
       // Include a popup to tell user not to bid for more than 5 numbers
-      console.log("Cannot bid for more than 5 numbers");
       setToast({ message: "Cannot bid for more than 5 numbers", severity: "error" });
       handleOpen();
       return;
@@ -137,7 +138,7 @@ const Modal: React.FC<ModalProps> = ({
                   </tr>
 
                   {Object.keys(bidders)
-                    .filter((category, index: number) => category == "Male" || category == "Female")
+                    .filter(category => category == "Male" || category == "Female")
                     .map(
                       (category, index: number) =>
                         bidders[category].length > 0 && (

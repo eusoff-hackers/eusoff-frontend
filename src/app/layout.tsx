@@ -1,9 +1,11 @@
+import React from "react";
+
+import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import React from "react";
+
 import "@/src/app/globals.css";
 import { Providers } from "@/src/app/redux/provider";
-import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] });
 
