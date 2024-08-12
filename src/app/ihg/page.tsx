@@ -38,7 +38,11 @@ const Leaderboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [matches, setMatches] = useState<Match[]>([]);
   const [points, setPoints] = useState<Point[]>([]);
-  const [lastFetchTime, setLastFetchTime] = useState<number>(parseInt(localStorage.getItem("lastFetchTime") || "0"));
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
+
+  useEffect(() => {
+    setLastFetchTime(parseInt(localStorage.getItem("lastFetchTime")));
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
