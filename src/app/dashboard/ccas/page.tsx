@@ -264,7 +264,7 @@ const CCAComponent: React.FC = () => {
             <div className="flex w-[73vw] flex-row justify-between">
               <h2 className="my-6 text-xl font-bold">Signed-Up CCAs</h2>
             </div>
-            <div className="flex flex-col items-start gap-4 overflow-y-auto pb-4 sm:flex-row">
+            <div className="flex flex-col flex-wrap items-start gap-4 overflow-y-auto pb-4 sm:flex-row">
               {signedUpCCAs.map((obj, i) => (
                 <div key={i} className="flex items-center justify-between rounded-md bg-white p-4 shadow-md">
                   <button className="mx-2" onClick={() => openModal(obj.cca.name)}>
