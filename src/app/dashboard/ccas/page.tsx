@@ -55,6 +55,7 @@ const CCAComponent: React.FC = () => {
   const [activities, setActivities] = useState<CCA[]>([]);
   const [signedUpCCAs, setCCAs] = useState<SignupData[]>([]);
   const [tempReason, setReason] = useState<string>("");
+  const [flagNewCCA, setFlag] = useState(false);
 
   const moveUp = (index: number, selectedActivity: CCA, setSelectedActivity: (_: CCA) => void) => {
     if (index === 0) return;
@@ -178,6 +179,7 @@ const CCAComponent: React.FC = () => {
           title: "Submitted Successfully",
         });
         window.removeEventListener("beforeunload", preventPropagation);
+        setFlag(false);
       } else {
         toast({
           variant: "destructive",
@@ -214,6 +216,7 @@ const CCAComponent: React.FC = () => {
       toast({
         title: "Added Successfully",
       });
+      setFlag(true);
     }
     setReason("");
     setIsModalOpen(false);
@@ -229,53 +232,60 @@ const CCAComponent: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-row items-center">
-        <h1 className="m-8 text-2xl font-bold text-black">CCA List</h1>
-        <Button onClick={handleSubmit}>Submit</Button>
+      <div className="mx-4 flex flex-row items-center justify-between">
+        <h1 className="m-8 text-2xl font-bold text-black">CCA Signup</h1>
+        <Button className="mr-6" onClick={handleSubmit}>
+          Submit
+        </Button>
       </div>
+      {flagNewCCA && (
+        <h1 className="text-md mb-4 text-center font-bold text-red-500 sm:text-2xl">Please remember to press Submit</h1>
+      )}
 
-      <Card className="mx-8 my-4 flex w-auto items-center">
-        <CardContent>
-          <div className="flex w-[73vw] flex-row justify-between sm:w-[77vw]">
-            <h2 className="my-6 text-xl font-bold">Contact Information</h2>
-          </div>
-          <div className="space-y-4">
-            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Name" />
-            <Input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
-            <Input
-              value={telegramHandle}
-              onChange={e => setTelegramHandle(e.target.value)}
-              placeholder="Telegram Handle"
-            />
-          </div>
-        </CardContent>
-      </Card>
-      <Card className="m-8 flex w-auto items-center">
-        <CardContent>
-          <div className="flex w-[73vw] flex-row justify-between sm:w-[77vw]">
-            <h2 className="my-6 text-xl font-bold">Signed-Up CCAs</h2>
-          </div>
-          <div className="flex items-center gap-4 overflow-x-auto pb-4">
-            {signedUpCCAs.map((obj, i) => (
-              <div key={i} className="flex items-center justify-between rounded-md bg-white p-4 shadow-md">
-                <button className="mx-2" onClick={() => openModal(obj.cca.name)}>
-                  {obj.cca.name}
-                </button>
-                <div className="flex space-x-2">
-                  <Button
-                    onClick={() => {
-                      deleteItems(i);
-                    }}
-                    className="rounded bg-white p-2 text-black hover:bg-gray-200"
-                  >
-                    ❌
-                  </Button>
+      <div className="flex flex-col items-start">
+        <Card className="mx-8 my-4 flex w-auto items-center">
+          <CardContent>
+            <div className="flex w-[73vw] flex-row justify-between sm:w-[77vw]">
+              <h2 className="my-6 text-xl font-bold">Contact Information</h2>
+            </div>
+            <div className="space-y-4">
+              <Input value={name} onChange={e => setName(e.target.value)} placeholder="Name" />
+              <Input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
+              <Input
+                value={telegramHandle}
+                onChange={e => setTelegramHandle(e.target.value)}
+                placeholder="Telegram Handle"
+              />
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="my-4 flex w-full items-center sm:mx-8 sm:max-w-[80vw]">
+          <CardContent>
+            <div className="flex w-[73vw] flex-row justify-between">
+              <h2 className="my-6 text-xl font-bold">Signed-Up CCAs</h2>
+            </div>
+            <div className="flex flex-col flex-wrap items-start gap-4 overflow-y-auto pb-4 sm:flex-row">
+              {signedUpCCAs.map((obj, i) => (
+                <div key={i} className="flex items-center justify-between rounded-md bg-white p-4 shadow-md">
+                  <button className="mx-2" onClick={() => openModal(obj.cca.name)}>
+                    {obj.cca.name}
+                  </button>
+                  <div className="flex space-x-2">
+                    <Button
+                      onClick={() => {
+                        deleteItems(i);
+                      }}
+                      className="rounded bg-white p-2 text-black hover:bg-gray-200"
+                    >
+                      ❌
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
       <div className="mx-auto w-full max-w-4xl">
         {Object.entries(groupedActivities).map(([category, activities]) => (
           <Card key={category} className="mb-8">
@@ -303,7 +313,7 @@ const CCAComponent: React.FC = () => {
         ))}
         {isModalOpen && selectedActivity && (
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogContent className="flex max-h-[90vh] min-w-[30vw] max-w-[95vw] flex-col overflow-y-auto lg:max-w-[50vw]">
+            <DialogContent className="flex max-h-[90vh] w-fit min-w-[30vw] max-w-[95vw] flex-col overflow-y-auto lg:max-w-[50vw]">
               <DialogHeader>Why do you want to join {selectedActivity.name}?</DialogHeader>
               <div className="space-y-4">
                 <Input
