@@ -55,6 +55,7 @@ const CCAComponent: React.FC = () => {
   const [activities, setActivities] = useState<CCA[]>([]);
   const [signedUpCCAs, setCCAs] = useState<SignupData[]>([]);
   const [tempReason, setReason] = useState<string>("");
+  const [flagNewCCA, setFlag] = useState(false)
 
   const moveUp = (index: number, selectedActivity: CCA, setSelectedActivity: (_: CCA) => void) => {
     if (index === 0) return;
@@ -178,6 +179,7 @@ const CCAComponent: React.FC = () => {
           title: "Submitted Successfully",
         });
         window.removeEventListener("beforeunload", preventPropagation);
+        setFlag(false)
       } else {
         toast({
           variant: "destructive",
@@ -214,6 +216,7 @@ const CCAComponent: React.FC = () => {
       toast({
         title: "Added Successfully",
       });
+      setFlag(true)
     }
     setReason("");
     setIsModalOpen(false);
@@ -229,21 +232,21 @@ const CCAComponent: React.FC = () => {
 
   return (
     <>
-      <h1 className="m-8 mb-4 text-2xl font-bold text-red-500">Please do not forget to press submit</h1>
-      <div className="flex flex-row items-center">
-        <h1 className="m-8 text-2xl font-bold text-black">CCA List</h1>
-        <Button onClick={handleSubmit}>Submit</Button>
+      <div className="flex flex-row items-center justify-between mx-4">
+        <h1 className="m-8 text-2xl font-bold text-black">CCA Signup</h1>
+        <Button className="mr-6" onClick={handleSubmit}>Submit</Button>
       </div>
+      {flagNewCCA && (<h1 className="mb-4 text-md sm:text-2xl text-center font-bold text-red-500">Please remember to press Submit</h1>)}
 
+      <div className="flex flex-col items-start">
       <Card className="mx-8 my-4 flex w-auto items-center">
         <CardContent>
-          <div className="flex w-[73vw] flex-row items-end gap-4 py-6 sm:w-[77vw]">
-            <span className="text-xl font-bold">Contact Information</span>
-            <span className="row text-left align-text-bottom text-sm">Required</span>
+          <div className="flex w-[73vw] flex-row justify-between sm:w-[77vw]">
+            <h2 className="my-6 text-xl font-bold">Contact Information</h2>
           </div>
           <div className="space-y-4">
             <Input value={name} onChange={e => setName(e.target.value)} placeholder="Name" />
-            <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
+            <Input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
             <Input
               value={telegramHandle}
               onChange={e => setTelegramHandle(e.target.value)}
@@ -252,12 +255,12 @@ const CCAComponent: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-      <Card className="m-8 flex w-auto items-center">
+      <Card className="sm:mx-8 my-4 flex w-full sm:max-w-[80vw] items-center">
         <CardContent>
-          <div className="flex w-[73vw] flex-row justify-between sm:w-[77vw]">
+          <div className="flex w-[73vw] flex-row justify-between">
             <h2 className="my-6 text-xl font-bold">Signed-Up CCAs</h2>
           </div>
-          <div className="flex items-center gap-4 overflow-x-auto pb-4">
+          <div className="flex flex-col sm:flex-row  items-start gap-4 overflow-y-auto pb-4">
             {signedUpCCAs.map((obj, i) => (
               <div key={i} className="flex items-center justify-between rounded-md bg-white p-4 shadow-md">
                 <button className="mx-2" onClick={() => openModal(obj.cca.name)}>
@@ -278,6 +281,7 @@ const CCAComponent: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+      </div>
       <div className="mx-auto w-full max-w-4xl">
         {Object.entries(groupedActivities).map(([category, activities]) => (
           <Card key={category} className="mb-8">
