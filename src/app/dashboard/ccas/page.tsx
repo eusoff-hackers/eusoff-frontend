@@ -84,6 +84,7 @@ const CCAComponent: React.FC = () => {
   const preventPropagation = (e: Event) => e.preventDefault();
 
   useEffect(() => {
+    setFlag(true);
     window.addEventListener("beforeunload", preventPropagation);
     return () => window.removeEventListener("beforeunload", preventPropagation);
   }, [email, name, signedUpCCAs, telegramHandle]);
@@ -216,7 +217,6 @@ const CCAComponent: React.FC = () => {
       toast({
         title: "Added Successfully",
       });
-      setFlag(true);
     }
     setReason("");
     setIsModalOpen(false);
