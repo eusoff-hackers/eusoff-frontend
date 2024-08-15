@@ -55,7 +55,11 @@ const CCAComponent: React.FC = () => {
   const [activities, setActivities] = useState<CCA[]>([]);
   const [signedUpCCAs, setCCAs] = useState<SignupData[]>([]);
   const [tempReason, setReason] = useState<string>("");
+<<<<<<< HEAD
   const [flagNewCCA, setFlag] = useState(false)
+=======
+  const [flagNewCCA, setFlag] = useState(false);
+>>>>>>> d4a158b933066b2c0a9efaccfc327c2f1ce21cee
 
   const moveUp = (index: number, selectedActivity: CCA, setSelectedActivity: (_: CCA) => void) => {
     if (index === 0) return;
@@ -84,6 +88,7 @@ const CCAComponent: React.FC = () => {
   const preventPropagation = (e: Event) => e.preventDefault();
 
   useEffect(() => {
+    setFlag(true);
     window.addEventListener("beforeunload", preventPropagation);
     return () => window.removeEventListener("beforeunload", preventPropagation);
   }, [email, name, signedUpCCAs, telegramHandle]);
@@ -179,7 +184,11 @@ const CCAComponent: React.FC = () => {
           title: "Submitted Successfully",
         });
         window.removeEventListener("beforeunload", preventPropagation);
+<<<<<<< HEAD
         setFlag(false)
+=======
+        setFlag(false);
+>>>>>>> d4a158b933066b2c0a9efaccfc327c2f1ce21cee
       } else {
         toast({
           variant: "destructive",
@@ -232,55 +241,59 @@ const CCAComponent: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-row items-center justify-between mx-4">
+      <div className="mx-4 flex flex-row items-center justify-between">
         <h1 className="m-8 text-2xl font-bold text-black">CCA Signup</h1>
-        <Button className="mr-6" onClick={handleSubmit}>Submit</Button>
+        <Button className="mr-6" onClick={handleSubmit}>
+          Submit
+        </Button>
       </div>
-      {flagNewCCA && (<h1 className="mb-4 text-md sm:text-2xl text-center font-bold text-red-500">Please remember to press Submit</h1>)}
+      {flagNewCCA && (
+        <h1 className="text-md mb-4 text-center font-bold text-red-500 sm:text-2xl">Please remember to press Submit</h1>
+      )}
 
       <div className="flex flex-col items-start">
-      <Card className="mx-8 my-4 flex w-auto items-center">
-        <CardContent>
-          <div className="flex w-[73vw] flex-row justify-between sm:w-[77vw]">
-            <h2 className="my-6 text-xl font-bold">Contact Information</h2>
-          </div>
-          <div className="space-y-4">
-            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Name" />
-            <Input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
-            <Input
-              value={telegramHandle}
-              onChange={e => setTelegramHandle(e.target.value)}
-              placeholder="Telegram Handle"
-            />
-          </div>
-        </CardContent>
-      </Card>
-      <Card className="sm:mx-8 my-4 flex w-full sm:max-w-[80vw] items-center">
-        <CardContent>
-          <div className="flex w-[73vw] flex-row justify-between">
-            <h2 className="my-6 text-xl font-bold">Signed-Up CCAs</h2>
-          </div>
-          <div className="flex flex-col sm:flex-row  items-start gap-4 overflow-y-auto pb-4">
-            {signedUpCCAs.map((obj, i) => (
-              <div key={i} className="flex items-center justify-between rounded-md bg-white p-4 shadow-md">
-                <button className="mx-2" onClick={() => openModal(obj.cca.name)}>
-                  {obj.cca.name}
-                </button>
-                <div className="flex space-x-2">
-                  <Button
-                    onClick={() => {
-                      deleteItems(i);
-                    }}
-                    className="rounded bg-white p-2 text-black hover:bg-gray-200"
-                  >
-                    ❌
-                  </Button>
+        <Card className="mx-8 my-4 flex w-auto items-center">
+          <CardContent>
+            <div className="flex w-[73vw] flex-row justify-between sm:w-[77vw]">
+              <h2 className="my-6 text-xl font-bold">Contact Information</h2>
+            </div>
+            <div className="space-y-4">
+              <Input value={name} onChange={e => setName(e.target.value)} placeholder="Name" />
+              <Input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
+              <Input
+                value={telegramHandle}
+                onChange={e => setTelegramHandle(e.target.value)}
+                placeholder="Telegram Handle"
+              />
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="my-4 flex w-full items-center sm:mx-8 sm:max-w-[80vw]">
+          <CardContent>
+            <div className="flex w-[73vw] flex-row justify-between">
+              <h2 className="my-6 text-xl font-bold">Signed-Up CCAs</h2>
+            </div>
+            <div className="flex flex-col flex-wrap items-start gap-4 overflow-y-auto pb-4 sm:flex-row">
+              {signedUpCCAs.map((obj, i) => (
+                <div key={i} className="flex items-center justify-between rounded-md bg-white p-4 shadow-md">
+                  <button className="mx-2" onClick={() => openModal(obj.cca.name)}>
+                    {obj.cca.name}
+                  </button>
+                  <div className="flex space-x-2">
+                    <Button
+                      onClick={() => {
+                        deleteItems(i);
+                      }}
+                      className="rounded bg-white p-2 text-black hover:bg-gray-200"
+                    >
+                      ❌
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
       <div className="mx-auto w-full max-w-4xl">
         {Object.entries(groupedActivities).map(([category, activities]) => (
@@ -309,7 +322,11 @@ const CCAComponent: React.FC = () => {
         ))}
         {isModalOpen && selectedActivity && (
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+<<<<<<< HEAD
             <DialogContent className="flex max-h-[90vh] w-fit min-w-[30vw] max-w-[95vw] flex-col overflow-y-auto lg:max-w-[50vw]">
+=======
+            <DialogContent className="flex max-h-[90vh] w-full min-w-[30vw] max-w-[95vw] flex-col overflow-y-auto lg:w-fit lg:max-w-[50vw]">
+>>>>>>> d4a158b933066b2c0a9efaccfc327c2f1ce21cee
               <DialogHeader>Why do you want to join {selectedActivity.name}?</DialogHeader>
               <div className="space-y-4">
                 <Input
