@@ -9,9 +9,10 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 
+import BiddingTable from "../../components/BiddingTable";
 import { selectUser } from "../../redux/Resources/userSlice";
 
-import { Bidding, JerseyType } from "./types";
+import { Bidding, BiddingData, JerseyType } from "./types";
 
 export interface ToastMessage {
   message: String;
@@ -67,7 +68,7 @@ const Jersey: React.FC = () => {
     data: bids,
     status: bidsStatus,
     refetch: refetchBids,
-  } = useQuery<Bidding[]>({
+  } = useQuery<BiddingData>({
     queryKey: ["bids"],
     queryFn: getBids,
   });
@@ -131,7 +132,9 @@ const Jersey: React.FC = () => {
   return !isClient || user == null ? (
     <Loading />
   ) : (
-    <div className="flex w-full flex-col lg:flex-row">{/* Your content goes here */}</div>
+    <div className="flex w-full flex-col lg:flex-row">
+      {userBids === undefined ? <div>Loading</div> : <BiddingTable biddings={bids} />}
+    </div>
   );
   return <Loading />;
 };

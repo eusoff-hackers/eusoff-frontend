@@ -43,3 +43,7 @@ export interface Bidding {
   female: any[];
   quota: Quota;
 }
+
+export interface BiddingData {
+  [jerseyNumber: number]: Bidding;
+}
