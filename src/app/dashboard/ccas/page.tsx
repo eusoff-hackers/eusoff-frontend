@@ -180,6 +180,7 @@ const CCAComponent: React.FC = () => {
           title: "Submitted Successfully",
         });
         window.removeEventListener("beforeunload", preventPropagation);
+        setFlag(false);
       } else {
         toast({
           variant: "destructive",
@@ -313,7 +314,7 @@ const CCAComponent: React.FC = () => {
         ))}
         {isModalOpen && selectedActivity && (
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogContent className="flex max-h-[90vh] min-w-[30vw] max-w-[95vw] flex-col overflow-y-auto lg:max-w-[50vw]">
+            <DialogContent className="flex max-h-[90vh] w-full min-w-[30vw] max-w-[95vw] flex-col overflow-y-auto lg:w-fit lg:max-w-[50vw]">
               <DialogHeader>Why do you want to join {selectedActivity.name}?</DialogHeader>
               <div className="space-y-4">
                 <Input
