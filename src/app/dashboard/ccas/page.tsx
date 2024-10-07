@@ -55,11 +55,7 @@ const CCAComponent: React.FC = () => {
   const [activities, setActivities] = useState<CCA[]>([]);
   const [signedUpCCAs, setCCAs] = useState<SignupData[]>([]);
   const [tempReason, setReason] = useState<string>("");
-<<<<<<< HEAD
-  const [flagNewCCA, setFlag] = useState(false)
-=======
   const [flagNewCCA, setFlag] = useState(false);
->>>>>>> d4a158b933066b2c0a9efaccfc327c2f1ce21cee
 
   const moveUp = (index: number, selectedActivity: CCA, setSelectedActivity: (_: CCA) => void) => {
     if (index === 0) return;
@@ -184,11 +180,6 @@ const CCAComponent: React.FC = () => {
           title: "Submitted Successfully",
         });
         window.removeEventListener("beforeunload", preventPropagation);
-<<<<<<< HEAD
-        setFlag(false)
-=======
-        setFlag(false);
->>>>>>> d4a158b933066b2c0a9efaccfc327c2f1ce21cee
       } else {
         toast({
           variant: "destructive",
@@ -322,11 +313,7 @@ const CCAComponent: React.FC = () => {
         ))}
         {isModalOpen && selectedActivity && (
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-<<<<<<< HEAD
-            <DialogContent className="flex max-h-[90vh] w-fit min-w-[30vw] max-w-[95vw] flex-col overflow-y-auto lg:max-w-[50vw]">
-=======
-            <DialogContent className="flex max-h-[90vh] w-full min-w-[30vw] max-w-[95vw] flex-col overflow-y-auto lg:w-fit lg:max-w-[50vw]">
->>>>>>> d4a158b933066b2c0a9efaccfc327c2f1ce21cee
+            <DialogContent className="flex max-h-[90vh] min-w-[30vw] max-w-[95vw] flex-col overflow-y-auto lg:max-w-[50vw]">
               <DialogHeader>Why do you want to join {selectedActivity.name}?</DialogHeader>
               <div className="space-y-4">
                 <Input
