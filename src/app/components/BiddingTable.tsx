@@ -1,6 +1,25 @@
 import React from "react";
 
 import type { ToastMessage } from "@/src/app/dashboard/jersey/page";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 import { BiddingData } from "../dashboard/jersey/types";
 
@@ -19,6 +38,28 @@ const axiosWithCredentials = axios.create({
 
 // User submit bid form
 const BiddingTable: React.FC<BiddingList> = ({ biddings }) => {
+
+
+  const [open, setOpen] = useState(false)
+  const [selectedNumber, setSelectedNumber] = useState<number | null>(null)
+  const [bids, setBids] = useState<Bids>({})
+  const [newBid, setNewBid] = useState('')
+
+  const handleOpenModal = (number: number) => {
+    setOpen(true)
+  }
+
+  const handlePlaceBid = () => {
+    if (selectedNumber && newBid ) {
+      const updatedBids = { ...bids }
+      if (!updatedBids[selectedNumber]) {
+        updatedBids[selectedNumber] = []
+      }
+      setBids(updatedBids)
+      setNewBid('')
+    }
+  }
+
   // const deleteBid = (ind: number) => {
   //   const filteredList = biddings.filter(bidding => bidding.number != biddings[ind].number);
   //   setBiddings(filteredList);
@@ -47,7 +88,7 @@ const BiddingTable: React.FC<BiddingList> = ({ biddings }) => {
   // };
 
   return (
-    <div>
+    /*<div>
       <div className="flex items-center justify-between space-x-4 py-2">
         <h2 className="py-2 text-xl font-semibold">Submit new bids:</h2>
         <div className="flex items-center justify-between space-x-2">
@@ -81,7 +122,7 @@ const BiddingTable: React.FC<BiddingList> = ({ biddings }) => {
             >
               Submit
             </button>
-          )} */}
+          )} }
         </div>
       </div>
       <table className="min-w-full divide-y divide-gray-200 bg-white">
@@ -98,7 +139,7 @@ const BiddingTable: React.FC<BiddingList> = ({ biddings }) => {
           {Object.entries(biddings).map(([jerseyNumber, bidding], index) => (
             <tr key={index} className="hover:bg-gray-100">
               <td className="whitespace-no-wrap px-6 py-4">{jerseyNumber}</td>
-              {/* <td className="whitespace-no-wrap px-6 py-4">{bidding.number}</td> */}
+              {/* <td className="whitespace-no-wrap px-6 py-4">{bidding.number}</td> }
               <td className="whitespace-no-wrap px-6 py-4">
                 <button
                   className="rounded bg-red-100 px-3 py-1 text-red-500 hover:bg-red-200 focus:outline-none"
@@ -111,7 +152,57 @@ const BiddingTable: React.FC<BiddingList> = ({ biddings }) => {
           ))}
         </tbody>
       </table>
+    </div>*/
+    <div className="container mx-auto p-4">
+    <h1 className="text-2xl font-bold mb-4">Bidding Table</h1>
+    <div className="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-2">
+            {Array.from({ length: 100 }, (_, i) => i + 1).map((number) => (
+        <Button
+        key={number}
+        onClick={() => handleOpenModal(number)}
+        variant="outline"
+        className="h-12 w-full"
+      >
+        {number}
+      </Button>
+      ))}
     </div>
+
+    <Dialog open={open} onOpenChange={setOpen}>
+    <DialogContent className="w-full max-w-lg">
+              <DialogHeader>
+          <DialogTitle>Bids for Number {selectedNumber}</DialogTitle>
+        </DialogHeader>
+        <div className="mt-4 max-h-[60vh] overflow-y-auto">
+                    <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-1/2">Room Number</TableHead>
+                <TableHead className="w-1/2">User</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {selectedNumber && bids[selectedNumber] && bids[selectedNumber].map((bid, index) => (
+                <TableRow key={index}>
+                  <TableCell>{bid.user}</TableCell>
+                  <TableCell>${bid.amount.toFixed(2)}</TableCell>
+                </TableRow>
+              ))}
+              {(!selectedNumber || !bids[selectedNumber] || bids[selectedNumber].length === 0) && (
+                <TableRow>
+                  <TableCell colSpan={2} className="text-center">No bids yet</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <DialogFooter className="flex-col space-y-2 sm:flex-row sm:justify-between sm:space-x-2 sm:space-y-0">
+  <Button  className="w-full sm:w-auto">Place Bid</Button>
+</DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+  </div>
   );
 };
 
