@@ -92,7 +92,7 @@ const Jersey: React.FC = () => {
   });
 
   // console.log('bids',bids);
-  // console.log("userBids", userBids);
+   console.log("userBids", userBids);
   // console.log("userEligible", userEligibleBids);
   // State to manage error toast throughout app
 

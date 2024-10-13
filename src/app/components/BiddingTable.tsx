@@ -1,7 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { ArrowDown, ArrowUp, ArrowUpDown, Trash2 } from "lucide-react"
-
+import {Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Icon } from "@iconify/react";
 import { QueryObserverResult } from "@tanstack/react-query";
 import axios from "axios";
+import { Badge } from "@/components/ui/badge"
 
 import type { ToastMessage } from "@/src/app/dashboard/jersey/page";
 
@@ -196,6 +196,23 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Points:</h2>
+              <p className="text-lg font-bold text-primary">{userBids.info.points.toLocaleString()}</p>
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold mb-2">Teams : </h2>
+              <div className="flex flex-wrap gap-2">
+                {userBids.info.teams.map((team) => (
+                  <Badge key={team.team.name} variant="secondary" className={`bg-green-500 text-white`}>
+                    {team.team.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            <h2 className="text-lg font-semibold mb-2">Bids : </h2>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
