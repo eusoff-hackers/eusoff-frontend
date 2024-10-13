@@ -9,12 +9,12 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 
-import { getUserBiddings } from "../../api/jerseyBidding";
+import { getUserBiddings, getUserEligibleBids } from "../../api/jerseyBidding";
 import BiddingTable from "../../components/BiddingTable";
 import Loading from "../../components/Loading";
 import { selectUser } from "../../redux/Resources/userSlice";
 
-import { Bidding, BiddingData, JerseyType, UserBid } from "./types";
+import { Bidding, BiddingData, EligibleBids, JerseyType, UserBid } from "./types";
 
 export interface ToastMessage {
   message: String;
@@ -88,13 +88,12 @@ const Jersey: React.FC = () => {
     data: userEligibleBids,
     status: userEligibleBidsStatus,
     refetch: refetchUserElligbleBids,
-  } = useQuery<JerseyType[]>({
-    queryKey: ["user_bids"],
-    queryFn: getUserBiddings,
+  } = useQuery<EligibleBids>({
+    queryKey: ["user_eligible_bids"],
+    queryFn: getUserEligibleBids,
   });
 
   // console.log('bids',bids);
-  console.log("userBids", userBids);
   // console.log("userEligible", userEligibleBids);
   // State to manage error toast throughout app
 

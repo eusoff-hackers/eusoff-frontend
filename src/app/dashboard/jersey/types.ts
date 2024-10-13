@@ -11,6 +11,10 @@ export interface JerseyType {
   quota: Quota;
 }
 
+export interface EligibleBids {
+  jerseys: number[];
+}
+
 export interface Quota {
   male: number;
   female: number;
