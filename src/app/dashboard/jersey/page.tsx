@@ -9,6 +9,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 
+import { getUserBiddings } from "../../api/jerseyBidding";
 import BiddingTable from "../../components/BiddingTable";
 import { selectUser } from "../../redux/Resources/userSlice";
 
@@ -49,20 +50,20 @@ const Jersey: React.FC = () => {
   };
 
   // Does a call for User's bidding info
-  const getUserBiddings = async () => {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/info`);
+  // const getUserBiddings = async () => {
+  //   try {
+  //     const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/info`);
 
-      console.log("response", response.data.data);
+  //     console.log("response", response.data.data);
 
-      if (response.data.success) {
-        console.log("This is eligible bids" + JSON.stringify(response.data.data));
-        return response.data.data;
-      }
-    } catch (error) {
-      console.error("Error during getting user bids", error);
-    }
-  };
+  //     if (response.data.success) {
+  //       console.log("This is eligible bids" + JSON.stringify(response.data.data));
+  //       return response.data.data;
+  //     }
+  //   } catch (error) {
+  //     console.error("Error during getting user bids", error);
+  //   }
+  // };
 
   const {
     data: bids,

@@ -39,6 +39,8 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
     };
   });
 
+  const canBid = userBids.canBid;
+
   const handleOpenModal = (number: number) => {
     setOpen(true);
     setSelectedNumber(number);
@@ -176,7 +178,8 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
       <h1 className="mb-4 text-2xl font-bold">Bidding Table</h1>
       {userBids !== undefined && (
         <div className="mb-4 flex w-full flex-col items-center justify-center border-2 py-2">
-          <div>My bids</div>
+          <div className="font-bold">Your bids</div>
+          <div>Status: {canBid ? "Can Bid" : "Cannot bid"} </div>
           {userBids.bids.map((bid, ind) => (
             <div className="grid w-1/2 grid-cols-2 place-items-center" key={ind}>
               <div>Bidding Number: {bid.jersey.number}</div>
@@ -251,7 +254,11 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
             </Table>
           </div>
           <DialogFooter className="flex-col space-y-2 sm:flex-row sm:justify-between sm:space-x-2 sm:space-y-0">
-            <Button className="w-full sm:w-auto" onClick={() => handlePlaceBid(selectedNumber, priority + 1)}>
+            <Button
+              className="w-full sm:w-auto"
+              disabled={!canBid}
+              onClick={() => handlePlaceBid(selectedNumber, priority + 1)}
+            >
               Place Bid
             </Button>
           </DialogFooter>
