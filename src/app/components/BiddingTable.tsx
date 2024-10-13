@@ -1,29 +1,22 @@
 import React from "react";
+import { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Icon } from "@iconify/react";
+import { QueryObserverResult } from "@tanstack/react-query";
+import axios from "axios";
 
 import type { ToastMessage } from "@/src/app/dashboard/jersey/page";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 
-import { BiddingData } from "../dashboard/jersey/types";
+import { BiddingData, UserBid } from "../dashboard/jersey/types";
 
 interface BiddingList {
+  userBids: UserBid;
+  refetchUserBids: () => Promise<QueryObserverResult<UserBid, Error>>;
   biddings: BiddingData;
   // setBiddings: React.Dispatch<React.SetStateAction<Bidding[]>>;
   // updateUser: () => void;
@@ -31,34 +24,60 @@ interface BiddingList {
   // handleOpen: () => void;
 }
 
-const axios = require("axios");
-const axiosWithCredentials = axios.create({
-  withCredentials: true,
-});
+axios.defaults.withCredentials = true;
 
 // User submit bid form
-const BiddingTable: React.FC<BiddingList> = ({ biddings }) => {
+const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddings }) => {
+  const [open, setOpen] = useState(false);
+  const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
+  const priority = userBids ? userBids.bids.length : 0;
 
-
-  const [open, setOpen] = useState(false)
-  const [selectedNumber, setSelectedNumber] = useState<number | null>(null)
-  const [bids, setBids] = useState<Bids>({})
-  const [newBid, setNewBid] = useState('')
+  const curr_userBids = userBids.bids.map(bid => {
+    return {
+      number: bid.jersey.number,
+      priority: bid.priority,
+    };
+  });
 
   const handleOpenModal = (number: number) => {
-    setOpen(true)
-  }
+    setOpen(true);
+    setSelectedNumber(number);
+  };
+  const handlePlaceBid = async (number: number, priority: number) => {
+    try {
+      const newBids = {
+        bids: [
+          ...curr_userBids,
+          {
+            number,
+            priority,
+          },
+        ],
+      };
+      const resp = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/bid`, newBids);
 
-  const handlePlaceBid = () => {
-    if (selectedNumber && newBid ) {
-      const updatedBids = { ...bids }
-      if (!updatedBids[selectedNumber]) {
-        updatedBids[selectedNumber] = []
+      if (resp.status === 200) {
+        refetchUserBids();
       }
-      setBids(updatedBids)
-      setNewBid('')
+    } catch (err) {
+      console.log(err);
     }
-  }
+  };
+
+  const handleDeleteBid = async (number: number) => {
+    try {
+      const newBids = curr_userBids.filter(bid => bid.number !== number);
+      const resp = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/bid`, {
+        bids: newBids,
+      });
+
+      if (resp.status == 200) {
+        refetchUserBids();
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   // const deleteBid = (ind: number) => {
   //   const filteredList = biddings.filter(bidding => bidding.number != biddings[ind].number);
@@ -70,16 +89,16 @@ const BiddingTable: React.FC<BiddingList> = ({ biddings }) => {
   //   e.preventDefault();
   //   try {
   //     const response = await axiosWithCredentials.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/bid/create`, {
-  //       bids: biddings,
+  //       biddings: biddings,
   //     });
 
   //     if (response.data.success) {
-  //       setToast({ message: "Bids submitted", severity: "success" });
+  //       setToast({ message: "biddings submitted", severity: "success" });
   //       handleOpen();
   //       updateUser();
   //     } else {
-  //       console.error("Bids failed");
-  //       setToast({ message: "Bids failed to be submitted", severity: "error" });
+  //       console.error("biddings failed");
+  //       setToast({ message: "biddings failed to be submitted", severity: "error" });
   //       handleOpen();
   //     }
   //   } catch (error) {
@@ -90,7 +109,7 @@ const BiddingTable: React.FC<BiddingList> = ({ biddings }) => {
   return (
     /*<div>
       <div className="flex items-center justify-between space-x-4 py-2">
-        <h2 className="py-2 text-xl font-semibold">Submit new bids:</h2>
+        <h2 className="py-2 text-xl font-semibold">Submit new biddings:</h2>
         <div className="flex items-center justify-between space-x-2">
           <div className="flex rounded-lg p-2 text-sm font-bold text-orange-400">
             <svg
@@ -154,55 +173,91 @@ const BiddingTable: React.FC<BiddingList> = ({ biddings }) => {
       </table>
     </div>*/
     <div className="container mx-auto p-4">
-    <h1 className="text-2xl font-bold mb-4">Bidding Table</h1>
-    <div className="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-2">
-            {Array.from({ length: 100 }, (_, i) => i + 1).map((number) => (
-        <Button
-        key={number}
-        onClick={() => handleOpenModal(number)}
-        variant="outline"
-        className="h-12 w-full"
-      >
-        {number}
-      </Button>
-      ))}
-    </div>
+      <h1 className="mb-4 text-2xl font-bold">Bidding Table</h1>
+      {userBids !== undefined && (
+        <div className="mb-4 flex w-full flex-col items-center justify-center border-2 py-2">
+          <div>My bids</div>
+          {userBids.bids.map((bid, ind) => (
+            <div className="grid w-1/2 grid-cols-2 place-items-center" key={ind}>
+              <div>Bidding Number: {bid.jersey.number}</div>
+              <div className="flex h-full flex-row space-x-2">
+                <span>Priority: {bid.priority + 1} </span>
 
-    <Dialog open={open} onOpenChange={setOpen}>
-    <DialogContent className="w-full max-w-lg">
-              <DialogHeader>
-          <DialogTitle>Bids for Number {selectedNumber}</DialogTitle>
-        </DialogHeader>
-        <div className="mt-4 max-h-[60vh] overflow-y-auto">
-                    <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-1/2">Room Number</TableHead>
-                <TableHead className="w-1/2">User</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {selectedNumber && bids[selectedNumber] && bids[selectedNumber].map((bid, index) => (
-                <TableRow key={index}>
-                  <TableCell>{bid.user}</TableCell>
-                  <TableCell>${bid.amount.toFixed(2)}</TableCell>
-                </TableRow>
-              ))}
-              {(!selectedNumber || !bids[selectedNumber] || bids[selectedNumber].length === 0) && (
-                <TableRow>
-                  <TableCell colSpan={2} className="text-center">No bids yet</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                <Icon
+                  className="h-full hover:cursor-pointer"
+                  icon="material-symbols:delete"
+                  onClick={() => handleDeleteBid(bid.jersey.number)}
+                />
+              </div>
+            </div>
+          ))}
         </div>
-        <DialogFooter className="flex-col space-y-2 sm:flex-row sm:justify-between sm:space-x-2 sm:space-y-0">
-  <Button  className="w-full sm:w-auto">Place Bid</Button>
-</DialogFooter>
-      </DialogContent>
-    </Dialog>
+      )}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10">
+        {Array.from({ length: 100 }, (_, i) => i + 1).map(number => (
+          <Button key={number} onClick={() => handleOpenModal(number)} variant="outline" className="h-12 w-full">
+            {number}
+          </Button>
+        ))}
+      </div>
 
-  </div>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="w-full max-w-lg">
+          <DialogHeader>
+            <DialogTitle>biddings for Number {selectedNumber}</DialogTitle>
+          </DialogHeader>
+          {selectedNumber && biddings && biddings[selectedNumber] && (
+            <div>
+              <div>Quota M: {biddings[selectedNumber].quota.male}</div>
+              <div>Quota F: {biddings[selectedNumber].quota.female}</div>
+            </div>
+          )}
+          <div className="mt-4 max-h-[60vh] overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-1/2">Room Number</TableHead>
+                  <TableHead className="w-1/2">User</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {selectedNumber &&
+                  biddings[selectedNumber] &&
+                  biddings[selectedNumber].male.map((bid, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{bid.user} (M)</TableCell>
+                      <TableCell>${bid.amount.toFixed(2)}</TableCell>
+                    </TableRow>
+                  ))}
+                {selectedNumber &&
+                  biddings[selectedNumber] &&
+                  biddings[selectedNumber].female.map((bid, index) => {
+                    return (
+                      <TableRow key={index}>
+                        <TableCell>{bid.user.room} (F)</TableCell>
+                        <TableCell>{bid.points}</TableCell>
+                      </TableRow>
+                    );
+                  })}
+
+                {/* {(!selectedNumber || !biddings[selectedNumber] || bids[selectedNumber].length === 0) && (
+                  <TableRow>
+                    <TableCell colSpan={2} className="text-center">
+                      No biddings yet
+                    </TableCell>
+                  </TableRow>
+                )} */}
+              </TableBody>
+            </Table>
+          </div>
+          <DialogFooter className="flex-col space-y-2 sm:flex-row sm:justify-between sm:space-x-2 sm:space-y-0">
+            <Button className="w-full sm:w-auto" onClick={() => handlePlaceBid(selectedNumber, priority + 1)}>
+              Place Bid
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 

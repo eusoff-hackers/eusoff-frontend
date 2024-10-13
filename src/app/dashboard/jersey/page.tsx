@@ -12,7 +12,7 @@ import { useSelector } from "react-redux";
 import BiddingTable from "../../components/BiddingTable";
 import { selectUser } from "../../redux/Resources/userSlice";
 
-import { Bidding, BiddingData, JerseyType } from "./types";
+import { Bidding, BiddingData, JerseyType, UserBid } from "./types";
 
 export interface ToastMessage {
   message: String;
@@ -40,7 +40,7 @@ const Jersey: React.FC = () => {
       console.log("response", response.data.data);
 
       if (response.data.success) {
-        console.log("This is eligible bids" + JSON.stringify(response.data.data));
+        // console.log("This is eligible bids" + JSON.stringify(response.data.data));
         return response.data.data;
       }
     } catch (error) {
@@ -77,7 +77,7 @@ const Jersey: React.FC = () => {
     data: userBids,
     status: userBidsStatus,
     refetch: refetchUserBids,
-  } = useQuery<Bidding[]>({
+  } = useQuery<UserBid>({
     queryKey: ["user_bids"],
     queryFn: getUserBiddings,
   });
@@ -91,9 +91,9 @@ const Jersey: React.FC = () => {
     queryFn: getUserBiddings,
   });
 
-  console.log('bids',bids);
-  console.log("userBids", userBids);
-  console.log("userEligible", userEligibleBids);
+  // console.log('bids',bids);
+  // console.log("userBids", userBids);
+  // console.log("userEligible", userEligibleBids);
   // State to manage error toast throughout app
 
   // State for the Snackbar component
@@ -134,7 +134,11 @@ const Jersey: React.FC = () => {
     <Loading />
   ) : (
     <div className="flex w-full flex-col lg:flex-row">
-        {userBids === undefined ? <div>Loading</div> : <BiddingTable biddings={bids} />}
+      {userBids === undefined ? (
+        <div>Loading</div>
+      ) : (
+        <BiddingTable userBids={userBids} refetchUserBids={refetchUserBids} biddings={bids} />
+      )}
     </div>
   );
   return <Loading />;
