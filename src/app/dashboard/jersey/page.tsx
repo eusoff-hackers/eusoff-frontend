@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 
 import { getUserBiddings } from "../../api/jerseyBidding";
 import BiddingTable from "../../components/BiddingTable";
+import Loading from "../../components/Loading";
 import { selectUser } from "../../redux/Resources/userSlice";
 
 import { Bidding, BiddingData, JerseyType, UserBid } from "./types";
@@ -93,7 +94,7 @@ const Jersey: React.FC = () => {
   });
 
   // console.log('bids',bids);
-  // console.log("userBids", userBids);
+  console.log("userBids", userBids);
   // console.log("userEligible", userEligibleBids);
   // State to manage error toast throughout app
 
@@ -136,15 +137,18 @@ const Jersey: React.FC = () => {
   ) : (
     <div className="flex w-full flex-col lg:flex-row">
       {userBids === undefined ? (
-        <div>Loading</div>
+        <Loading />
       ) : (
-        <BiddingTable userBids={userBids} refetchUserBids={refetchUserBids} biddings={bids} />
+        <BiddingTable
+          userBids={userBids}
+          refetchUserBids={refetchUserBids}
+          biddings={bids}
+          userEligibleBids={userEligibleBids}
+        />
       )}
     </div>
   );
   return <Loading />;
 };
-
-const Loading = () => <div>Loading...</div>;
 
 export default Jersey;

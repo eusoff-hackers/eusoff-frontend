@@ -104,7 +104,7 @@ export default function NavBar() {
         </li>
 
         <li className="hover:translate-x-1">
-          <Link className="flex items-center gap-3 py-2" href="/dashboard/ccas">
+          <Link className="flex items-center gap-3 py-2" href="/dashboard/jersey">
             <svg
               className="h-5 w-5"
               fill="none"
@@ -122,7 +122,7 @@ export default function NavBar() {
               <line x1="3" y1="11" x2="17" y2="11" />
               <line x1="3" y1="15" x2="17" y2="15" />
             </svg>
-            <span>CCA Signup</span>
+            <span>Jersey Bidding</span>
           </Link>
         </li>
         <li className="hover:translate-x-1">
