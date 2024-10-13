@@ -276,6 +276,7 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
           <DialogHeader>
             <DialogTitle>Biddings for Number {selectedNumber}</DialogTitle>
           </DialogHeader>
+          <h1> Your Points : {userBids.info.points}</h1>
           {selectedNumber && biddings && biddings[selectedNumber] && (
             <div className="flex flex-row justify-between">
               <div>Quota M: {biddings[selectedNumber].quota.male}</div>
@@ -320,8 +321,8 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
               </TableBody>
             </Table>
           </div>
-          <DialogFooter className="flex-col space-y-2 sm:flex-row sm:justify-between sm:space-x-2 sm:space-y-0">
-            <Button className="w-full sm:w-auto" onClick={() => handlePlaceBid(selectedNumber, priority + 1)}>
+          <DialogFooter className="flex-col space-y-2 sm:flex-row sm:justify-end sm:space-x-2 sm:space-y-0">
+            <Button className="w-full sm:w-auto ml-auto" onClick={() => handlePlaceBid(selectedNumber, priority + 1)}>
               Place Bid
             </Button>
           </DialogFooter>
