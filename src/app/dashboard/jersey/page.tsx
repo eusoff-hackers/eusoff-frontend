@@ -1,24 +1,27 @@
 "use client";
 
 // This is a client component 👈🏽
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import type { AlertColor } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 
-export interface Bidding {
-  number: number;
-}
+import { getUserBiddings, getUserEligibleBids } from "../../api/jerseyBidding";
+import BiddingTable from "../../components/BiddingTable";
+import Loading from "../../components/Loading";
+import { selectUser } from "../../redux/Resources/userSlice";
 
-export interface Teams {
-  name: String;
-  shareable: boolean;
-}
+import { BiddingData, EligibleBids, UserBid } from "./types";
 
 export interface ToastMessage {
   message: String;
   severity: AlertColor; // Possible to create enum in the future
 }
+
+// new types
 
 // Create an instance of axios with credentials
 axios.defaults.withCredentials = true;
@@ -26,37 +29,83 @@ axios.defaults.withCredentials = true;
 // @TODO This component is temporarily disabled, please fix linting issues
 
 const Jersey: React.FC = () => {
-  // const user = useSelector(selectUser);
-  // const router = useRouter();
+  const user = useSelector(selectUser);
+  const router = useRouter();
 
-  // const [isClient, setIsClient] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
-  // const userBiddings: Bidding[] = [];
+  // Does a call for all bids
+  const getBids = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/list`);
 
-  // // State to manage error toast throughout app
+      console.log("response", response.data.data);
 
-  // // State for the Snackbar component
-  // // Does a call for eligible bids. API still WIP
-  // const getEligibleBids = async () => {
+      if (response.data.success) {
+        // console.log("This is eligible bids" + JSON.stringify(response.data.data));
+        return response.data.data;
+      }
+    } catch (error) {
+      console.error("Error during getting allowed bids", error);
+    }
+  };
+
+  // Does a call for User's bidding info
+  // const getUserBiddings = async () => {
   //   try {
-  //     const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/eligible`);
+  //     const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/info`);
+
+  //     console.log("response", response.data.data);
 
   //     if (response.data.success) {
-  //       setAllowedBids(response.data.data.jerseys);
-  //       console.log("This is eligible bids" + JSON.stringify(response.data.data.jerseys));
+  //       console.log("This is eligible bids" + JSON.stringify(response.data.data));
+  //       return response.data.data;
   //     }
   //   } catch (error) {
-  //     console.error("Error during getting allowed bids", error);
+  //     console.error("Error during getting user bids", error);
   //   }
   // };
 
-  // // Does a call for user's teams
+  const {
+    data: bids,
+    status: bidsStatus,
+    refetch: refetchBids,
+  } = useQuery<BiddingData>({
+    queryKey: ["bids"],
+    queryFn: getBids,
+  });
+
+  const {
+    data: userBids,
+    status: userBidsStatus,
+    refetch: refetchUserBids,
+  } = useQuery<UserBid>({
+    queryKey: ["user_bids"],
+    queryFn: getUserBiddings,
+  });
+
+  const {
+    data: userEligibleBids,
+    status: userEligibleBidsStatus,
+    refetch: refetchUserElligbleBids,
+  } = useQuery<EligibleBids>({
+    queryKey: ["user_eligible_bids"],
+    queryFn: getUserEligibleBids,
+  });
+
+  // console.log('bids',bids);
+  // console.log("userEligible", userEligibleBids);
+  // State to manage error toast throughout app
+
+  // State for the Snackbar component
+
+  // Does a call for user's teams
   // const getUserTeam = async () => {
   //   try {
   //     const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/team/info`);
 
   //     if (response.data.success) {
-  //       setTeams(response.data.data.teams);
+  //       // setTeams(response.data.data.teams);
   //       console.log("This is user's team" + JSON.stringify(response.data.data.teams));
   //     }
   //   } catch (error) {
@@ -64,32 +113,41 @@ const Jersey: React.FC = () => {
   //   }
   // };
 
-  // // Saves changes to user_biddings in local storage
+  // Saves changes to user_biddings in local storage
   // useEffect(() => {
   //   localStorage.setItem("user_biddings", JSON.stringify(biddings));
   // }, [biddings]);
 
-  // useEffect(() => {
-  //   setIsClient(true); // Indicate that client has been rendered
-  //   getEligibleBids(); // Get all eligible bids when page renders
-  //   getUserTeam(); // Get user's team when page renders
-  // }, []);
+  useEffect(() => {
+    setIsClient(true); // Indicate that client has been rendered
+    // getEligibleBids(); // Get all eligible bids when page renders
+    // getUserTeam(); // Get user's team when page renders
+  }, []);
 
-  // // If not authorized, then redirects the user
-  // useEffect(() => {
-  //   if (user == null) {
-  //     router.push("/");
-  //   }
-  // }, [user, router]);
+  // If not authorized, then redirects the user
+  useEffect(() => {
+    if (user == null) {
+      router.push("/");
+    }
+  }, [user, router]);
 
-  // return !isClient || user == null ? (
-  //   <Loading />
-  // ) : (
-  //   <div className="flex w-full flex-col lg:flex-row">{/* Your content goes here */}</div>
-  // );
+  return !isClient || user == null ? (
+    <Loading />
+  ) : (
+    <div className="flex w-full flex-col lg:flex-row">
+      {userBids === undefined ? (
+        <Loading />
+      ) : (
+        <BiddingTable
+          userBids={userBids}
+          refetchUserBids={refetchUserBids}
+          biddings={bids}
+          userEligibleBids={userEligibleBids}
+        />
+      )}
+    </div>
+  );
   return <Loading />;
 };
-
-const Loading = () => <div>Loading...</div>;
 
 export default Jersey;

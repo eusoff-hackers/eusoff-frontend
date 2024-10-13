@@ -217,6 +217,7 @@ const CCAComponent: React.FC = () => {
       toast({
         title: "Added Successfully",
       });
+      setFlag(true)
     }
     setReason("");
     setIsModalOpen(false);
