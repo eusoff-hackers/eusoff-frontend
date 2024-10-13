@@ -1,19 +1,14 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Icon } from "@iconify/react";
 import { QueryObserverResult } from "@tanstack/react-query";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
-
-import type { ToastMessage } from "@/src/app/dashboard/jersey/page";
 
 import { BiddingData, EligibleBids, UserBid } from "../dashboard/jersey/types";
 
@@ -50,7 +45,6 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
     setSelectedNumber(number);
   };
 
-  console.log("userBids", userBids);
   const handlePlaceBid = async (number: number) => {
     try {
       const newBids = {

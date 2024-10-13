@@ -35,7 +35,7 @@ export default function NavBar() {
     <nav className="w-full bg-gray-800 p-5 text-white lg:min-h-screen">
       <p className="mb-5 text-2xl">Dashboard</p>
       <ul className="space-y-2">
-        <li className="hover:translate-x-1">
+        {/* <li className="hover:translate-x-1">
           <Link className="flex items-center gap-3 py-2" href="/dashboard/profile">
             <svg
               className="h-5 w-5"
@@ -56,7 +56,7 @@ export default function NavBar() {
             </svg>
             <span>Profile</span>
           </Link>
-        </li>
+        </li> */}
         <li className="hover:translate-x-1">
           <Link className="flex items-center gap-3 py-2" href="/dashboard/jersey">
             <svg
@@ -80,7 +80,7 @@ export default function NavBar() {
           </Link>
         </li>
 
-        <li className="hover:translate-x-1">
+        {/* <li className="hover:translate-x-1">
           <Link className="flex items-center gap-3 py-2" href="/dashboard/instructions">
             <svg
               className="h-5 w-5"
@@ -101,7 +101,7 @@ export default function NavBar() {
             </svg>
             <span>CCA Booklet</span>
           </Link>
-        </li>
+        </li> */}
         <li className="hover:translate-x-1">
           <Link className="flex items-center gap-3 py-2" onClick={logout} href="/">
             <svg

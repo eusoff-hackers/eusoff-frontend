@@ -19,7 +19,7 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (user !== null) {
-      router.push(`/dashboard/profile`);
+      router.push(`/dashboard/jersey`);
     }
   });
 
@@ -48,7 +48,7 @@ export default function LoginForm() {
         };
 
         dispatch(setUser(newUser));
-        router.replace("/dashboard/profile");
+        router.replace("/dashboard/jersey");
       }
     } catch (error) {
       const axiosError = error as AxiosError;
