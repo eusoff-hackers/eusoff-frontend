@@ -14,7 +14,7 @@ import BiddingTable from "../../components/BiddingTable";
 import Loading from "../../components/Loading";
 import { selectUser } from "../../redux/Resources/userSlice";
 
-import { Bidding, BiddingData, EligibleBids, JerseyType, UserBid } from "./types";
+import { BiddingData, EligibleBids, UserBid } from "./types";
 
 export interface ToastMessage {
   message: String;

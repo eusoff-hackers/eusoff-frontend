@@ -3,7 +3,7 @@ export interface UserInfo {
   points: number;
   isAllocated: boolean;
   jersey?: JerseyType; // Only present if isAllocated is true
-  teams: Team[];
+  teams: TeamContainer[];
 }
 
 export interface JerseyType {
@@ -22,6 +22,11 @@ export interface Quota {
 
 interface Team {
   name: string;
+  shareable: boolean;
+}
+
+interface TeamContainer {
+  team: Team;
 }
 
 interface Bid {
