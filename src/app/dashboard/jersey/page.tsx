@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-
+import Loading from "../../components/Loading"
 import BiddingTable from "../../components/BiddingTable";
 import { selectUser } from "../../redux/Resources/userSlice";
 
@@ -135,15 +135,13 @@ const Jersey: React.FC = () => {
   ) : (
     <div className="flex w-full flex-col lg:flex-row">
       {userBids === undefined ? (
-        <div>Loading</div>
+        <Loading />
       ) : (
-        <BiddingTable userBids={userBids} refetchUserBids={refetchUserBids} biddings={bids} />
+        <BiddingTable userBids={userBids} refetchUserBids={refetchUserBids} biddings={bids} userEligibleBids={userEligibleBids} />
       )}
     </div>
   );
   return <Loading />;
 };
-
-const Loading = () => <div>Loading...</div>;
 
 export default Jersey;

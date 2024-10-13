@@ -1,10 +1,12 @@
 import React from "react";
 import { useEffect, useState } from "react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Icon } from "@iconify/react";
 import { QueryObserverResult } from "@tanstack/react-query";
@@ -18,6 +20,7 @@ interface BiddingList {
   userBids: UserBid;
   refetchUserBids: () => Promise<QueryObserverResult<UserBid, Error>>;
   biddings: BiddingData;
+  userEligibleBids: any;
   // setBiddings: React.Dispatch<React.SetStateAction<Bidding[]>>;
   // updateUser: () => void;
   // setToast: React.Dispatch<React.SetStateAction<ToastMessage>>;
@@ -27,7 +30,7 @@ interface BiddingList {
 axios.defaults.withCredentials = true;
 
 // User submit bid form
-const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddings }) => {
+const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddings, userEligibleBids }) => {
   const [open, setOpen] = useState(false);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const priority = userBids ? userBids.bids.length : 0;
@@ -58,6 +61,7 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
 
       if (resp.status === 200) {
         refetchUserBids();
+        setBids(userBids);
       }
     } catch (err) {
       console.log(err);
@@ -78,6 +82,12 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
       console.log(err);
     }
   };
+
+  const getEligibleNumbers = () => {
+    return userEligibleBids.bids.map((bid) => bid.jersey.number);
+  }
+
+  const eligibleNumbers = getEligibleNumbers()
 
   // const deleteBid = (ind: number) => {
   //   const filteredList = biddings.filter(bidding => bidding.number != biddings[ind].number);
@@ -171,43 +181,86 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
           ))}
         </tbody>
       </table>
+      <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+            <ArrowUpDown className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              Submit
+          </Button>
     </div>*/
     <div className="container mx-auto p-4">
       <h1 className="mb-4 text-2xl font-bold">Bidding Table</h1>
-      {userBids !== undefined && (
-        <div className="mb-4 flex w-full flex-col items-center justify-center border-2 py-2">
-          <div>My bids</div>
-          {userBids.bids.map((bid, ind) => (
-            <div className="grid w-1/2 grid-cols-2 place-items-center" key={ind}>
-              <div>Bidding Number: {bid.jersey.number}</div>
-              <div className="flex h-full flex-row space-x-2">
-                <span>Priority: {bid.priority + 1} </span>
 
-                <Icon
-                  className="h-full hover:cursor-pointer"
-                  icon="material-symbols:delete"
-                  onClick={() => handleDeleteBid(bid.jersey.number)}
-                />
-              </div>
-            </div>
-          ))}
+      {userBids && (<Card className="w-full mx-auto mb-2">
+      <CardHeader className="space-y-1 sm:space-y-1">
+        <CardTitle className="text-l sm:text-l font-bold">Your Bids</CardTitle>
+        <CardDescription className="text-sm sm:text-base">View and manage your current bids</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[40%] sm:w-[50%]">Bidding Number</TableHead>
+                <TableHead className="w-[20%] sm:w-[25%]">Priority</TableHead>
+                <TableHead className="text-right w-[40%] sm:w-[25%]">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {userBids.bids.map((bid, index) => (
+                <TableRow key={bid.priority}>
+                  <TableCell className="font-medium">{bid.jersey.number}</TableCell>
+                  <TableCell>{bid.priority + 1}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end space-x-1 sm:space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 sm:h-9 sm:w-9"
+                        onClick={() => handleDeleteBid(bid.jersey.number)}
+                        aria-label="Delete"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
-      )}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10">
-        {Array.from({ length: 100 }, (_, i) => i + 1).map(number => (
-          <Button key={number} onClick={() => handleOpenModal(number)} variant="outline" className="h-12 w-full">
-            {number}
-          </Button>
-        ))}
-      </div>
+        <div className="mt-4 flex justify-end">
+          
+        </div>
+      </CardContent>
+    </Card>
+  )}
+
+    <h1 className="mb-4 text-l font-bold"> Eligible Bidding Numbers : </h1>
+
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10">
+  {Array.from({ length: 100 }, (_, i) => i + 1).map(number => {
+
+    const isEligible = eligibleNumbers.includes(number); // Check if the number is eligible
+    return (
+      <Button
+        key={number}
+        onClick={() => isEligible && handleOpenModal(number)} // Only open modal if eligible
+        variant="outline"
+        className={`h-12 w-full ${!isEligible ? 'opacity-50 cursor-not-allowed' : ''}`} // Apply grayed out style if not eligible
+        disabled={!isEligible} // Disable button if not eligible
+      >
+        {number}
+      </Button>
+    );
+  })}
+</div>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="w-full max-w-lg">
           <DialogHeader>
-            <DialogTitle>biddings for Number {selectedNumber}</DialogTitle>
+            <DialogTitle>Biddings for Number {selectedNumber}</DialogTitle>
           </DialogHeader>
           {selectedNumber && biddings && biddings[selectedNumber] && (
-            <div>
+            <div className="flex flex-row justify-between">
               <div>Quota M: {biddings[selectedNumber].quota.male}</div>
               <div>Quota F: {biddings[selectedNumber].quota.female}</div>
             </div>
