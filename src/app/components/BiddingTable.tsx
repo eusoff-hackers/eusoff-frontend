@@ -299,7 +299,7 @@ const BiddingTable: React.FC<BiddingList> = ({user, userBids, refetchUserBids, b
             <DialogTitle>Biddings for Number {selectedNumber}</DialogTitle>
           </DialogHeader>
           <h1> Your Points : {userBids.info.points}</h1>
-          {selectedNumber && biddings && biddings[selectedNumber] && (
+          { biddings && biddings[selectedNumber] && (
             <div className="flex flex-row justify-between">
               <div>Quota M: {biddings[selectedNumber].quota.male}</div>
               <div>Quota F: {biddings[selectedNumber].quota.female}</div>
@@ -314,7 +314,7 @@ const BiddingTable: React.FC<BiddingList> = ({user, userBids, refetchUserBids, b
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {selectedNumber &&
+                {
                   biddings[selectedNumber] &&
                   biddings[selectedNumber].male.map((bid, index) => (
                     <TableRow key={index}>
@@ -322,7 +322,7 @@ const BiddingTable: React.FC<BiddingList> = ({user, userBids, refetchUserBids, b
                       <TableCell>${bid.amount.toFixed(2)}</TableCell>
                     </TableRow>
                   ))}
-                {selectedNumber &&
+                {
                   biddings[selectedNumber] &&
                   biddings[selectedNumber].female.map((bid, index) => {
                     return (
