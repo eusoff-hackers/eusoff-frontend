@@ -51,20 +51,36 @@ const Jersey: React.FC = () => {
   };
 
   // Does a call for User's bidding info
-  // const getUserBiddings = async () => {
-  //   try {
-  //     const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/info`);
+  const getUserBiddings = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/info`);
 
-  //     console.log("response", response.data.data);
+      console.log("response", response.data.data);
 
-  //     if (response.data.success) {
-  //       console.log("This is eligible bids" + JSON.stringify(response.data.data));
-  //       return response.data.data;
-  //     }
-  //   } catch (error) {
-  //     console.error("Error during getting user bids", error);
-  //   }
-  // };
+      if (response.data.success) {
+        console.log("This is eligible bids" + JSON.stringify(response.data.data));
+        return response.data.data;
+      }
+    } catch (error) {
+      console.error("Error during getting user bids", error);
+    }
+  };
+
+  const getEligibleNumbers = async () => {
+    try{
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/eligible`);
+
+      console.log("response", response.data.data);
+
+      if (response.data.success) {
+        console.log("This is eligible numbers" + JSON.stringify(response.data.data));
+        return response.data.data;
+      }
+    } catch (error) {
+      console.error("Error during getting user bids", error);
+    }
+  }
+
 
   const {
     data: bids,
@@ -147,7 +163,7 @@ const Jersey: React.FC = () => {
       )}
     </div>
   );
-  return <Loading />;
+  
 };
 
 export default Jersey;

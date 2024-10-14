@@ -146,6 +146,7 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
           </div>
 
           {/* {biddings.length == 0 ? (
+          {/* {biddings.length == 0 ? (
             <></>
           ) : (
             <button
@@ -176,6 +177,7 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
               <td className="whitespace-no-wrap px-6 py-4">
                 <button
                   className="rounded bg-red-100 px-3 py-1 text-red-500 hover:bg-red-200 focus:outline-none"
+                  // onClick={() => deleteBid(index)}
                   // onClick={() => deleteBid(index)}
                 >
                   Delete
@@ -259,7 +261,7 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
       <h1 className="text-l mb-4 font-bold"> Eligible Bidding Numbers : </h1>
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10">
-        {Array.from({ length: 100 }, (_, i) => i + 1).map(number => {
+        {Array.from({ length: 99 }, (_, i) => i + 1).map(number => {
           const isEligible = userEligibleBids !== undefined ? userEligibleBids.jerseys.includes(number) : false; // Check if the number is eligible
           return (
             <Button
