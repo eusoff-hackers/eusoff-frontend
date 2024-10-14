@@ -20,7 +20,7 @@ interface BiddingList {
   userBids: UserBid;
   refetchUserBids: () => Promise<QueryObserverResult<UserBid, Error>>;
   biddings: BiddingData;
-  userEligibleBids: any;
+  userEligibleBids: JerseyType[];
   // setBiddings: React.Dispatch<React.SetStateAction<Bidding[]>>;
   // updateUser: () => void;
   // setToast: React.Dispatch<React.SetStateAction<ToastMessage>>;
@@ -83,11 +83,7 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
     }
   };
 
-  const getEligibleNumbers = () => {
-    return userEligibleBids.bids.map((bid) => bid.jersey.number);
-  }
-
-  const eligibleNumbers = getEligibleNumbers()
+  console.log(userEligibleBids)
 
   // const deleteBid = (ind: number) => {
   //   const filteredList = biddings.filter(bidding => bidding.number != biddings[ind].number);
@@ -254,9 +250,9 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
     <h1 className="mb-4 text-l font-bold"> Eligible Bidding Numbers : </h1>
 
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10">
-  {Array.from({ length: 100 }, (_, i) => i + 1).map(number => {
+  {Array.from({ length: 99 }, (_, i) => i + 1).map(number => {
 
-    const isEligible = eligibleNumbers.includes(number); // Check if the number is eligible
+    const isEligible = userEligibleBids.jerseys.includes(number); // Check if the number is eligible
     return (
       <Button
         key={number}

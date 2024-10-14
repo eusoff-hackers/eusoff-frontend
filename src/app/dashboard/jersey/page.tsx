@@ -64,6 +64,22 @@ const Jersey: React.FC = () => {
     }
   };
 
+  const getEligibleNumbers = async () => {
+    try{
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/eligible`);
+
+      console.log("response", response.data.data);
+
+      if (response.data.success) {
+        console.log("This is eligible numbers" + JSON.stringify(response.data.data));
+        return response.data.data;
+      }
+    } catch (error) {
+      console.error("Error during getting user bids", error);
+    }
+  }
+
+
   const {
     data: bids,
     status: bidsStatus,
@@ -86,14 +102,14 @@ const Jersey: React.FC = () => {
     data: userEligibleBids,
     status: userEligibleBidsStatus,
     refetch: refetchUserElligbleBids,
-  } = useQuery<JerseyType[]>({
-    queryKey: ["user_bids"],
-    queryFn: getUserBiddings,
+  } = useQuery<number[]>({
+    queryKey: ["user_eligible_bids"],
+    queryFn: getEligibleNumbers,
   });
 
   // console.log('bids',bids);
-   console.log("userBids", userBids);
-  // console.log("userEligible", userEligibleBids);
+   //console.log("userBids", userBids);
+   console.log("userEligible", userEligibleBids);
   // State to manage error toast throughout app
 
   // State for the Snackbar component
@@ -138,7 +154,7 @@ const Jersey: React.FC = () => {
         <Loading />
       ) : (
         <BiddingTable userBids={userBids} refetchUserBids={refetchUserBids} biddings={bids} userEligibleBids={userEligibleBids} />
-      )}
+)}
     </div>
   );
   return <Loading />;
