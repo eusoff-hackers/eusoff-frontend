@@ -203,6 +203,10 @@ const BiddingTable: React.FC<BiddingList> = ({user, userBids, refetchUserBids, b
             <div className="overflow-x-auto">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Round To Bid: {userBids.info.round} </h2>
+                  <p className="text-lg font-bold text-primary">Current Round: {userBids.system.bidRound}</p>
+                </div>
+                <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold">Status: </h2>
                   <p className="text-lg font-bold text-primary">{canBid ? "Can Bid" : "Cannot Bid"}</p>
                 </div>
@@ -214,7 +218,7 @@ const BiddingTable: React.FC<BiddingList> = ({user, userBids, refetchUserBids, b
                   <h2 className="mb-2 text-lg font-semibold">Teams : </h2>
                   <div className="flex flex-wrap gap-2">
                     {userBids.info.teams.map(team => (
-                      <Badge key={team.team.name} variant="secondary" className={`bg-green-500 text-white`}>
+                      <Badge key={team.team.name} variant="outline" className={`bg-green-500 text-white`}>
                         {team.team.name}
                       </Badge>
                     ))}

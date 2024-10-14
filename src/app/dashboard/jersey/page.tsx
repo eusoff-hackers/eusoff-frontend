@@ -77,7 +77,7 @@ const Jersey: React.FC = () => {
         return response.data.data;
       }
     } catch (error) {
-      console.error("Error during getting user bids", error);
+      console.error("Error during getting eligible numbers", error);
     }
   }
 
