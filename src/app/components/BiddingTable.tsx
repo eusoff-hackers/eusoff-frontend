@@ -43,68 +43,6 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
     };
   });
 
-  const handleOpenModal = (number: number) => {
-    setOpen(true);
-    setSelectedNumber(number);
-  };
-  const handlePlaceBid = async (number: number, priority: number) => {
-    try {
-      const newBids = {
-        bids: [
-          ...curr_userBids,
-          {
-            number,
-            priority,
-          },
-        ],
-      };
-      const resp = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/bid`, newBids);
-
-      if (resp.status === 200) {
-        refetchUserBids();
-        setBids(userBids);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const handleDeleteBid = async (number: number) => {
-    try {
-      const newBids = curr_userBids.filter(bid => bid.number !== number);
-      const resp = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/bid`, {
-        bids: newBids,
-      });
-
-      if (resp.status == 200) {
-        refetchUserBids();
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  console.log(userEligibleBids)
-
-  // const deleteBid = (ind: number) => {
-  //   const filteredList = biddings.filter(bidding => bidding.number != biddings[ind].number);
-  //   setBiddings(filteredList);
-  // };
-axios.defaults.withCredentials = true;
-
-// User submit bid form
-const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddings, userEligibleBids }) => {
-  const [open, setOpen] = useState(false);
-  const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
-  const priority = userBids ? userBids.bids.length : 0;
-
-  const curr_userBids = userBids.bids.map(bid => {
-    return {
-      number: bid.jersey.number,
-      priority: bid.priority,
-    };
-  });
-
   const canBid = userBids.canBid;
 
   const handleOpenModal = (number: number) => {
@@ -207,6 +145,7 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
             <p className="pl-2">Ensure you click submit to confirm changes</p>
           </div>
 
+          {/* {biddings.length == 0 ? (
           {/* {biddings.length == 0 ? (
             <></>
           ) : (
@@ -322,7 +261,7 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
       <h1 className="text-l mb-4 font-bold"> Eligible Bidding Numbers : </h1>
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10">
-        {Array.from({ length: 100 }, (_, i) => i + 1).map(number => {
+        {Array.from({ length: 99 }, (_, i) => i + 1).map(number => {
           const isEligible = userEligibleBids !== undefined ? userEligibleBids.jerseys.includes(number) : false; // Check if the number is eligible
           return (
             <Button
