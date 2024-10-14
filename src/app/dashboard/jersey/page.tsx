@@ -8,11 +8,21 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+<<<<<<< HEAD
 import Loading from "../../components/Loading"
 import BiddingTable from "../../components/BiddingTable";
 import { selectUser } from "../../redux/Resources/userSlice";
 
 import { Bidding, BiddingData, JerseyType, UserBid } from "./types";
+=======
+
+import { getUserBiddings, getUserEligibleBids } from "../../api/jerseyBidding";
+import BiddingTable from "../../components/BiddingTable";
+import Loading from "../../components/Loading";
+import { selectUser } from "../../redux/Resources/userSlice";
+
+import { BiddingData, EligibleBids, UserBid } from "./types";
+>>>>>>> 81df05bbaae3cbaa3ef923043f4dd1a0af505bbf
 
 export interface ToastMessage {
   message: String;
@@ -47,6 +57,7 @@ const Jersey: React.FC = () => {
       console.error("Error during getting allowed bids", error);
     }
   };
+<<<<<<< HEAD
 
   // Does a call for User's bidding info
   const getUserBiddings = async () => {
@@ -80,6 +91,25 @@ const Jersey: React.FC = () => {
   }
 
 
+=======
+
+  // Does a call for User's bidding info
+  // const getUserBiddings = async () => {
+  //   try {
+  //     const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/info`);
+
+  //     console.log("response", response.data.data);
+
+  //     if (response.data.success) {
+  //       console.log("This is eligible bids" + JSON.stringify(response.data.data));
+  //       return response.data.data;
+  //     }
+  //   } catch (error) {
+  //     console.error("Error during getting user bids", error);
+  //   }
+  // };
+
+>>>>>>> 81df05bbaae3cbaa3ef923043f4dd1a0af505bbf
   const {
     data: bids,
     status: bidsStatus,
@@ -102,6 +132,7 @@ const Jersey: React.FC = () => {
     data: userEligibleBids,
     status: userEligibleBidsStatus,
     refetch: refetchUserElligbleBids,
+<<<<<<< HEAD
   } = useQuery<number[]>({
     queryKey: ["user_eligible_bids"],
     queryFn: getEligibleNumbers,
@@ -110,6 +141,15 @@ const Jersey: React.FC = () => {
   // console.log('bids',bids);
    //console.log("userBids", userBids);
    console.log("userEligible", userEligibleBids);
+=======
+  } = useQuery<EligibleBids>({
+    queryKey: ["user_eligible_bids"],
+    queryFn: getUserEligibleBids,
+  });
+
+  // console.log('bids',bids);
+  // console.log("userEligible", userEligibleBids);
+>>>>>>> 81df05bbaae3cbaa3ef923043f4dd1a0af505bbf
   // State to manage error toast throughout app
 
   // State for the Snackbar component
@@ -153,8 +193,18 @@ const Jersey: React.FC = () => {
       {userBids === undefined ? (
         <Loading />
       ) : (
+<<<<<<< HEAD
         <BiddingTable userBids={userBids} refetchUserBids={refetchUserBids} biddings={bids} userEligibleBids={userEligibleBids} />
 )}
+=======
+        <BiddingTable
+          userBids={userBids}
+          refetchUserBids={refetchUserBids}
+          biddings={bids}
+          userEligibleBids={userEligibleBids}
+        />
+      )}
+>>>>>>> 81df05bbaae3cbaa3ef923043f4dd1a0af505bbf
     </div>
   );
   return <Loading />;

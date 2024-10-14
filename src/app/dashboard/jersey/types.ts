@@ -3,7 +3,11 @@ export interface UserInfo {
   points: number;
   isAllocated: boolean;
   jersey?: JerseyType; // Only present if isAllocated is true
+<<<<<<< HEAD
   teams: Team[];
+=======
+  teams: TeamContainer[];
+>>>>>>> 81df05bbaae3cbaa3ef923043f4dd1a0af505bbf
 }
 
 export interface JerseyType {
@@ -11,6 +15,13 @@ export interface JerseyType {
   quota: Quota;
 }
 
+<<<<<<< HEAD
+=======
+export interface EligibleBids {
+  jerseys: number[];
+}
+
+>>>>>>> 81df05bbaae3cbaa3ef923043f4dd1a0af505bbf
 export interface Quota {
   male: number;
   female: number;
@@ -18,6 +29,14 @@ export interface Quota {
 
 interface Team {
   name: string;
+<<<<<<< HEAD
+=======
+  shareable: boolean;
+}
+
+interface TeamContainer {
+  team: Team;
+>>>>>>> 81df05bbaae3cbaa3ef923043f4dd1a0af505bbf
 }
 
 interface Bid {
