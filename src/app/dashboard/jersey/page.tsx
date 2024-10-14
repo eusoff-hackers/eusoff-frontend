@@ -55,10 +55,10 @@ const Jersey: React.FC = () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/info`);
 
-      console.log("response", response.data.data);
+      //console.log("response", response.data.data);
 
       if (response.data.success) {
-        console.log("This is eligible bids" + JSON.stringify(response.data.data));
+        //console.log("This is eligible bids" + JSON.stringify(response.data.data));
         return response.data.data;
       }
     } catch (error) {
@@ -70,10 +70,10 @@ const Jersey: React.FC = () => {
     try{
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/eligible`);
 
-      console.log("response", response.data.data);
+      //console.log("response", response.data.data);
 
       if (response.data.success) {
-        console.log("This is eligible numbers" + JSON.stringify(response.data.data));
+        //console.log("This is eligible numbers" + JSON.stringify(response.data.data));
         return response.data.data;
       }
     } catch (error) {
@@ -155,6 +155,7 @@ const Jersey: React.FC = () => {
         <Loading />
       ) : (
         <BiddingTable
+          user={user}
           userBids={userBids}
           refetchUserBids={refetchUserBids}
           biddings={bids}
@@ -163,7 +164,7 @@ const Jersey: React.FC = () => {
       )}
     </div>
   );
-  
+
 };
 
 export default Jersey;

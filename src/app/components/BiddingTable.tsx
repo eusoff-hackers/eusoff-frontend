@@ -18,6 +18,7 @@ import type { ToastMessage } from "@/src/app/dashboard/jersey/page";
 import { BiddingData, EligibleBids, UserBid } from "../dashboard/jersey/types";
 
 interface BiddingList {
+  user:any,
   userBids: UserBid;
   refetchUserBids: () => Promise<QueryObserverResult<UserBid, Error>>;
   biddings: BiddingData;
@@ -31,7 +32,7 @@ interface BiddingList {
 axios.defaults.withCredentials = true;
 
 // User submit bid form
-const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddings, userEligibleBids }) => {
+const BiddingTable: React.FC<BiddingList> = ({user, userBids, refetchUserBids, biddings, userEligibleBids }) => {
   const [open, setOpen] = useState(false);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const priority = userBids ? userBids.bids.length : 0;
@@ -50,7 +51,6 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
     setSelectedNumber(number);
   };
 
-  console.log("userBids", userBids);
   const handlePlaceBid = async (number: number) => {
     try {
       const newBids = {
@@ -194,17 +194,17 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
     </div>*/
     <div className="container mx-auto p-4">
       <h1 className="mb-4 text-2xl font-bold">Bidding Table</h1>
-      {userBids && (
-        <Card className="mx-auto mb-2 w-full">
+      <Card className="mx-auto mb-2 w-full">
           <CardHeader className="space-y-1 sm:space-y-1">
-            <CardTitle className="text-l sm:text-l font-bold">Your Bids</CardTitle>
-            <CardDescription className="text-sm sm:text-base">View and manage your current bids</CardDescription>
+            <CardTitle className="text-l sm:text-l font-bold">{user.username}</CardTitle>
+            <CardDescription className="text-sm sm:text-base">Year: {user.year}, Gender: {user.gender}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Status: {canBid ? "Can Bid" : "Cannot Bid"}</h2>
+                  <h2 className="text-lg font-semibold">Status: </h2>
+                  <p className="text-lg font-bold text-primary">{canBid ? "Can Bid" : "Cannot Bid"}</p>
                 </div>
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold">Points:</h2>
@@ -220,8 +220,20 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
                     ))}
                   </div>
                 </div>
-                <h2 className="mb-2 text-lg font-semibold">Bids : </h2>
               </div>
+            </div>
+            <div className="mt-4 flex justify-end"></div>
+          </CardContent>
+        </Card>
+
+      {userBids && (
+        <Card className="mx-auto mb-2 w-full">
+          <CardHeader className="space-y-1 sm:space-y-1">
+            <CardTitle className="text-l sm:text-l font-bold">Your Bids</CardTitle>
+            <CardDescription className="text-sm sm:text-base">View and manage your current bids</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -261,7 +273,7 @@ const BiddingTable: React.FC<BiddingList> = ({ userBids, refetchUserBids, biddin
       <h1 className="text-l mb-4 font-bold"> Eligible Bidding Numbers : </h1>
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10">
-        {Array.from({ length: 99 }, (_, i) => i + 1).map(number => {
+        {Array.from({ length: 100 }, (_, i) => i ).map(number => {
           const isEligible = userEligibleBids !== undefined ? userEligibleBids.jerseys.includes(number) : false; // Check if the number is eligible
           return (
             <Button
