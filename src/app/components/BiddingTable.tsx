@@ -202,6 +202,12 @@ const BiddingTable: React.FC<BiddingList> = ({user, userBids, refetchUserBids, b
           <CardContent>
             <div className="overflow-x-auto">
               <div className="space-y-6">
+              {userBids.info.isAllocated && (
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Allocated Jersey: </h2>
+                  <p className="text-lg font-bold text-primary">{userBids.info.jersey.number}</p>
+                </div>
+              )}
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold">Round To Bid: {userBids.info.round} </h2>
                   <p className="text-lg font-bold text-primary">Current Round: {userBids.system.bidRound}</p>
