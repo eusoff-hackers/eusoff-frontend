@@ -190,35 +190,40 @@ const BiddingTable: React.FC<BiddingList> = ({ user, userBids, refetchUserBids, 
     <div className="container mx-auto p-4">
       <h1 className="mb-4 text-2xl font-bold">Bidding Table</h1>
       <Card className="mx-auto mb-2 w-full">
-        <CardHeader className="space-y-1 sm:space-y-1">
-          <CardTitle className="text-l sm:text-l font-bold">{user.username}</CardTitle>
-          <CardDescription className="text-sm sm:text-base">
-            Year: {user.year}, Gender: {user.gender}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Round To Bid: {userBids.info.round} </h2>
-                <p className="text-lg font-bold text-primary">Current Round: {userBids.system.bidRound}</p>
-              </div>
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Status: </h2>
-                <p className="text-lg font-bold text-primary">{canBid ? "Can Bid" : "Cannot Bid"}</p>
-              </div>
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Points:</h2>
-                <p className="text-lg font-bold text-primary">{userBids.info.points.toLocaleString()}</p>
-              </div>
-              <div>
-                <h2 className="mb-2 text-lg font-semibold">Teams : </h2>
-                <div className="flex flex-wrap gap-2">
-                  {userBids.info.teams.map(team => (
-                    <Badge key={team.team.name} variant="outline" className={`bg-green-500 text-white`}>
-                      {team.team.name}
-                    </Badge>
-                  ))}
+          <CardHeader className="space-y-1 sm:space-y-1">
+            <CardTitle className="text-l sm:text-l font-bold">{user.username}</CardTitle>
+            <CardDescription className="text-sm sm:text-base">Year: {user.year}, Gender: {user.gender}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <div className="space-y-6">
+              {userBids.info.isAllocated && (
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Allocated Jersey: </h2>
+                  <p className="text-lg font-bold text-primary">{userBids.info.jersey.number}</p>
+                </div>
+              )}
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Round To Bid: {userBids.info.round} </h2>
+                  <p className="text-lg font-bold text-primary">Current Round: {userBids.system.bidRound}</p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Status: </h2>
+                  <p className="text-lg font-bold text-primary">{canBid ? "Can Bid" : "Cannot Bid"}</p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Points:</h2>
+                  <p className="text-lg font-bold text-primary">{userBids.info.points.toLocaleString()}</p>
+                </div>
+                <div>
+                  <h2 className="mb-2 text-lg font-semibold">Teams : </h2>
+                  <div className="flex flex-wrap gap-2">
+                    {userBids.info.teams.map(team => (
+                      <Badge key={team.team.name} variant="outline" className={`bg-green-500 text-white`}>
+                        {team.team.name}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
