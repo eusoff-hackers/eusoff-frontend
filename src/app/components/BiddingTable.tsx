@@ -1,24 +1,19 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Icon } from "@iconify/react";
-import { QueryObserverResult } from "@tanstack/react-query";
+import type { QueryObserverResult } from "@tanstack/react-query";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
 
-import type { ToastMessage } from "@/src/app/dashboard/jersey/page";
-
-import { BiddingData, EligibleBids, UserBid } from "../dashboard/jersey/types";
+import type { BiddingData, EligibleBids, UserBid } from "@/src/app/dashboard/jersey/types";
 
 interface BiddingList {
-  user:any,
+  user: any;
   userBids: UserBid;
   refetchUserBids: () => Promise<QueryObserverResult<UserBid, Error>>;
   biddings: BiddingData;
@@ -32,7 +27,7 @@ interface BiddingList {
 axios.defaults.withCredentials = true;
 
 // User submit bid form
-const BiddingTable: React.FC<BiddingList> = ({user, userBids, refetchUserBids, biddings, userEligibleBids }) => {
+const BiddingTable: React.FC<BiddingList> = ({ user, userBids, refetchUserBids, biddings, userEligibleBids }) => {
   const [open, setOpen] = useState(false);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const priority = userBids ? userBids.bids.length : 0;
@@ -195,40 +190,42 @@ const BiddingTable: React.FC<BiddingList> = ({user, userBids, refetchUserBids, b
     <div className="container mx-auto p-4">
       <h1 className="mb-4 text-2xl font-bold">Bidding Table</h1>
       <Card className="mx-auto mb-2 w-full">
-          <CardHeader className="space-y-1 sm:space-y-1">
-            <CardTitle className="text-l sm:text-l font-bold">{user.username}</CardTitle>
-            <CardDescription className="text-sm sm:text-base">Year: {user.year}, Gender: {user.gender}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Round To Bid: {userBids.info.round} </h2>
-                  <p className="text-lg font-bold text-primary">Current Round: {userBids.system.bidRound}</p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Status: </h2>
-                  <p className="text-lg font-bold text-primary">{canBid ? "Can Bid" : "Cannot Bid"}</p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Points:</h2>
-                  <p className="text-lg font-bold text-primary">{userBids.info.points.toLocaleString()}</p>
-                </div>
-                <div>
-                  <h2 className="mb-2 text-lg font-semibold">Teams : </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {userBids.info.teams.map(team => (
-                      <Badge key={team.team.name} variant="outline" className={`bg-green-500 text-white`}>
-                        {team.team.name}
-                      </Badge>
-                    ))}
-                  </div>
+        <CardHeader className="space-y-1 sm:space-y-1">
+          <CardTitle className="text-l sm:text-l font-bold">{user.username}</CardTitle>
+          <CardDescription className="text-sm sm:text-base">
+            Year: {user.year}, Gender: {user.gender}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Round To Bid: {userBids.info.round} </h2>
+                <p className="text-lg font-bold text-primary">Current Round: {userBids.system.bidRound}</p>
+              </div>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Status: </h2>
+                <p className="text-lg font-bold text-primary">{canBid ? "Can Bid" : "Cannot Bid"}</p>
+              </div>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Points:</h2>
+                <p className="text-lg font-bold text-primary">{userBids.info.points.toLocaleString()}</p>
+              </div>
+              <div>
+                <h2 className="mb-2 text-lg font-semibold">Teams : </h2>
+                <div className="flex flex-wrap gap-2">
+                  {userBids.info.teams.map(team => (
+                    <Badge key={team.team.name} variant="outline" className={`bg-green-500 text-white`}>
+                      {team.team.name}
+                    </Badge>
+                  ))}
                 </div>
               </div>
             </div>
-            <div className="mt-4 flex justify-end"></div>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="mt-4 flex justify-end"></div>
+        </CardContent>
+      </Card>
 
       {userBids && (
         <Card className="mx-auto mb-2 w-full">
@@ -277,7 +274,7 @@ const BiddingTable: React.FC<BiddingList> = ({user, userBids, refetchUserBids, b
       <h1 className="text-l mb-4 font-bold"> Eligible Bidding Numbers : </h1>
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10">
-        {Array.from({ length: 100 }, (_, i) => i ).map(number => {
+        {Array.from({ length: 100 }, (_, i) => i).map(number => {
           const isEligible = userEligibleBids !== undefined ? userEligibleBids.jerseys.includes(number) : false; // Check if the number is eligible
           return (
             <Button
@@ -299,7 +296,7 @@ const BiddingTable: React.FC<BiddingList> = ({user, userBids, refetchUserBids, b
             <DialogTitle>Biddings for Number {selectedNumber}</DialogTitle>
           </DialogHeader>
           <h1> Your Points : {userBids.info.points}</h1>
-          { biddings && biddings[selectedNumber] && (
+          {biddings && biddings[selectedNumber] && (
             <div className="flex flex-row justify-between">
               <div>Quota M: {biddings[selectedNumber].quota.male}</div>
               <div>Quota F: {biddings[selectedNumber].quota.female}</div>
@@ -314,15 +311,15 @@ const BiddingTable: React.FC<BiddingList> = ({user, userBids, refetchUserBids, b
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {
+                {biddings &&
                   biddings[selectedNumber] &&
                   biddings[selectedNumber].male.map((bid, index) => (
                     <TableRow key={index}>
-                      <TableCell>{bid.user} (M)</TableCell>
-                      <TableCell>${bid.amount.toFixed(2)}</TableCell>
+                      <TableCell>{bid.user.room} (M)</TableCell>
+                      <TableCell>{bid.points}</TableCell>
                     </TableRow>
                   ))}
-                {
+                {biddings &&
                   biddings[selectedNumber] &&
                   biddings[selectedNumber].female.map((bid, index) => {
                     return (
