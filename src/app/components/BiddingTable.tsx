@@ -227,7 +227,6 @@ const BiddingTable: React.FC<BiddingList> = ({ user, userBids, refetchUserBids, 
                 </div>
               </div>
             </div>
-          </div>
           <div className="mt-4 flex justify-end"></div>
         </CardContent>
       </Card>
