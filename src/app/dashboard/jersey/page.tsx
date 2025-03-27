@@ -1,6 +1,5 @@
 "use client";
 
-// This is a client component 👈🏽
 import React, { useEffect, useState } from "react";
 
 import type { AlertColor } from "@mui/material";
@@ -9,40 +8,29 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 
-import { getUserBiddings, getUserEligibleBids } from "../../api/jerseyBidding";
-import BiddingTable from "../../components/BiddingTable";
-import Loading from "../../components/Loading";
-import { selectUser } from "../../redux/Resources/userSlice";
+import { selectUser } from "@/src/app/redux/Resources/userSlice";
+import BiddingTable from "@/src/app/components/BiddingTable";
+import Loading from "@/src/app/components/Loading";
 
-import { BiddingData, EligibleBids, UserBid } from "./types";
+import type { BiddingData, EligibleBids, UserBid } from "@/src/app/dashboard/jersey/types";
 
 export interface ToastMessage {
   message: String;
-  severity: AlertColor; // Possible to create enum in the future
+  severity: AlertColor;
 }
-
-// new types
 
 // Create an instance of axios with credentials
 axios.defaults.withCredentials = true;
 
-// @TODO This component is temporarily disabled, please fix linting issues
-
 const Jersey: React.FC = () => {
   const user = useSelector(selectUser);
   const router = useRouter();
-
   const [isClient, setIsClient] = useState(false);
 
-  // Does a call for all bids
   const getBids = async () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/list`);
-
-      //console.log("response", response.data.data);
-
       if (response.data.success) {
-        // console.log("This is eligible bids" + JSON.stringify(response.data.data));
         return response.data.data;
       }
     } catch (error) {
@@ -50,15 +38,10 @@ const Jersey: React.FC = () => {
     }
   };
 
-  // Does a call for User's bidding info
   const getUserBiddings = async () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/info`);
-
-      //console.log("response", response.data.data);
-
       if (response.data.success) {
-        //console.log("This is eligible bids" + JSON.stringify(response.data.data));
         return response.data.data;
       }
     } catch (error) {
@@ -66,26 +49,8 @@ const Jersey: React.FC = () => {
     }
   };
 
-  const getEligibleNumbers = async () => {
-    try{
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/eligible`);
-
-      //console.log("response", response.data.data);
-
-      if (response.data.success) {
-        //console.log("This is eligible numbers" + JSON.stringify(response.data.data));
-        return response.data.data;
-      }
-    } catch (error) {
-      console.error("Error during getting eligible numbers", error);
-    }
-  }
-
-
   const {
     data: bids,
-    status: bidsStatus,
-    refetch: refetchBids,
   } = useQuery<BiddingData>({
     queryKey: ["bids"],
     queryFn: getBids,
@@ -93,7 +58,6 @@ const Jersey: React.FC = () => {
 
   const {
     data: userBids,
-    status: userBidsStatus,
     refetch: refetchUserBids,
   } = useQuery<UserBid>({
     queryKey: ["user_bids"],
@@ -101,46 +65,25 @@ const Jersey: React.FC = () => {
   });
 
   const {
-    data: userEligibleBids,
-    status: userEligibleBidsStatus,
-    refetch: refetchUserElligbleBids,
+    data: userEligibleBids
   } = useQuery<EligibleBids>({
     queryKey: ["user_eligible_bids"],
-    queryFn: getUserEligibleBids,
+    queryFn: async () => {
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/eligible`);
+        if (response.data.success) {
+          return response.data.data;
+        }
+      } catch (error) {
+        console.error("Error during getting eligible numbers", error);
+      }
+    },
   });
 
-  // console.log('bids',bids);
-  // console.log("userEligible", userEligibleBids);
-  // State to manage error toast throughout app
-
-  // State for the Snackbar component
-
-  // Does a call for user's teams
-  // const getUserTeam = async () => {
-  //   try {
-  //     const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/team/info`);
-
-  //     if (response.data.success) {
-  //       // setTeams(response.data.data.teams);
-  //       console.log("This is user's team" + JSON.stringify(response.data.data.teams));
-  //     }
-  //   } catch (error) {
-  //     console.error("Error during getting user's teams", error);
-  //   }
-  // };
-
-  // Saves changes to user_biddings in local storage
-  // useEffect(() => {
-  //   localStorage.setItem("user_biddings", JSON.stringify(biddings));
-  // }, [biddings]);
-
   useEffect(() => {
-    setIsClient(true); // Indicate that client has been rendered
-    // getEligibleBids(); // Get all eligible bids when page renders
-    // getUserTeam(); // Get user's team when page renders
+    setIsClient(true);
   }, []);
 
-  // If not authorized, then redirects the user
   useEffect(() => {
     if (user == null) {
       router.push("/");
@@ -164,7 +107,6 @@ const Jersey: React.FC = () => {
       )}
     </div>
   );
-
 };
 
 export default Jersey;

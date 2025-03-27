@@ -2,7 +2,6 @@
 
 import React from "react";
 
-import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
@@ -86,7 +85,7 @@ export default function NavBar() {
       <p className="mb-5 text-2xl">Dashboard</p>
       <ul className="space-y-2">
         <li className="hover:translate-x-1">
-          <Link className="flex items-center gap-3 py-2" href="/dashboard/jersey">
+          <Link className="flex items-center gap-3 py-2" href="/dashboard/profile">
             <svg
               className="h-5 w-5"
               fill="none"
@@ -104,7 +103,7 @@ export default function NavBar() {
               <line x1="3" y1="11" x2="17" y2="11" />
               <line x1="3" y1="15" x2="17" y2="15" />
             </svg>
-            <span>Jersey Bidding</span>
+            <span>Profile</span>
           </Link>
         </li>
         <li className="hover:translate-x-1">
