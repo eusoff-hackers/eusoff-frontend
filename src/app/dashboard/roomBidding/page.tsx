@@ -18,9 +18,16 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 
 import LeaderboardDialog from "@/src/app/components/LeaderboardDialog";
-import type { RoomInfoType, RoomType } from "@/src/app/dashboard/profile/page";
+import type { RoomInfoType } from "@/src/app/dashboard/profile/page";
 import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
 
+export interface RoomType{
+  block: string;
+  number: number;
+  capacity: number;
+  occupancy: number;
+  allowedGenders: string[];
+}
 export interface Room {
   _id: string;
   block: string;
