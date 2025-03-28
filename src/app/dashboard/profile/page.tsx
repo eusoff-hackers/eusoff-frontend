@@ -25,6 +25,7 @@ const ProfilePage = () => {
   const [roomBidInfo, setRoomBidInfo] = useState<RoomInfoType>();
   const [ccaPoints, setCcaPoints] = useState<{ cca: string; points: number }[]>([]);
   const [easterEgg, setEasterEgg] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // New loading flag
 
   useEffect(() => {
     if (!user) {
@@ -37,6 +38,7 @@ const ProfilePage = () => {
 
   const fetchRoomBidInfo = async () => {
     try {
+      setIsLoading(true); // Set loading to true when fetch starts
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/info`);
       if (response.data.success) {
         const roomBidInfo: RoomInfoType = {
@@ -46,7 +48,7 @@ const ProfilePage = () => {
           bids: response.data.data.bids,
         };
         setRoomBidInfo(roomBidInfo);
-        setCcaPoints(response.data.data.info.pointsDistribution);
+        setCcaPoints(response.data.data.info.pointsDistribution || []); // Default to empty array if undefined
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -57,6 +59,8 @@ const ProfilePage = () => {
         }
       }
       console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false); // Set loading to false when fetch completes (success or failure)
     }
   };
 
@@ -123,7 +127,9 @@ const ProfilePage = () => {
           <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-6 text-center">
             Your Activities
           </h2>
-          {ccaPoints.length > 0 ? (
+          {isLoading ? (
+            <p className="text-gray-500 text-center">Loading your activities...</p>
+          ) : ccaPoints.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
               {ccaPoints
                 .sort((a, b) => b.points - a.points)
@@ -147,7 +153,7 @@ const ProfilePage = () => {
                 ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center">Loading your activities...</p>
+            <p className="text-gray-500 text-center">No activities found.</p>
           )}
           {isSuperhero && (
             <p className="mt-4 text-sm text-gray-500 text-center animate-pulse">
