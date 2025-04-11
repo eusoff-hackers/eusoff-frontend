@@ -19,6 +19,7 @@ import { useDispatch } from "react-redux";
 
 import LeaderboardDialog from "@/src/app/components/LeaderboardDialog";
 import type { RoomInfoType } from "@/src/app/dashboard/profile/page";
+import type { User } from "@/src/app/redux/Resources/userSlice";
 import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
 
 export interface RoomType {
@@ -166,6 +167,7 @@ const RoomBidding: React.FC = () => {
   };
 
   useEffect(() => {
+    fetchUserInfo();
     fetchRoomBidInfo();
     fetchRooms();
 
@@ -204,6 +206,28 @@ const RoomBidding: React.FC = () => {
         setLoading(!response.data.success);
         setBlockData(objectify(response.data.data.blocks));
         setRoomList(response.data.data.rooms);
+      }
+    } catch (error) {
+      console.error("Error during fetching rooms", error);
+    }
+  };
+
+  // api call to fetch all rooms
+  const fetchUserInfo = async () => {
+    try {
+      const response: AxiosResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/info`
+      );
+      if (response.data.success) {
+        const newUser: User = {
+          username: response.data.data.user.username,
+          role: response.data.data.user.role,
+          year: response.data.data.user.year,
+          gender: response.data.data.user.gender,
+          room: response.data.data.user.room,
+        };
+
+        dispatch(setUser(newUser));
       }
     } catch (error) {
       console.error("Error during fetching rooms", error);
