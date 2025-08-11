@@ -11,9 +11,11 @@ import axios from "axios";
 import { Trash2 } from "lucide-react";
 
 import type { BiddingData, EligibleBids, UserBid } from "@/src/app/dashboard/jersey/types";
+import type { User } from "@/src/app/redux/Resources/userSlice";
+
 
 interface BiddingList {
-  user: any;
+  user: User;
   userBids: UserBid;
   refetchUserBids: () => Promise<QueryObserverResult<UserBid, Error>>;
   biddings: BiddingData;
@@ -30,7 +32,6 @@ axios.defaults.withCredentials = true;
 const BiddingTable: React.FC<BiddingList> = ({ user, userBids, refetchUserBids, biddings, userEligibleBids }) => {
   const [open, setOpen] = useState(false);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
-  const priority = userBids ? userBids.bids.length : 0;
 
   const curr_userBids = userBids.bids.map(bid => {
     return {
@@ -63,7 +64,7 @@ const BiddingTable: React.FC<BiddingList> = ({ user, userBids, refetchUserBids, 
         refetchUserBids();
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -78,7 +79,7 @@ const BiddingTable: React.FC<BiddingList> = ({ user, userBids, refetchUserBids, 
         refetchUserBids();
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 

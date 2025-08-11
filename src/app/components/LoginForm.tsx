@@ -19,7 +19,7 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (user !== null) {
-      router.push(`/dashboard/jersey`);
+      router.push(`/dashboard/profile`);
     }
   });
 

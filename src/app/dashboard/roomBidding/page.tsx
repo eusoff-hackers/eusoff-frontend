@@ -18,9 +18,17 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 
 import LeaderboardDialog from "@/src/app/components/LeaderboardDialog";
-import type { RoomInfoType, RoomType } from "@/src/app/dashboard/profile/page";
+import type { RoomInfoType } from "@/src/app/dashboard/profile/page";
+import type { User } from "@/src/app/redux/Resources/userSlice";
 import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
 
+export interface RoomType {
+  block: string;
+  number: number;
+  capacity: number;
+  occupancy: number;
+  allowedGenders: string[];
+}
 export interface Room {
   _id: string;
   block: string;
@@ -68,7 +76,7 @@ const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement;
   },
-  ref: React.Ref<unknown>,
+  ref: React.Ref<unknown>
 ) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -98,7 +106,7 @@ const RoomBidding: React.FC = () => {
 
   const objectify = (array: RoomBlock[]): Record<string, BlockInfo> => {
     const object: Record<string, BlockInfo> = {};
-    array.forEach(item => {
+    array.forEach((item) => {
       object[item.block] = { quota: item.quota, bidderCount: item.bidderCount };
     });
     return object;
@@ -107,12 +115,12 @@ const RoomBidding: React.FC = () => {
   const createLeaderboard = (block: string) => {
     // Filter rooms by block and flatMap to get an array of all bidders in that block
     const getAllBiddersForBlock: bidderInfo[] = roomList
-      .filter(room => room.block === block)
-      .flatMap(room => room.bidders);
+      .filter((room) => room.block === block)
+      .flatMap((room) => room.bidders);
 
     // Sort bidders by points in descending order
     const sortedBidders: bidderInfo[] = getAllBiddersForBlock.sort(
-      (a: bidderInfo, b: bidderInfo) => b.info.points - a.info.points,
+      (a: bidderInfo, b: bidderInfo) => b.info.points - a.info.points
     );
 
     return sortedBidders;
@@ -159,6 +167,7 @@ const RoomBidding: React.FC = () => {
   };
 
   useEffect(() => {
+    fetchUserInfo();
     fetchRoomBidInfo();
     fetchRooms();
 
@@ -168,14 +177,17 @@ const RoomBidding: React.FC = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  });
+  }, []);
 
   // api call to make room bidding submission
   const submitBid = async () => {
     try {
-      const response: AxiosResponse = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/bid`, {
-        rooms: [{ _id: roomSelect._id }],
-      });
+      const response: AxiosResponse = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/room/bid`,
+        {
+          rooms: [{ _id: roomSelect._id }],
+        }
+      );
       if (response.status === 200) {
         setDialogOpen(false);
       }
@@ -187,7 +199,9 @@ const RoomBidding: React.FC = () => {
   // api call to fetch all rooms
   const fetchRooms = async () => {
     try {
-      const response: AxiosResponse = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/list`);
+      const response: AxiosResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/room/list`
+      );
       if (response.data.success) {
         setLoading(!response.data.success);
         setBlockData(objectify(response.data.data.blocks));
@@ -198,10 +212,34 @@ const RoomBidding: React.FC = () => {
     }
   };
 
+  // api call to fetch all rooms
+  const fetchUserInfo = async () => {
+    try {
+      const response: AxiosResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/info`
+      );
+      if (response.data.success) {
+        const newUser: User = {
+          username: response.data.data.user.username,
+          role: response.data.data.user.role,
+          year: response.data.data.user.year,
+          gender: response.data.data.user.gender,
+          room: response.data.data.user.room,
+        };
+
+        dispatch(setUser(newUser));
+      }
+    } catch (error) {
+      console.error("Error during fetching rooms", error);
+    }
+  };
+
   // api call to fetch user's room bidding info (duplicate call in profile page, can be refactored to be more efficient)
   const fetchRoomBidInfo = async () => {
     try {
-      const response: AxiosResponse = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/info`);
+      const response: AxiosResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/room/info`
+      );
 
       if (response.data.success) {
         const roomBidInfo: RoomInfoType = {
@@ -234,7 +272,9 @@ const RoomBidding: React.FC = () => {
       <main className="h-full w-full">
         {/*Top Banner */}
         <div className="m-0 flex w-full flex-row bg-gradient-to-r from-[#80fbff] to-[#9089fc] p-2 font-mono font-bold uppercase opacity-100 hover:shadow-2xl">
-          <div className="text-left text-2xl text-gray-900">Eusoff Room Bidding</div>
+          <div className="text-left text-2xl text-gray-900">
+            Eusoff Room Bidding
+          </div>
         </div>
         {/*Top Banner Alternative Color Scheme
         bg-gradient-to-r from-[#25AE8D] to-[#008087]
@@ -248,18 +288,27 @@ const RoomBidding: React.FC = () => {
               ? `${userInfo.bids[0].room.block}${userInfo.bids[0].room.number}`
               : "No Room Selected"}
           </div>
-          <div className="text-left text-gray-900 md:text-right">Points : {userInfo?.points}</div>
+          <div className="text-left text-gray-900 md:text-right">
+            Points : {userInfo?.points}
+          </div>
         </div>
 
         {/*Main Content*/}
         <div className="divide-y-5 m-auto mb-3 mt-10 flex h-full w-5/6 flex-col items-center rounded-lg bg-slate-200 px-5 py-10 font-mono text-3xl shadow-2xl">
           {/*Dialog Box*/}
           <React.Fragment>
-            <Dialog open={dialogOpen} TransitionComponent={Transition} keepMounted onClose={handleDialogClose}>
+            <Dialog
+              open={dialogOpen}
+              TransitionComponent={Transition}
+              keepMounted
+              onClose={handleDialogClose}
+            >
               <DialogTitle>{`Room Number:  ${roomSelect.block}${roomSelect.number}`}</DialogTitle>
               <DialogContent>
                 <DialogContentText>
-                  {roomSelect.capacity == 1 ? "Room Type: Single Room" : "Room Type: Double Room"}
+                  {roomSelect.capacity == 1
+                    ? "Room Type: Single Room"
+                    : "Room Type: Double Room"}
                 </DialogContentText>
                 <br />
                 <DialogContentText>
@@ -277,7 +326,9 @@ const RoomBidding: React.FC = () => {
                       );
                     })}
                 <DialogContentText>&nbsp;</DialogContentText>
-                <DialogContentText>Are you sure you want to choose this room?</DialogContentText>
+                <DialogContentText>
+                  Are you sure you want to choose this room?
+                </DialogContentText>
               </DialogContent>
               <DialogActions>
                 {userInfo.canBid ? (
@@ -302,10 +353,14 @@ const RoomBidding: React.FC = () => {
           </React.Fragment>
 
           <div className="flex h-full w-full flex-col bg-slate-200 text-center">
-            <h1 className="border-b-2 border-b-slate-400 text-black">Available Rooms</h1>
+            <h1 className="border-b-2 border-b-slate-400 text-black">
+              Available Rooms
+            </h1>
 
             <div className="flex flex-row items-center justify-center">
-              <p className="font-mono text-xs text-black lg:text-xl">Select Block:</p>
+              <p className="font-mono text-xs text-black lg:text-xl">
+                Select Block:
+              </p>
               {hallBlocks.map((block, index) => {
                 return (
                   <div
@@ -321,7 +376,8 @@ const RoomBidding: React.FC = () => {
             <div className="flex flex-row items-center justify-center">
               <p className="font-mono text-xs text-black lg:text-xl">
                 {" "}
-                Block Quota : {blockData[blockfilter].quota} , Bids : {blockData[blockfilter].bidderCount}
+                Block Quota : {blockData[blockfilter].quota} , Bids :{" "}
+                {blockData[blockfilter].bidderCount}
               </p>
             </div>
             <div className="mt-5 grid h-full w-full grid-cols-4 gap-4 gap-y-5 md:grid-cols-5 lg:grid-cols-10">
@@ -329,7 +385,9 @@ const RoomBidding: React.FC = () => {
                 user != null &&
                 roomList
                   .filter(
-                    room => room.block == blockfilter && room.allowedGenders[0] == user.gender, // checks if block selected and gender same as user
+                    (room) =>
+                      room.block == blockfilter &&
+                      room.allowedGenders[0] == user.gender // checks if block selected and gender same as user
                   )
                   .map((room, index) => {
                     const block = room.block;
