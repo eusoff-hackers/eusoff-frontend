@@ -106,7 +106,9 @@ const ProfilePage = () => {
               <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800">
                 {user.username} {isSuperhero && "✨"}
               </h1>
-              <p className="text-gray-500">Year {user.year}</p>
+              {/* <p className="text-gray-500">Year {user.year}</p> */}
+              <p className="text-gray-500">Gender: {user.gender}</p>
+              <p className="text-gray-500">Room: {user.room}</p>
               <div className="mt-2 flex flex-wrap gap-2 justify-center sm:justify-start">
                 {/* <span className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">
                   Points: {roomBidInfo?.points || "Loading..."}
