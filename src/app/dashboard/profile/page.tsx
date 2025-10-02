@@ -23,7 +23,9 @@ const ProfilePage = () => {
 
   const [isClient, setIsClient] = useState(false);
   const [roomBidInfo, setRoomBidInfo] = useState<RoomInfoType>();
-  const [ccaPoints, setCcaPoints] = useState<{ cca: string; points: number }[]>([]);
+  const [ccaPoints, setCcaPoints] = useState<{ cca: string; points: number }[]>(
+    []
+  );
   const [easterEgg, setEasterEgg] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // New loading flag
 
@@ -39,7 +41,9 @@ const ProfilePage = () => {
   const fetchRoomBidInfo = async () => {
     try {
       setIsLoading(true); // Set loading to true when fetch starts
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/room/info`);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/room/info`
+      );
       if (response.data.success) {
         const roomBidInfo: RoomInfoType = {
           isEligible: response.data.data.info.isEligible,
@@ -102,11 +106,13 @@ const ProfilePage = () => {
               <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800">
                 {user.username} {isSuperhero && "✨"}
               </h1>
-              <p className="text-gray-500">Year {user.year}</p>
+              {/* <p className="text-gray-500">Year {user.year}</p> */}
+              <p className="text-gray-500">Gender: {user.gender}</p>
+              <p className="text-gray-500">Room: {user.room}</p>
               <div className="mt-2 flex flex-wrap gap-2 justify-center sm:justify-start">
-                <span className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">
+                {/* <span className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">
                   Points: {roomBidInfo?.points || "Loading..."}
-                </span>
+                </span> */}
                 {isSuperhero && (
                   <span className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">
                     Star Status
@@ -123,12 +129,14 @@ const ProfilePage = () => {
         </div>
 
         {/* CCA Points Distribution */}
-        <div className="bg-white rounded-lg shadow-sm p-6 animate-slide-up">
+        {/* <div className="bg-white rounded-lg shadow-sm p-6 animate-slide-up">
           <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-6 text-center">
             Your Activities
           </h2>
           {isLoading ? (
-            <p className="text-gray-500 text-center">Loading your activities...</p>
+            <p className="text-gray-500 text-center">
+              Loading your activities...
+            </p>
           ) : ccaPoints.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
               {ccaPoints
@@ -139,7 +147,9 @@ const ProfilePage = () => {
                     className="group bg-gray-50 p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
                   >
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-700 font-medium truncate">{cca.cca}</span>
+                      <span className="text-gray-700 font-medium truncate">
+                        {cca.cca}
+                      </span>
                       <div className="relative">
                         <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-semibold shadow-sm group-hover:animate-pulse">
                           {cca.points}
@@ -160,7 +170,7 @@ const ProfilePage = () => {
               Shining bright like a star! 🌟
             </p>
           )}
-        </div>
+        </div> */}
       </div>
 
       {/* Hidden Bunny Easter Egg */}
