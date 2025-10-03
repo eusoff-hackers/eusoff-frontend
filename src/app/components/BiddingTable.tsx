@@ -208,11 +208,11 @@ const BiddingTable: React.FC<BiddingList> = ({ user, userBids, refetchUserBids, 
                   <h2 className="text-lg font-semibold">Round To Bid: {userBids.info.round} </h2>
                   <p className="text-lg font-bold text-primary">Current Round: {userBids.system.bidRound}</p>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
                   <h2 className="text-lg font-semibold">Status: </h2>
                   <p className="text-lg font-bold text-primary">{canBid ? "Can Bid" : "Cannot Bid"}</p>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
                   <h2 className="text-lg font-semibold">Points:</h2>
                   <p className="text-lg font-bold text-primary">{userBids.info.points.toLocaleString()}</p>
                 </div>

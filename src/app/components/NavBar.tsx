@@ -109,6 +109,31 @@ export default function NavBar() {
             <span>Profile</span>
           </Link>
         </li>
+        <li className="hover:translate-x-1">
+          <Link
+            className="flex items-center gap-3 py-2"
+            href="/dashboard/jersey"
+          >
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect x="3" y="2" width="14" height="20" />
+              <line x1="3" y1="7" x2="17" y2="7" />
+              <line x1="3" y1="11" x2="17" y2="11" />
+              <line x1="3" y1="15" x2="17" y2="15" />
+            </svg>
+            <span>Jersey</span>
+          </Link>
+        </li>
         {/* <li className="hover:translate-x-1">
           <Link
             className="flex items-center gap-3 py-2"
@@ -159,7 +184,7 @@ export default function NavBar() {
             <span>Room Bidding</span>
           </Link>
         </li> */}
-        <li className="hover:translate-x-1">
+        {/* <li className="hover:translate-x-1">
           <Link className="flex items-center gap-3 py-2" href="/dashboard/ccas">
             <svg
               className="h-5 w-5"
@@ -180,7 +205,7 @@ export default function NavBar() {
             </svg>
             <span>CCA Signup</span>
           </Link>
-        </li>
+        </li> */}
         <li className="hover:translate-x-1">
           <Link
             className="flex items-center gap-3 py-2"
