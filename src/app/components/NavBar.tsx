@@ -134,7 +134,7 @@ export default function NavBar() {
             <span>Instructions</span>
           </Link>
         </li>
-        <li className="hover:translate-x-1">
+        {/* <li className="hover:translate-x-1">
           <Link
             className="flex items-center gap-3 py-2"
             href="/dashboard/roomBidding"
@@ -158,7 +158,7 @@ export default function NavBar() {
             </svg>
             <span>Room Bidding</span>
           </Link>
-        </li>
+        </li> */}
         <li className="hover:translate-x-1">
           <Link
             className="flex items-center gap-3 py-2"
