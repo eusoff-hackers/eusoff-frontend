@@ -17,6 +17,7 @@ import type { QueryObserverResult } from "@tanstack/react-query";
 import { ChevronDown, ChevronUp, Loader2, X } from "lucide-react";
 
 import { Segmented } from "@/src/app/components/system";
+import TeamBids from "@/src/app/dashboard/jersey/TeamBids";
 import type { BiddingData, EligibleBids, UserBid } from "@/src/app/dashboard/jersey/types";
 import { api, errorMessage } from "@/src/app/lib/api";
 import type { User } from "@/src/app/redux/Resources/userSlice";
@@ -245,6 +246,14 @@ const BiddingTable: React.FC<BiddingTableProps> = ({
           </p>
         )}
       </section>
+
+      {/* Teammates' bids (rules: visible per team, by room only). Sits between your picks and the grid. */}
+      <TeamBids
+        teams={userBids.info.teams.map(t => t.team)}
+        biddings={biddings}
+        myRoom={user.room}
+        myPicks={numbers}
+      />
 
       {/* Number grid */}
       <section id={gridId} className="surface-card scroll-mt-20 p-4 sm:p-6" aria-labelledby="numbers-heading">
