@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { adminApi, adminKeys, useAdminMutation, useIssues } from "@/src/app/admin/api";
-import { EmptyState, ErrorState, LoadingBlock, PageHeader } from "@/src/app/admin/components/ui";
+import { EmptyState, ErrorState, LoadingBlock, PageHeader, Segmented } from "@/src/app/admin/components/ui";
 import type { Issue } from "@/src/app/admin/types";
 
 type View = "open" | "resolved" | "all";
@@ -46,23 +46,17 @@ export default function IssuesPage() {
         description="Problems found while importing resident, team and points data. Tick an issue once it's sorted."
       />
 
-      <div className="mb-4 inline-flex rounded-md border bg-card p-0.5 shadow-sm" role="tablist" aria-label="Filter">
-        {(["open", "resolved", "all"] as View[]).map(v => (
-          <button
-            key={v}
-            type="button"
-            role="tab"
-            aria-selected={view === v}
-            onClick={() => setView(v)}
-            className={cn(
-              "h-10 rounded px-3 text-sm font-medium capitalize focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              view === v ? "bg-emerald-950 text-white" : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {v === "open" ? "Unresolved" : v} <span className="tabular-nums opacity-70">({counts[v]})</span>
-          </button>
-        ))}
-      </div>
+      <Segmented
+        className="mb-4"
+        label="Filter issues"
+        value={view}
+        onChange={setView}
+        options={[
+          { value: "open", label: "Unresolved", count: counts.open },
+          { value: "resolved", label: "Resolved", count: counts.resolved },
+          { value: "all", label: "All", count: counts.all },
+        ]}
+      />
 
       {isLoading ? (
         <LoadingBlock rows={6} />
@@ -73,28 +67,28 @@ export default function IssuesPage() {
       ) : (
         <div className="space-y-4">
           {groups.map(([category, items]) => (
-            <section key={category} className="overflow-hidden rounded-lg border bg-card shadow-sm">
-              <h2 className="flex items-center justify-between gap-2 border-b bg-slate-50 px-4 py-2.5 text-sm font-semibold">
+            <section key={category} className="surface-card overflow-hidden">
+              <h2 className="flex items-center justify-between gap-3 border-b border-hairline bg-recessed/60 px-4 py-3 text-[15px] font-medium sm:px-5">
                 <span className="min-w-0 break-words">{category}</span>
-                <span className="shrink-0 rounded-full bg-slate-200 px-2 py-0.5 text-xs tabular-nums">
+                <span className="shrink-0 rounded-[5px] bg-white/[0.07] px-2 py-0.5 text-xs font-medium tabular-nums text-mist">
                   {items.length}
                 </span>
               </h2>
-              <ul className="divide-y">
+              <ul>
                 {items.map(issue => {
                   const checked = pendingId === issue._id ? !!pendingValue : issue.resolved;
                   return (
-                    <li key={issue._id}>
-                      <label className="flex min-h-[48px] cursor-pointer items-start gap-3 px-4 py-3 hover:bg-slate-50">
+                    <li key={issue._id} className="border-b border-hairline last:border-0">
+                      <label className="flex min-h-[48px] cursor-pointer items-start gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03] sm:px-5">
                         <input
                           type="checkbox"
-                          className="mt-0.5 h-5 w-5 shrink-0 accent-emerald-700"
+                          className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer accent-[#5eead4]"
                           checked={checked}
                           disabled={pendingId === issue._id}
                           onChange={e => setResolved.mutate({ id: issue._id, resolved: e.target.checked })}
                         />
                         <span
-                          className={cn("min-w-0 break-words text-sm", checked && "text-muted-foreground line-through")}
+                          className={cn("min-w-0 break-words text-sm text-mist", checked && "text-[#93a19f] line-through")}
                         >
                           {issue.detail}
                         </span>

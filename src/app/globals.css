@@ -78,9 +78,9 @@
     opacity: 0.4;
   }
 
-  /* datetime pickers render with a light icon on dark */
   input::-webkit-calendar-picker-indicator {
-    filter: invert(0.85);
+    opacity: 0.7;
+    cursor: pointer;
   }
 
   @media (prefers-reduced-motion: reduce) {

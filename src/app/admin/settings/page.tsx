@@ -66,7 +66,7 @@ export default function SettingsPage() {
 
   return (
     <>
-      <PageHeader title="Settings" />
+      <PageHeader title="Settings" description="Site access and data export." />
       <div className="space-y-4">
         <Panel title="Access">
           {isLoading ? (
@@ -76,10 +76,10 @@ export default function SettingsPage() {
           ) : (
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <label htmlFor="allow-login" className="font-medium">
+                <label htmlFor="allow-login" className="font-medium text-white">
                   Allow resident login
                 </label>
-                <p className="text-sm text-muted-foreground">
+                <p className="mt-0.5 text-sm text-silver">
                   When off, only admins can sign in. Use this to close the site outside bidding.
                 </p>
               </div>
@@ -98,9 +98,9 @@ export default function SettingsPage() {
           title="Export"
           description="Name, matric, room, gender, round, points, number and the round it was allocated in."
         >
-          <Button onClick={exportCsv} disabled={exporting}>
-            <Download className="mr-2 h-4 w-4" aria-hidden />
-            {exporting ? "Preparing…" : "Export allocations CSV"}
+          <Button variant="outline" onClick={exportCsv} disabled={exporting}>
+            <Download className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+            {exporting ? "Preparing" : "Export allocations CSV"}
           </Button>
         </Panel>
       </div>

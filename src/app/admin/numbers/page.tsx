@@ -10,20 +10,20 @@ import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { adminApi, adminKeys, useAdminMutation, useJerseys } from "@/src/app/admin/api";
+import { sequential } from "@/src/app/admin/components/charts";
 import { ErrorState, GenderTag, PageHeader, Skeleton } from "@/src/app/admin/components/ui";
 import type { AdminJersey } from "@/src/app/admin/types";
 
 const describeDefault = (q: AdminJersey["defaultQuota"]) =>
-  typeof q === "number" ? `${q} each` : q ? `M ${q.male} · F ${q.female}` : "—";
+  typeof q === "number" ? `${q} each` : q ? `M ${q.male}, F ${q.female}` : "not set";
 
-/** Amber heat proportional to this round's bids on the number. */
-const heatStyle = (bids: number, max: number): React.CSSProperties =>
-  bids > 0 && max > 0 ? { backgroundColor: `rgba(245, 158, 11, ${0.12 + 0.68 * (bids / max)})` } : {};
+/** Single-hue sequential heat (dim to bright teal) proportional to this round's bids on the number. */
+const heat = (bids: number, max: number) => (bids > 0 && max > 0 ? 0.15 + 0.85 * (bids / max) : 0);
 
 function JerseyDialog({ jersey, onClose }: { jersey: AdminJersey | null; onClose: () => void }) {
   return (
     <Dialog open={jersey != null} onOpenChange={open => !open && onClose()}>
-      <DialogContent className="max-h-[90vh] w-[calc(100%-1rem)] overflow-y-auto rounded-lg p-4 sm:p-6">
+      <DialogContent>
         {jersey && <JerseyDetail key={jersey.number} jersey={jersey} />}
       </DialogContent>
     </Dialog>
@@ -49,30 +49,31 @@ function JerseyDetail({ jersey }: { jersey: AdminJersey }) {
 
   return (
     <>
-      <DialogHeader className="text-left">
-        <DialogTitle className="flex items-center gap-3">
-          <span className="inline-flex h-12 w-14 items-center justify-center rounded-md bg-emerald-950 text-2xl font-bold tabular-nums text-amber-200">
-            {jersey.number}
-          </span>
-          Number {jersey.number}
+      <DialogHeader>
+        <p className="eyebrow">Number</p>
+        <DialogTitle className="!mt-2 text-[4rem] leading-none tracking-[-0.04em] tabular-nums text-lavender">
+          {jersey.number}
         </DialogTitle>
         <DialogDescription>
-          Current-round bids: {jersey.bids.male} male · {jersey.bids.female} female
+          This round: <span className="tabular-nums text-mist">{jersey.bids.male}</span> male and{" "}
+          <span className="tabular-nums text-mist">{jersey.bids.female}</span> female bids
         </DialogDescription>
       </DialogHeader>
 
       <section>
-        <h3 className="mb-2 text-sm font-semibold">Holders ({jersey.holders.length})</h3>
+        <h3 className="mb-2 text-[13px] text-silver">
+          Holders <span className="tabular-nums text-mist">{jersey.holders.length}</span>
+        </h3>
         {jersey.holders.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nobody holds this number yet.</p>
+          <p className="rounded-xl bg-recessed px-4 py-3 text-sm text-silver">Nobody holds this number yet.</p>
         ) : (
-          <ul className="divide-y rounded-md border">
+          <ul className="rounded-xl bg-recessed">
             {jersey.holders.map((h, i) => (
-              <li key={`${h.name}-${i}`} className="flex items-center gap-2 px-3 py-2 text-sm">
+              <li key={`${h.name}-${i}`} className="flex items-center gap-2 border-b border-hairline px-3 py-2.5 text-sm last:border-0">
                 <GenderTag gender={h.gender} />
-                <span className="min-w-0 flex-1 truncate font-medium">{h.name}</span>
-                <span className="text-muted-foreground">{h.room}</span>
-                <span className="text-xs text-muted-foreground">R{h.round}</span>
+                <span className="min-w-0 flex-1 truncate text-white">{h.name}</span>
+                <span className="text-silver">{h.room}</span>
+                <span className="text-xs text-[#93a19f]">R{h.round}</span>
               </li>
             ))}
           </ul>
@@ -80,13 +81,13 @@ function JerseyDetail({ jersey }: { jersey: AdminJersey }) {
       </section>
 
       <section>
-        <h3 className="mb-2 text-sm font-semibold">Unavailable to teams</h3>
+        <h3 className="mb-2 text-[13px] text-silver">Unavailable to teams</h3>
         {jersey.bannedTeams.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No non-shareable team holds this number.</p>
+          <p className="text-sm text-[#93a19f]">No non-shareable team holds this number.</p>
         ) : (
           <div className="flex flex-wrap gap-1.5">
             {jersey.bannedTeams.map(t => (
-              <span key={t} className="rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs text-red-800">
+              <span key={t} className="inline-flex h-7 items-center rounded-md border border-warn/30 px-2.5 text-xs text-warn">
                 {t}
               </span>
             ))}
@@ -95,18 +96,18 @@ function JerseyDetail({ jersey }: { jersey: AdminJersey }) {
       </section>
 
       <form
-        className="space-y-3 rounded-md border bg-slate-50 p-3"
+        className="space-y-3 rounded-xl bg-recessed p-4"
         onSubmit={e => {
           e.preventDefault();
           if (valid && dirty) save.mutate({ number: jersey.number, quota: { male: m, female: f } });
         }}
       >
         <div className="flex items-baseline justify-between gap-2">
-          <h3 className="text-sm font-semibold">Remaining quota</h3>
-          <span className="text-xs text-muted-foreground">Default: {describeDefault(jersey.defaultQuota)}</span>
+          <h3 className="text-sm font-medium text-white">Remaining quota</h3>
+          <span className="text-xs text-silver">Default {describeDefault(jersey.defaultQuota)}</span>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div>
+          <div className="space-y-1.5">
             <Label htmlFor="q-male">Male</Label>
             <Input
               id="q-male"
@@ -115,10 +116,9 @@ function JerseyDetail({ jersey }: { jersey: AdminJersey }) {
               min={0}
               value={male}
               onChange={e => setMale(e.target.value)}
-              className="mt-1"
             />
           </div>
-          <div>
+          <div className="space-y-1.5">
             <Label htmlFor="q-female">Female</Label>
             <Input
               id="q-female"
@@ -127,12 +127,11 @@ function JerseyDetail({ jersey }: { jersey: AdminJersey }) {
               min={0}
               value={female}
               onChange={e => setFemale(e.target.value)}
-              className="mt-1"
             />
           </div>
         </div>
         <Button type="submit" className="w-full sm:w-auto" disabled={!valid || !dirty || save.isPending}>
-          {save.isPending ? "Saving…" : "Save quota"}
+          {save.isPending ? "Saving" : "Save quota"}
         </Button>
       </form>
     </>
@@ -149,30 +148,36 @@ export default function NumbersPage() {
 
   return (
     <>
-      <PageHeader title="Numbers" description="Tap a number for holders, team restrictions, bids and quota." />
+      <PageHeader title="Numbers" description="Tap a number for its holders, team restrictions, bids and quota." />
 
-      <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <span className="h-3 w-8 rounded-sm bg-gradient-to-r from-amber-100 to-amber-500" aria-hidden />
+      <ul className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-silver" aria-label="Legend">
+        <li className="flex items-center gap-2">
+          <span
+            className="h-3 w-10 rounded-[3px]"
+            style={{ background: `linear-gradient(90deg, ${sequential(0.15)}, ${sequential(1)})` }}
+            aria-hidden
+          />
           Bids this round
-        </span>
-        <span>M/F = remaining quota</span>
-        <span className="flex items-center gap-1.5">
-          <span className="inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-900 px-1 text-[10px] text-white">
+        </li>
+        <li>
+          <span className="tabular-nums text-mist">1/1</span> remaining quota, male/female
+        </li>
+        <li className="flex items-center gap-2">
+          <span className="inline-flex h-4 min-w-[16px] items-center justify-center rounded-[4px] bg-lavender px-1 text-[10px] font-medium text-canvas">
             2
           </span>
-          holders
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded-sm border border-dashed border-slate-400 bg-slate-100" aria-hidden />
-          no quota left
-        </span>
-      </div>
+          Holders
+        </li>
+        <li className="flex items-center gap-2">
+          <span className="h-3.5 w-3.5 rounded-[4px] border border-dashed border-white/25 bg-recessed" aria-hidden />
+          No quota left
+        </li>
+      </ul>
 
       {isLoading ? (
         <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-10">
           {Array.from({ length: 100 }, (_, i) => (
-            <Skeleton key={i} className="aspect-square" />
+            <Skeleton key={i} className="aspect-square min-h-[48px]" />
           ))}
         </div>
       ) : error ? (
@@ -182,29 +187,45 @@ export default function NumbersPage() {
           {sorted.map(j => {
             const bids = j.bids.male + j.bids.female;
             const full = j.quota.male <= 0 && j.quota.female <= 0;
+            const h = full ? 0 : heat(bids, maxBids);
+            // switch to dark ink once the fill is light enough that white text would drop below AA
+            const hot = h > 0.32;
             return (
               <button
                 key={j.number}
                 type="button"
                 onClick={() => setSelected(j.number)}
-                style={heatStyle(bids, maxBids)}
+                style={h ? { backgroundColor: sequential(h) } : undefined}
                 aria-label={`Number ${j.number}: ${j.quota.male} male and ${j.quota.female} female quota left, ${j.holders.length} holders, ${bids} bids`}
                 className={cn(
-                  "relative flex aspect-square min-h-[44px] min-w-0 flex-col items-center justify-center rounded-md border bg-card p-0.5 transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  full && "border-dashed border-slate-400 bg-slate-100 text-slate-500",
+                  "relative flex aspect-square min-h-[48px] min-w-0 flex-col items-center justify-center rounded-md p-0.5 transition-[transform,outline-color] duration-150 hover:outline hover:outline-1 hover:outline-aqua/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua active:scale-[0.96]",
+                  full
+                    ? "border border-dashed border-white/20 bg-recessed text-silver"
+                    : h
+                      ? hot
+                        ? "text-canvas"
+                        : "text-white"
+                      : "border border-white/[0.08] bg-white/[0.03] text-mist",
                 )}
               >
                 {j.holders.length > 0 && (
-                  <span className="absolute right-0.5 top-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-900 px-1 text-[10px] font-medium text-white">
+                  <span className="absolute right-1 top-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-[4px] bg-lavender px-1 text-[10px] font-medium tabular-nums text-canvas">
                     {j.holders.length}
                   </span>
                 )}
-                <span className="text-lg font-bold tabular-nums leading-none sm:text-xl">{j.number}</span>
-                <span className="mt-1 text-[10px] tabular-nums leading-none text-slate-700">
+                <span className="text-lg font-medium tabular-nums leading-none sm:text-xl">{j.number}</span>
+                <span className={cn("mt-1 text-[10px] tabular-nums leading-none", hot ? "text-canvas/75" : "text-silver")}>
                   {j.quota.male}/{j.quota.female}
                 </span>
                 {bids > 0 && (
-                  <span className="mt-0.5 hidden text-[10px] leading-none text-amber-950 sm:block">{bids} bids</span>
+                  <span
+                    className={cn(
+                      "mt-0.5 hidden text-[10px] tabular-nums leading-none sm:block",
+                      hot ? "text-canvas/75" : "text-silver",
+                    )}
+                  >
+                    {bids} bid{bids === 1 ? "" : "s"}
+                  </span>
                 )}
               </button>
             );
