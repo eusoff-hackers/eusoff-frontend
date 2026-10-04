@@ -1,10 +1,13 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Eusoff jersey bidding — "abyssal teal" design tokens (Auros-inspired).
+ * Eusoff jersey bidding: "abyssal teal" design tokens (Auros-inspired), light by default with a dark alternate.
  * Depth comes from surface steps, never from shadows: canvas → recessed (inset wells) → raised (cards).
  * Lavender is reserved for big statistics; the aurora gradient for the single primary CTA per view.
  */
+/** Theme-aware colour from an RGB-triplet CSS variable, with Tailwind alpha support. */
+const v = (name: string) => `rgb(var(--${name}) / <alpha-value>)`;
+
 const config = {
   darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
@@ -20,41 +23,45 @@ const config = {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       colors: {
-        // Surfaces
-        canvas: "#012624",
-        recessed: "#011d1c",
-        raised: "#003734",
-        low: "#707777",
-        hairline: "rgba(255, 255, 255, 0.09)",
-        // Text
-        silver: "#bbc7c6",
-        mist: "#edfffe",
-        // Accent (big numbers only)
-        lavender: "#fde9ff",
-        // Status (legible on every surface, AA)
-        aqua: "#5eead4",
-        warn: "#e8c48a",
-        danger: "#f5a3b5",
-        // Chart series (validated categorical set on #003734)
-        viz: { 1: "#1aa596", 2: "#b06fcf", 3: "#c08232" },
+        // Every colour resolves through a theme variable (see globals.css), so one class works in both themes.
+        canvas: v("canvas"),
+        recessed: v("recessed"),
+        raised: v("raised"),
+        field: v("field"),
+        low: v("low"),
+        ink: v("ink"),
+        hairline: "rgb(var(--ink) / 0.1)",
+        heading: v("heading"),
+        silver: v("silver"),
+        mist: v("mist"),
+        faint: v("faint"),
+        lavender: { DEFAULT: v("lavender"), fill: v("lavender-fill") },
+        "on-accent": v("on-accent"),
+        aqua: v("aqua"),
+        warn: v("warn"),
+        danger: v("danger"),
+        viz: { 1: v("viz-1"), 2: v("viz-2"), 3: v("viz-3") },
+        "seq-on-lo": v("seq-on-lo"),
+        "seq-on-hi": v("seq-on-hi"),
+        scrim: "rgb(var(--scrim))",
 
         // shadcn semantic names, mapped onto the system
-        border: "rgba(255, 255, 255, 0.09)",
-        input: "rgba(255, 255, 255, 0.14)",
-        ring: "#5eead4",
-        background: "#012624",
-        foreground: "#bbc7c6",
-        primary: { DEFAULT: "#edfffe", foreground: "#012624" },
-        secondary: { DEFAULT: "#003734", foreground: "#edfffe" },
-        destructive: { DEFAULT: "#f5a3b5", foreground: "#012624" },
-        muted: { DEFAULT: "#011d1c", foreground: "#93a19f" },
-        accent: { DEFAULT: "rgba(255, 255, 255, 0.06)", foreground: "#ffffff" },
-        popover: { DEFAULT: "#003734", foreground: "#bbc7c6" },
-        card: { DEFAULT: "#003734", foreground: "#bbc7c6" },
+        border: "rgb(var(--ink) / 0.1)",
+        input: "rgb(var(--ink) / 0.14)",
+        ring: v("aqua"),
+        background: v("canvas"),
+        foreground: v("silver"),
+        primary: { DEFAULT: v("mist"), foreground: v("canvas") },
+        secondary: { DEFAULT: v("raised"), foreground: v("mist") },
+        destructive: { DEFAULT: v("danger"), foreground: v("canvas") },
+        muted: { DEFAULT: v("recessed"), foreground: v("faint") },
+        accent: { DEFAULT: "rgb(var(--ink) / 0.06)", foreground: v("heading") },
+        popover: { DEFAULT: v("raised"), foreground: v("silver") },
+        card: { DEFAULT: v("raised"), foreground: v("silver") },
       },
       backgroundImage: {
-        aurora: "linear-gradient(90deg, #cbfffc 0%, #edfffe 26%, #fffdfa 48%, #fad1ff 89%)",
-        biolum: "linear-gradient(90deg, #00827c, #cbfffc)",
+        aurora: "var(--aurora)",
+        biolum: "var(--biolum)",
       },
       borderRadius: {
         sm: "4px",

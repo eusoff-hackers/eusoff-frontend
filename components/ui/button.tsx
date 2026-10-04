@@ -9,14 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        /** Neutral action on any surface. */
-        default: "border border-hairline bg-white/[0.08] text-white hover:bg-white/[0.13]",
+        /** Solid action (save, assign): deep teal on light, mist on dark. */
+        default: "bg-mist text-canvas hover:bg-mist/90",
         /** The single primary call to action of a view: aurora gradient, dark ink. */
-        cta: "bg-aurora text-canvas text-[13px] uppercase tracking-[0.12em] hover:brightness-[1.04] hover:saturate-150",
+        cta: "border border-ink/[0.12] bg-aurora text-on-accent text-[13px] uppercase tracking-[0.12em] [box-shadow:var(--card-shadow)] hover:brightness-[1.03] hover:saturate-[1.3]",
         destructive: "border border-danger/30 bg-danger/10 text-danger hover:bg-danger/[0.18]",
-        outline: "border border-white/[0.14] bg-transparent text-mist hover:border-white/25 hover:bg-white/[0.05]",
-        secondary: "border border-hairline bg-raised text-mist hover:bg-[#04423e]",
-        ghost: "text-silver hover:bg-white/[0.06] hover:text-white",
+        outline: "border border-ink/[0.14] bg-transparent text-mist hover:border-ink/25 hover:bg-ink/[0.05]",
+        secondary: "border border-hairline bg-raised text-mist hover:bg-ink/[0.05]",
+        ghost: "text-silver hover:bg-ink/[0.06] hover:text-heading",
         link: "h-auto px-0 text-aqua underline-offset-4 hover:underline",
       },
       size: {
