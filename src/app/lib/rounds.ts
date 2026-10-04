@@ -15,13 +15,13 @@ export const ROUND_STATUS_LABEL: Record<RoundStatus, string> = {
   allocated: "Allocated",
 };
 
-/** Tailwind classes for a small status pill. */
+/** Tailwind classes for a small status pill (dark-teal system, AA on every surface). */
 export const ROUND_STATUS_STYLE: Record<RoundStatus, string> = {
-  scheduled: "border-slate-200 bg-slate-50 text-slate-700",
-  open: "border-emerald-200 bg-emerald-50 text-emerald-800",
-  closed: "border-amber-200 bg-amber-50 text-amber-800",
-  allocating: "border-amber-300 bg-amber-100 text-amber-900",
-  allocated: "border-emerald-900/20 bg-emerald-900 text-emerald-50",
+  scheduled: "border-white/15 bg-white/[0.04] text-silver",
+  open: "border-aqua/35 bg-aqua/10 text-aqua",
+  closed: "border-warn/35 bg-warn/10 text-warn",
+  allocating: "border-warn/35 bg-warn/10 text-warn",
+  allocated: "border-lavender/30 bg-lavender/10 text-lavender",
 };
 
 export interface RoundEvent {

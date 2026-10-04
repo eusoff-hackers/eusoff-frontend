@@ -5,21 +5,24 @@ import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[background-color,border-color,color,opacity,transform,filter] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        /** Neutral action on any surface. */
+        default: "border border-hairline bg-white/[0.08] text-white hover:bg-white/[0.13]",
+        /** The single primary call to action of a view: aurora gradient, dark ink. */
+        cta: "bg-aurora text-canvas text-[13px] uppercase tracking-[0.12em] hover:brightness-[1.04] hover:saturate-150",
+        destructive: "border border-danger/30 bg-danger/10 text-danger hover:bg-danger/[0.18]",
+        outline: "border border-white/[0.14] bg-transparent text-mist hover:border-white/25 hover:bg-white/[0.05]",
+        secondary: "border border-hairline bg-raised text-mist hover:bg-[#04423e]",
+        ghost: "text-silver hover:bg-white/[0.06] hover:text-white",
+        link: "h-auto px-0 text-aqua underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
+        default: "h-11 px-4",
+        sm: "h-10 px-3",
+        lg: "h-12 px-6",
         icon: "h-10 w-10",
       },
     },

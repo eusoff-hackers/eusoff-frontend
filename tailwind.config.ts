@@ -1,80 +1,98 @@
-import type { Config } from "tailwindcss"
+import type { Config } from "tailwindcss";
 
+/**
+ * Eusoff jersey bidding — "abyssal teal" design tokens (Auros-inspired).
+ * Depth comes from surface steps, never from shadows: canvas → recessed (inset wells) → raised (cards).
+ * Lavender is reserved for big statistics; the aurora gradient for the single primary CTA per view.
+ */
 const config = {
   darkMode: ["class"],
-  content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
-	],
+  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
     container: {
       center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
+      padding: "1rem",
+      screens: { "2xl": "1400px" },
     },
     extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
+        // Surfaces
+        canvas: "#012624",
+        recessed: "#011d1c",
+        raised: "#003734",
+        low: "#707777",
+        hairline: "rgba(255, 255, 255, 0.09)",
+        // Text
+        silver: "#bbc7c6",
+        mist: "#edfffe",
+        // Accent (big numbers only)
+        lavender: "#fde9ff",
+        // Status (legible on every surface, AA)
+        aqua: "#5eead4",
+        warn: "#e8c48a",
+        danger: "#f5a3b5",
+        // Chart series (validated categorical set on #003734)
+        viz: { 1: "#1aa596", 2: "#b06fcf", 3: "#c08232" },
+
+        // shadcn semantic names, mapped onto the system
+        border: "rgba(255, 255, 255, 0.09)",
+        input: "rgba(255, 255, 255, 0.14)",
+        ring: "#5eead4",
+        background: "#012624",
+        foreground: "#bbc7c6",
+        primary: { DEFAULT: "#edfffe", foreground: "#012624" },
+        secondary: { DEFAULT: "#003734", foreground: "#edfffe" },
+        destructive: { DEFAULT: "#f5a3b5", foreground: "#012624" },
+        muted: { DEFAULT: "#011d1c", foreground: "#93a19f" },
+        accent: { DEFAULT: "rgba(255, 255, 255, 0.06)", foreground: "#ffffff" },
+        popover: { DEFAULT: "#003734", foreground: "#bbc7c6" },
+        card: { DEFAULT: "#003734", foreground: "#bbc7c6" },
+      },
+      backgroundImage: {
+        aurora: "linear-gradient(90deg, #cbfffc 0%, #edfffe 26%, #fffdfa 48%, #fad1ff 89%)",
+        biolum: "linear-gradient(90deg, #00827c, #cbfffc)",
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        sm: "4px",
+        md: "6px",
+        lg: "8px",
+        xl: "12px",
+        "2xl": "16px",
+        "3xl": "20px",
+      },
+      // No elevation shadows anywhere in the system: depth is expressed with surface steps.
+      boxShadow: {
+        sm: "none",
+        DEFAULT: "none",
+        md: "none",
+        lg: "none",
+        xl: "none",
+        "2xl": "none",
+      },
+      letterSpacing: {
+        display: "-0.035em",
+        heading: "-0.02em",
+        eyebrow: "0.14em",
+      },
+      transitionTimingFunction: {
+        out: "cubic-bezier(0.2, 0, 0, 1)",
       },
       keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+        "fade-up": {
+          from: { opacity: "0", transform: "translateY(6px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        "fade-up": "fade-up 220ms cubic-bezier(0.2, 0, 0, 1) both",
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
-} satisfies Config
+} satisfies Config;
 
-export default config
+export default config;
