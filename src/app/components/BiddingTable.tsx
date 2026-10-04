@@ -14,15 +14,32 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import type { QueryObserverResult } from "@tanstack/react-query";
-import { ChevronDown, ChevronUp, Loader2, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Flame, Loader2, X } from "lucide-react";
 
-import { Segmented } from "@/src/app/components/system";
+import { Segmented, Switch } from "@/src/app/components/system";
 import TeamBids from "@/src/app/dashboard/jersey/TeamBids";
 import type { BiddingData, EligibleBids, UserBid } from "@/src/app/dashboard/jersey/types";
 import { api, errorMessage } from "@/src/app/lib/api";
 import type { User } from "@/src/app/redux/Resources/userSlice";
 
 const MAX_BIDS = 5;
+
+/** Popularity of a number for you: other bidders of your gender vs the slots it has left. */
+const POP_LEVELS = [
+  { key: "quiet", label: "Quiet", swatch: "border border-ink/20 bg-raised" },
+  { key: "some", label: "Some interest", swatch: "bg-pop-1" },
+  { key: "contested", label: "Contested", swatch: "bg-pop-2" },
+  { key: "over", label: "Oversubscribed", swatch: "bg-pop-3" },
+];
+
+/** 0 quiet, 1 fewer bidders than slots, 2 as many bidders as slots, 3 more bidders than slots. */
+function popLevel(demand: number, slots: number | null): 0 | 1 | 2 | 3 {
+  if (demand <= 0) return 0;
+  const q = Math.max(1, slots ?? 1);
+  if (demand < q) return 1;
+  if (demand === q) return 2;
+  return 3;
+}
 const ORDINAL = ["1st", "2nd", "3rd", "4th", "5th"];
 
 interface BiddingTableProps {
@@ -33,6 +50,8 @@ interface BiddingTableProps {
   userEligibleBids: EligibleBids | undefined;
   /** Anchor id for the number grid, so the status card's CTA can scroll to it. */
   gridId?: string;
+  /** Rendered just above the grid (the collapsible rules card on phones). */
+  rulesSlot?: React.ReactNode;
 }
 
 interface BidEntry {
@@ -50,11 +69,13 @@ const BiddingTable: React.FC<BiddingTableProps> = ({
   biddings,
   userEligibleBids,
   gridId = "numbers",
+  rulesSlot,
 }) => {
   const { toast } = useToast();
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [view, setView] = useState<"all" | "available">("all");
+  const [showHeat, setShowHeat] = useState(true);
 
   const canBid = userBids.canBid;
   const activeRound = userBids.system.bidRound;
@@ -143,6 +164,15 @@ const BiddingTable: React.FC<BiddingTableProps> = ({
   const availableCount = allNumbers.filter(n => isOpenNumber(n) || rankOf.has(n)).length;
   const gridNumbers = allNumbers.filter(n => view === "all" || isOpenNumber(n) || rankOf.has(n));
   const emptySlots = MAX_BIDS - currentBids.length;
+  /** The ten most-bid numbers (by your gender) get a flame. */
+  const hotSet = new Set(
+    allNumbers
+      .map(n => ({ n, d: demandFor(n) }))
+      .filter(x => x.d > 0)
+      .sort((a, b) => b.d - a.d || a.n - b.n)
+      .slice(0, 10)
+      .map(x => x.n),
+  );
 
   return (
     <div className="space-y-4">
@@ -255,6 +285,8 @@ const BiddingTable: React.FC<BiddingTableProps> = ({
         myPicks={numbers}
       />
 
+      {rulesSlot}
+
       {/* Number grid */}
       <section id={gridId} className="surface-card scroll-mt-20 p-4 sm:p-6" aria-labelledby="numbers-heading">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -292,7 +324,7 @@ const BiddingTable: React.FC<BiddingTableProps> = ({
                       key={i}
                       className={cn(
                         "flex h-7 min-w-[1.75rem] items-center justify-center rounded-md px-1 text-[13px] font-medium tabular-nums",
-                        n != null ? "bg-lavender-fill text-on-accent" : "border border-dashed border-ink/20 text-faint",
+                        n != null ? "bg-pick text-on-pick" : "border border-dashed border-ink/20 text-faint",
                       )}
                     >
                       {n ?? i + 1}
@@ -300,32 +332,49 @@ const BiddingTable: React.FC<BiddingTableProps> = ({
                   );
                 })}
               </ol>
-              <span className="ml-auto hidden text-[12px] text-faint sm:inline">
-                <span className="text-warn">3</span> = others bidding
-              </span>
+
             </div>
           </div>
         )}
 
-        <ul className="my-3 flex flex-wrap gap-x-4 gap-y-1.5 text-[12px] text-silver" aria-label="Legend">
-          <li className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-[3px] border border-ink/20 bg-raised" aria-hidden />
-            {preview ? "Free" : "Available"}
-          </li>
-          {!preview && (
+        <div className="my-3 space-y-2">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            {showHeat ? (
+              <ul className="flex flex-wrap gap-x-3 gap-y-1.5 text-[12px] text-silver" aria-label="Popularity">
+                {POP_LEVELS.map(l => (
+                  <li key={l.key} className="flex items-center gap-1.5">
+                    <span className={cn("h-3 w-3 rounded-[3px]", l.swatch)} aria-hidden />
+                    {l.label}
+                  </li>
+                ))}
+                <li className="flex items-center gap-1">
+                  <Flame className="h-3.5 w-3.5 text-danger" strokeWidth={2} aria-hidden /> Top 10
+                </li>
+              </ul>
+            ) : (
+              <span />
+            )}
+            <label className="flex min-h-[40px] cursor-pointer items-center gap-2.5 text-[12px] text-silver">
+              Show popularity
+              <Switch label="Show popularity" checked={showHeat} onCheckedChange={setShowHeat} />
+            </label>
+          </div>
+          <ul className="flex flex-wrap gap-x-3 gap-y-1.5 text-[12px] text-silver" aria-label="Legend">
+            {!preview && (
+              <li className="flex items-center gap-1.5">
+                <span className="h-3 w-3 rounded-[3px] bg-pick ring-1 ring-gold ring-offset-1 ring-offset-raised" aria-hidden />{" "}
+                Your choice
+              </li>
+            )}
             <li className="flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-[3px] bg-lavender-fill" aria-hidden /> Your choice
+              <span className="h-3 w-3 rounded-[3px] bg-recessed" aria-hidden /> {preview ? "Taken" : "Not open to you"}
             </li>
-          )}
-          <li className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-[3px] bg-recessed" aria-hidden /> {preview ? "Taken" : "Not open to you"}
-          </li>
-          {!preview && (
-            <li className="flex items-center gap-1.5 sm:hidden">
-              <span className="text-[11px] font-medium tabular-nums text-warn">3</span> Others bidding
+            <li className="flex items-center gap-1.5">
+              <span className="text-[11px] font-medium tabular-nums text-heading">3</span> {myGender ?? "Other"} bidders
+              vs slots left
             </li>
-          )}
-        </ul>
+          </ul>
+        </div>
 
         <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-10">
           {gridNumbers.map(number => {
@@ -334,7 +383,8 @@ const BiddingTable: React.FC<BiddingTableProps> = ({
             const chosen = rank != null;
             const demand = demandFor(number);
             const quota = quotaFor(number);
-            const contested = quota != null && demand >= Math.max(1, quota);
+            const pop = showHeat && open && !chosen ? popLevel(demand, quota) : 0;
+            const hot = showHeat && !chosen && open && hotSet.has(number);
             const interactive = preview ? true : open || chosen;
             return (
               <button
@@ -345,14 +395,26 @@ const BiddingTable: React.FC<BiddingTableProps> = ({
                 aria-label={
                   chosen
                     ? `Number ${number}, your ${ORDINAL[rank]} choice`
-                    : `Number ${number}${open ? (demand ? `, ${demand} others bidding` : preview ? ", free" : ", available") : preview ? ", taken" : ", unavailable"}`
+                    : `Number ${number}${
+                        open
+                          ? `${demand ? `, ${demand} others bidding for ${quota ?? "?"} slot${quota === 1 ? "" : "s"}` : preview ? ", free" : ", available"}${pop ? `, ${POP_LEVELS[pop - 1].label.toLowerCase()}` : ""}${hot ? ", top 10" : ""}`
+                          : preview
+                            ? ", taken"
+                            : ", unavailable"
+                      }`
                 }
                 className={cn(
                   "relative flex h-11 min-w-0 items-center justify-center rounded-lg text-base font-medium tabular-nums transition-[background-color,border-color,color,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua sm:h-12 sm:text-[17px]",
                   chosen
-                    ? "bg-lavender-fill text-on-accent hover:brightness-[0.97]"
+                    ? "z-[1] bg-pick text-on-pick ring-2 ring-gold ring-offset-2 ring-offset-raised hover:brightness-110"
                     : open
-                      ? "border border-ink/[0.14] bg-raised text-mist hover:border-aqua/60 hover:bg-aqua/[0.06] active:scale-[0.96]"
+                      ? cn(
+                          "hover:brightness-[0.97] active:scale-[0.96]",
+                          pop === 0 && "border border-ink/[0.14] bg-raised text-mist hover:border-aqua/60",
+                          pop === 1 && "bg-pop-1 text-pop-on-1",
+                          pop === 2 && "bg-pop-2 text-pop-on-2",
+                          pop === 3 && "bg-pop-3 text-pop-on-3",
+                        )
                       : preview
                         ? "bg-recessed text-faint"
                         : "cursor-not-allowed bg-recessed text-low",
@@ -360,19 +422,30 @@ const BiddingTable: React.FC<BiddingTableProps> = ({
               >
                 {number}
                 {chosen && (
-                  <span className="absolute left-1.5 top-1 text-[10px] font-semibold leading-none text-on-accent/70">
+                  <span className="absolute left-1.5 top-1 text-[10px] font-semibold leading-none text-on-pick/75">
                     {rank + 1}
                   </span>
+                )}
+                {hot && (
+                  <Flame
+                    className={cn(
+                      "absolute left-1 top-1 h-3 w-3",
+                      pop === 3 ? "text-pop-on-3" : pop === 0 ? "text-danger" : "text-pop-on-1",
+                    )}
+                    strokeWidth={2.25}
+                    aria-hidden
+                  />
                 )}
                 {!chosen && open && demand > 0 && (
                   <span
                     className={cn(
-                      "absolute bottom-1 right-1.5 text-[10px] font-medium leading-none tabular-nums",
-                      contested ? "text-warn" : "text-faint",
+                      "absolute bottom-1 right-1.5 text-[10px] font-semibold leading-none tabular-nums",
+                      pop ? "opacity-90" : "text-faint",
                     )}
                     aria-hidden
                   >
                     {demand}
+                    {quota != null && <span className="font-normal opacity-75">/{quota}</span>}
                   </span>
                 )}
               </button>
@@ -387,7 +460,7 @@ const BiddingTable: React.FC<BiddingTableProps> = ({
         <p className="mt-3 text-[12px] text-faint">
           {preview
             ? "Numbers taken in earlier rounds lose their slots. Bidding opens on your round's date."
-            : `Small counts show other ${myGender ?? "resident"} bidders this round. Amber means more bidders than slots.`}
+            : `Corner counts are other ${myGender ?? "resident"} bidders this round over slots left. Allocation is by choice rank, then points.`}
         </p>
       </section>
 

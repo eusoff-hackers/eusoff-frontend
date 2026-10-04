@@ -155,7 +155,7 @@ export default function TeamBids({
                                   hit
                                     ? "border border-warn/50 bg-warn/10 text-warn"
                                     : picks.has(n)
-                                      ? "bg-lavender-fill text-on-accent"
+                                      ? "bg-pick text-on-pick"
                                       : "bg-raised text-mist outline outline-1 -outline-offset-1 outline-ink/10",
                                 )}
                               >

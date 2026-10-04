@@ -34,7 +34,7 @@ export default function NavBar() {
   return (
     <>
       <header className="sticky top-0 z-30 bg-brand pt-[env(safe-area-inset-top)] text-band-ink [box-shadow:0_1px_0_rgb(var(--ink)/0.08)]">
-        <div className="mx-auto flex h-14 max-w-5xl items-center gap-4 px-4 sm:h-16 sm:px-6">
+        <div className="mx-auto flex h-14 max-w-5xl items-center gap-4 px-4 sm:h-16 sm:px-6 lg:max-w-6xl">
           <Link
             href="/dashboard/jersey"
             className="-ml-1 rounded-md px-1 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-band-ink"

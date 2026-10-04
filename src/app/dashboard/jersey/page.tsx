@@ -10,6 +10,7 @@ import BiddingTable from "@/src/app/components/BiddingTable";
 import Loading from "@/src/app/components/Loading";
 import RoundTimeline from "@/src/app/components/RoundTimeline";
 import { ErrorState } from "@/src/app/components/system";
+import { RulesAside, RulesCard } from "@/src/app/dashboard/jersey/RulesPanel";
 import { AllocatedCard, JerseyIdentity, PointsCard, StatusBanner } from "@/src/app/dashboard/jersey/JerseyOverview";
 import type { BiddingData, EligibleBids, UserBid } from "@/src/app/dashboard/jersey/types";
 import { apiGet, errorStatus } from "@/src/app/lib/api";
@@ -83,7 +84,7 @@ const Jersey: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-4 px-4 py-6 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-5xl space-y-4 px-4 py-6 sm:px-6 sm:py-10 lg:max-w-6xl">
       <JerseyIdentity user={user} round={userBids.info.round} />
 
       {allocated ? (
@@ -106,14 +107,20 @@ const Jersey: React.FC = () => {
       )}
 
       {!allocated && (
-        <BiddingTable
-          user={user}
-          userBids={userBids}
-          refetchUserBids={refetchUserBids}
-          biddings={bids}
-          userEligibleBids={userEligibleBids}
-          gridId={GRID_ID}
-        />
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr),18rem] lg:items-start lg:gap-4">
+          <BiddingTable
+            user={user}
+            userBids={userBids}
+            refetchUserBids={refetchUserBids}
+            biddings={bids}
+            userEligibleBids={userEligibleBids}
+            gridId={GRID_ID}
+            rulesSlot={<RulesCard className="lg:hidden" rounds={rounds} myRound={userBids.info.round} />}
+          />
+          <div className="hidden lg:block lg:self-stretch">
+            <RulesAside rounds={rounds} myRound={userBids.info.round} />
+          </div>
+        </div>
       )}
 
       {rounds.length > 0 && (

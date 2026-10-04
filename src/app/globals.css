@@ -44,6 +44,16 @@
     --seq-5: 123 30 43;
     --seq-on-lo: 31 41 55;
     --seq-on-hi: 255 255 255;
+    /* Number-grid popularity (bidders vs slots): some interest, contested, oversubscribed */
+    --pop-1: 251 231 168;
+    --pop-2: 244 176 102;
+    --pop-3: 168 50 58;
+    --pop-on-1: 31 41 55;
+    --pop-on-2: 31 41 55;
+    --pop-on-3: 255 255 255;
+    /* Your picks on the grid: solid ink so they outrank every popularity fill */
+    --pick: 31 41 55;
+    --on-pick: 255 255 255;
     --scrim: 31 41 55 / 0.4;
     --brand: linear-gradient(135deg, #f7db65 0%, #efab6a 52%, #e87d74 100%);
     --band-ink: 31 41 55;
@@ -86,6 +96,14 @@
     --seq-5: 242 195 117;
     --seq-on-lo: 255 255 255;
     --seq-on-hi: 27 19 21;
+    --pop-1: 75 58 27;
+    --pop-2: 154 85 36;
+    --pop-3: 240 138 115;
+    --pop-on-1: 255 255 255;
+    --pop-on-2: 255 255 255;
+    --pop-on-3: 27 19 21;
+    --pick: 252 247 242;
+    --on-pick: 27 19 21;
     --scrim: 0 0 0 / 0.6;
     --brand: linear-gradient(135deg, #4a2a1f 0%, #5a2430 55%, #3a1b24 100%);
     --band-ink: 248 241 234;
