@@ -2,12 +2,23 @@
 
 import React, { useMemo, useState } from "react";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 
 import { useRoundBids, useRounds } from "@/src/app/admin/api";
-import { EmptyState, ErrorState, GenderTag, LoadingBlock, NumberChip, PageHeader } from "@/src/app/admin/components/ui";
+import {
+  EmptyState,
+  ErrorState,
+  GenderTag,
+  LoadingBlock,
+  NumberChip,
+  PageHeader,
+  Segmented,
+} from "@/src/app/admin/components/ui";
 import type { Round } from "@/src/app/admin/types";
 
 /** The round an admin most likely wants: the open one, else the latest that has started. */
@@ -37,34 +48,33 @@ export default function BidsPage() {
     <>
       <PageHeader
         title="Bids"
-        description={data ? `${list.length} bidder${list.length === 1 ? "" : "s"} in round ${round}` : undefined}
+        description={
+          data ? (
+            <>
+              <span className="tabular-nums text-mist">{list.length}</span> bidder{list.length === 1 ? "" : "s"} in
+              round {round}, highest points first
+            </>
+          ) : undefined
+        }
+        actions={
+          <Link href={`/admin/rounds/${round}/non-bidders`} className={buttonVariants({ variant: "outline" })}>
+            Who hasn&apos;t bid <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+          </Link>
+        }
       />
 
-      <div className="mb-4 flex flex-col gap-3 rounded-lg border bg-card p-3 shadow-sm sm:flex-row sm:items-end sm:p-4">
-        <fieldset>
-          <legend className="mb-1 text-xs font-medium text-muted-foreground">Round</legend>
-          <div className="inline-flex rounded-md border bg-slate-50 p-0.5" role="radiogroup">
-            {[1, 2, 3, 4].map(r => (
-              <button
-                key={r}
-                type="button"
-                role="radio"
-                aria-checked={round === r}
-                onClick={() => setPicked(r)}
-                className={cn(
-                  "h-10 min-w-[48px] rounded px-3 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  round === r ? "bg-emerald-950 text-white shadow" : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                R{r}
-              </button>
-            ))}
-          </div>
-        </fieldset>
-        <div className="sm:w-48">
-          <Label htmlFor="bid-number" className="text-xs text-muted-foreground">
-            Filter by number
-          </Label>
+      <div className="surface-card mb-4 flex flex-col gap-4 p-3 sm:flex-row sm:items-end sm:p-4">
+        <div className="space-y-1.5">
+          <p className="text-[13px] font-medium text-silver">Round</p>
+          <Segmented
+            label="Round"
+            value={round}
+            onChange={setPicked}
+            options={[1, 2, 3, 4].map(r => ({ value: r, label: `Round ${r}` }))}
+          />
+        </div>
+        <div className="space-y-1.5 sm:w-48">
+          <Label htmlFor="bid-number">Filter by number</Label>
           <Input
             id="bid-number"
             type="number"
@@ -74,7 +84,6 @@ export default function BidsPage() {
             placeholder="Any"
             value={numberFilter}
             onChange={e => setNumberFilter(e.target.value)}
-            className="mt-1"
           />
         </div>
       </div>
@@ -85,26 +94,29 @@ export default function BidsPage() {
         <ErrorState error={error} onRetry={() => refetch()} />
       ) : list.length === 0 ? (
         <EmptyState>
-          {filterNum != null ? `Nobody bid for #${filterNum} in round ${round}.` : `No bids in round ${round} yet.`}
+          {filterNum != null ? `Nobody bid for ${filterNum} in round ${round}.` : `No bids in round ${round} yet.`}
         </EmptyState>
       ) : (
-        <ul className="divide-y overflow-hidden rounded-lg border bg-card shadow-sm">
+        <ul className="surface-card overflow-hidden">
           {list.map(row => (
-            <li key={row.user._id} className="flex flex-col gap-2 px-3 py-3 sm:flex-row sm:items-center sm:px-4">
-              <div className="min-w-0 sm:w-64 sm:shrink-0">
-                <p className="truncate font-medium">{row.user.name}</p>
-                <p className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+            <li
+              key={row.user._id}
+              className="flex flex-col gap-2.5 border-b border-hairline px-4 py-3 last:border-0 sm:flex-row sm:items-center sm:px-5"
+            >
+              <div className="min-w-0 sm:w-72 sm:shrink-0">
+                <p className="truncate text-[15px] text-white">{row.user.name}</p>
+                <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs tabular-nums text-silver">
                   <span>{row.user.room}</span>
                   <GenderTag gender={row.user.gender} />
-                  <span className="font-semibold text-foreground">{row.user.points} pts</span>
+                  <span className="text-mist">{row.user.points} pts</span>
                   <span>Y{row.user.year}</span>
                 </p>
               </div>
               <ol className="flex flex-wrap gap-1.5" aria-label="Choices in order">
                 {row.bids.map((b, i) => (
-                  <li key={`${b.number}-${i}`} className="flex items-center gap-0.5">
-                    <span className="text-[10px] text-muted-foreground">{i + 1}</span>
-                    <NumberChip n={b.number} highlight={filterNum === b.number} />
+                  <li key={`${b.number}-${i}`} className="flex items-center gap-1">
+                    <span className="w-2 text-[10px] tabular-nums text-[#93a19f]">{i + 1}</span>
+                    <NumberChip n={b.number} highlight={filterNum === b.number} className={cn(i === 0 && "text-white")} />
                   </li>
                 ))}
               </ol>

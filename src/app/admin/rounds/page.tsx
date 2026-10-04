@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,10 +13,21 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Info } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ArrowUpRight, Info } from "lucide-react";
+import Link from "next/link";
 
 import { adminApi, useAdminMutation, useRounds } from "@/src/app/admin/api";
-import { EmptyState, ErrorState, GenderTag, LoadingBlock, NumberChip, PageHeader } from "@/src/app/admin/components/ui";
+import {
+  Callout,
+  EmptyState,
+  ErrorState,
+  GenderTag,
+  LoadingBlock,
+  NumberChip,
+  PageHeader,
+} from "@/src/app/admin/components/ui";
+import LeftoversPanel from "@/src/app/admin/rounds/LeftoversPanel";
 import type { AllocationPreview, Round } from "@/src/app/admin/types";
 import { StatusPill } from "@/src/app/components/RoundTimeline";
 import { formatCountdown, formatSgt, fromSgtInput, toSgtInput, useNow } from "@/src/app/lib/time";
@@ -24,6 +35,15 @@ import { formatCountdown, formatSgt, fromSgtInput, toSgtInput, useNow } from "@/
 type Draft = Record<number, { open: string; close: string }>;
 
 const ordinal = (n: number) => ["1st", "2nd", "3rd", "4th", "5th"][n] ?? `${n + 1}th`;
+
+function PersonLine({ name, meta }: { name: string; meta: React.ReactNode }) {
+  return (
+    <div className="min-w-0 flex-1">
+      <p className="truncate text-sm text-white">{name}</p>
+      <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs tabular-nums text-silver">{meta}</p>
+    </div>
+  );
+}
 
 function PreviewDialog({
   round,
@@ -37,41 +57,42 @@ function PreviewDialog({
   const results = preview ? [...preview.results].sort((a, b) => a.number - b.number) : [];
   return (
     <Dialog open={round != null} onOpenChange={open => !open && onClose()}>
-      <DialogContent className="flex max-h-[90vh] w-[calc(100%-1rem)] max-w-3xl flex-col gap-3 rounded-lg p-4 sm:p-6">
-        <DialogHeader className="text-left">
-          <DialogTitle>Allocation preview · Round {round}</DialogTitle>
-          <DialogDescription>Dry run with the bids as they stand right now. Nothing has been saved.</DialogDescription>
+      <DialogContent className="flex max-w-3xl flex-col gap-4">
+        <DialogHeader>
+          <DialogTitle>Allocation preview, round {round}</DialogTitle>
+          <DialogDescription>A dry run with the bids as they stand right now. Nothing is saved.</DialogDescription>
         </DialogHeader>
         {!preview ? (
           <LoadingBlock rows={5} />
         ) : (
-          <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pr-1">
+          <div className="min-h-0 flex-1 space-y-5">
             <section>
-              <h3 className="mb-2 text-sm font-semibold">
-                Would be allocated <span className="text-muted-foreground">({results.length})</span>
+              <h3 className="mb-2 text-[13px] text-silver">
+                Would be allocated <span className="tabular-nums text-mist">{results.length}</span>
               </h3>
               {results.length === 0 ? (
                 <EmptyState>Nobody would be allocated.</EmptyState>
               ) : (
-                <ul className="divide-y rounded-md border">
+                <ul className="rounded-xl bg-recessed">
                   {results.map(r => (
-                    <li key={r.user._id} className="flex items-center gap-3 px-3 py-2">
-                      <NumberChip n={r.number} />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{r.user.name}</p>
-                        <p className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-                          <span>{r.user.room}</span>
-                          <GenderTag gender={r.user.gender} />
-                          <span>{r.user.points} pts</span>
-                          <span>Y{r.user.year}</span>
-                        </p>
-                      </div>
-                      <span
-                        className={
-                          r.choice === 0
-                            ? "shrink-0 rounded bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-900"
-                            : "shrink-0 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700"
+                    <li key={r.user._id} className="flex items-center gap-3 border-b border-hairline px-3 py-2.5 last:border-0">
+                      <NumberChip n={r.number} highlight />
+                      <PersonLine
+                        name={r.user.name}
+                        meta={
+                          <>
+                            <span>{r.user.room}</span>
+                            <GenderTag gender={r.user.gender} />
+                            <span>{r.user.points} pts</span>
+                            <span>Y{r.user.year}</span>
+                          </>
                         }
+                      />
+                      <span
+                        className={cn(
+                          "shrink-0 rounded-[5px] px-2 py-1 text-[11px] font-medium",
+                          r.choice === 0 ? "bg-aqua/10 text-aqua" : "bg-white/[0.06] text-silver",
+                        )}
                       >
                         {ordinal(r.choice)} choice
                       </span>
@@ -81,26 +102,28 @@ function PreviewDialog({
               )}
             </section>
             <section>
-              <h3 className="mb-2 text-sm font-semibold">
-                Unallocated bidders <span className="text-muted-foreground">({preview.unallocated.length})</span>
+              <h3 className="mb-2 text-[13px] text-silver">
+                Would miss out <span className="tabular-nums text-mist">{preview.unallocated.length}</span>
               </h3>
               {preview.unallocated.length === 0 ? (
                 <EmptyState>Every bidder gets a number.</EmptyState>
               ) : (
-                <ul className="divide-y rounded-md border border-amber-200">
+                <ul className="rounded-xl border border-warn/25 bg-recessed">
                   {preview.unallocated.map(u => (
-                    <li key={u.user._id} className="flex flex-wrap items-center gap-2 px-3 py-2">
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{u.user.name}</p>
-                        <p className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-                          <span>{u.user.room}</span>
-                          <GenderTag gender={u.user.gender} />
-                          <span>{u.user.points} pts</span>
-                        </p>
-                      </div>
+                    <li key={u.user._id} className="flex flex-wrap items-center gap-2 border-b border-hairline px-3 py-2.5 last:border-0">
+                      <PersonLine
+                        name={u.user.name}
+                        meta={
+                          <>
+                            <span>{u.user.room}</span>
+                            <GenderTag gender={u.user.gender} />
+                            <span>{u.user.points} pts</span>
+                          </>
+                        }
+                      />
                       <div className="flex flex-wrap gap-1" aria-label="Choices">
                         {u.choices.map((n, i) => (
-                          <NumberChip key={`${n}-${i}`} n={n} className="h-7 text-xs" />
+                          <NumberChip key={`${n}-${i}`} n={n} className="h-7 min-w-[2rem] text-xs" />
                         ))}
                       </div>
                     </li>
@@ -151,15 +174,15 @@ function RoundCard({
         : null;
 
   return (
-    <article className="min-w-0 rounded-lg border bg-card p-4 shadow-sm">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold">Round {round.round}</h2>
+    <article className={cn("surface-card min-w-0 p-4 sm:p-6", round.status === "open" && "border-aqua/25")}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-xl font-medium tracking-heading text-white">Round {round.round}</h2>
         <StatusPill status={round.status} />
       </div>
-      {countdown && <p className="-mt-1 mb-3 text-sm font-medium tabular-nums text-emerald-800">{countdown}</p>}
+      <p className="mt-1 h-5 text-sm tabular-nums text-aqua">{countdown}</p>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="min-w-0">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="min-w-0 space-y-1.5">
           <Label htmlFor={`open-${round.round}`}>Opens (SGT)</Label>
           <Input
             id={`open-${round.round}`}
@@ -167,10 +190,9 @@ function RoundCard({
             value={draft.open}
             disabled={locked}
             onChange={e => onDraft("open", e.target.value)}
-            className="mt-1"
           />
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 space-y-1.5">
           <Label htmlFor={`close-${round.round}`}>Closes (SGT)</Label>
           <Input
             id={`close-${round.round}`}
@@ -178,54 +200,55 @@ function RoundCard({
             value={draft.close}
             disabled={locked}
             onChange={e => onDraft("close", e.target.value)}
-            className="mt-1"
             aria-invalid={invalid}
           />
         </div>
       </div>
-      {invalid && <p className="mt-1 text-sm text-red-600">Close must be after open.</p>}
-      {locked && <p className="mt-2 text-xs text-muted-foreground">Times are locked once a round is allocated.</p>}
+      {invalid && <p className="mt-2 text-sm text-danger">Close must be after open.</p>}
+      {locked && <p className="mt-2 text-xs text-[#93a19f]">Times are locked once a round is allocated.</p>}
 
       {round.summary && (
-        <dl className="mt-3 grid grid-cols-3 gap-2 rounded-md bg-slate-50 p-2 text-center">
-          <div>
-            <dt className="text-[11px] text-muted-foreground">Bidders</dt>
-            <dd className="font-semibold tabular-nums">{round.summary.bidders}</dd>
-          </div>
-          <div>
-            <dt className="text-[11px] text-muted-foreground">Allocated</dt>
-            <dd className="font-semibold tabular-nums">{round.summary.allocated}</dd>
-          </div>
-          <div>
-            <dt className="text-[11px] text-muted-foreground">Missed out</dt>
-            <dd className="font-semibold tabular-nums">{round.summary.unallocatedBidders}</dd>
-          </div>
+        <dl className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-recessed p-3">
+          {[
+            ["Bidders", round.summary.bidders],
+            ["Allocated", round.summary.allocated],
+            ["Missed out", round.summary.unallocatedBidders],
+          ].map(([l, v]) => (
+            <div key={l}>
+              <dt className="text-xs text-silver">{l}</dt>
+              <dd className="mt-1 text-xl font-medium tabular-nums text-white">{v}</dd>
+            </div>
+          ))}
         </dl>
       )}
-      {round.allocatedAt && (
-        <p className="mt-2 text-xs text-muted-foreground">Allocated {formatSgt(round.allocatedAt)}</p>
-      )}
+      {round.allocatedAt && <p className="mt-2 text-xs text-[#93a19f]">Allocated {formatSgt(round.allocatedAt)}</p>}
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Button variant="outline" onClick={onPreview} disabled={busy}>
+      <div className="mt-5 flex flex-wrap items-center gap-2">
+        <Button variant="outline" size="sm" onClick={onPreview} disabled={busy}>
           Preview allocation
         </Button>
         {round.status === "allocated" ? (
-          <Button variant="destructive" onClick={onUndo} disabled={busy}>
+          <Button variant="destructive" size="sm" onClick={onUndo} disabled={busy}>
             Undo allocation
           </Button>
         ) : (
-          <Button onClick={onAllocate} disabled={busy || round.status !== "closed"}>
+          <Button size="sm" onClick={onAllocate} disabled={busy || round.status !== "closed"}>
             Allocate now
           </Button>
         )}
+        {round.status !== "scheduled" && (
+          <Link
+            href={`/admin/rounds/${round.round}/non-bidders`}
+            className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "sm:ml-auto")}
+          >
+            Non-bidders <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+          </Link>
+        )}
       </div>
       {(round.status === "scheduled" || round.status === "open") && (
-        <p className="mt-2 text-xs text-muted-foreground">Allocate now unlocks once the round has closed.</p>
+        <p className="mt-2 text-xs text-[#93a19f]">Allocate now unlocks once the round has closed.</p>
       )}
-      {round.status === "allocating" && (
-        <p className="mt-2 text-xs font-medium text-amber-800">Allocation is running…</p>
-      )}
+      {round.status === "allocating" && <p className="mt-2 text-xs text-warn">Allocation is running.</p>}
     </article>
   );
 }
@@ -271,7 +294,7 @@ export default function RoundsPage() {
     <>
       <PageHeader
         title="Rounds"
-        description="All times are Singapore time (SGT), whatever timezone this device is in."
+        description="All times are Singapore time, whatever timezone this device is in."
         actions={
           <>
             {changed.length > 0 && (
@@ -280,6 +303,7 @@ export default function RoundsPage() {
               </Button>
             )}
             <Button
+              variant={changed.length > 0 ? "cta" : "default"}
               disabled={changed.length === 0 || invalid || save.isPending}
               onClick={() =>
                 save.mutate(
@@ -290,20 +314,21 @@ export default function RoundsPage() {
                 )
               }
             >
-              {save.isPending ? "Saving…" : changed.length > 0 ? `Save ${changed.length} change(s)` : "Save times"}
+              {save.isPending
+                ? "Saving"
+                : changed.length > 0
+                  ? `Save ${changed.length} change${changed.length === 1 ? "" : "s"}`
+                  : "Save times"}
             </Button>
           </>
         }
       />
 
-      <div className="mb-4 flex gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950">
-        <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-        <p>
-          Allocation runs <strong>automatically</strong> when a round closes (by choice rank → points → seniority →
-          random). Use <em>Preview</em> to see the likely outcome at any time. <em>Allocate now</em> is only needed if
-          the automatic run didn&apos;t happen; <em>Undo</em> reverts a round&apos;s allocations so it can be re-run.
-        </p>
-      </div>
+      <Callout icon={Info} className="mb-4">
+        Allocation runs <span className="text-white">automatically</span> when a round closes: by choice rank, then
+        points, seniority, then random. Preview shows the likely outcome at any time. Allocate now is only needed if
+        the automatic run didn&apos;t happen; Undo releases a round&apos;s numbers so it can run again.
+      </Callout>
 
       {isLoading ? (
         <LoadingBlock rows={4} />
@@ -331,6 +356,8 @@ export default function RoundsPage() {
         </div>
       )}
 
+      {rounds && <LeftoversPanel rounds={sorted} />}
+
       <PreviewDialog
         round={previewRound}
         preview={preview}
@@ -341,15 +368,15 @@ export default function RoundsPage() {
       />
 
       <Dialog open={undoRound != null} onOpenChange={open => !open && setUndoRound(null)}>
-        <DialogContent className="w-[calc(100%-1rem)] rounded-lg">
-          <DialogHeader className="text-left">
+        <DialogContent>
+          <DialogHeader>
             <DialogTitle>Undo round {undoRound} allocation?</DialogTitle>
             <DialogDescription>
-              Every number allocated in round {undoRound} will be released and the round goes back to
-              &ldquo;closed&rdquo;. Residents will see themselves as unallocated until you allocate again.
+              Every number allocated in round {undoRound} is released and the round goes back to closed. Residents see
+              themselves as unallocated until you allocate again.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2">
+          <DialogFooter>
             <Button variant="outline" onClick={() => setUndoRound(null)}>
               Cancel
             </Button>
@@ -358,7 +385,7 @@ export default function RoundsPage() {
               disabled={undo.isPending}
               onClick={() => undoRound != null && undo.mutate(undoRound)}
             >
-              {undo.isPending ? "Undoing…" : "Undo allocation"}
+              {undo.isPending ? "Undoing" : "Undo allocation"}
             </Button>
           </DialogFooter>
         </DialogContent>
