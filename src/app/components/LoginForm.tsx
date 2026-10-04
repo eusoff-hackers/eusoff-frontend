@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 
-import type { User } from "@/src/app/redux/Resources/userSlice";
+import { homeFor, toUser } from "@/src/app/lib/api";
 import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
 
 const axios = require("axios").default;
@@ -19,7 +19,7 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (user !== null) {
-      router.push(`/dashboard/profile`);
+      router.push(homeFor(user));
     }
   });
 
@@ -39,21 +39,15 @@ export default function LoginForm() {
       });
 
       if (response.data.success) {
-        const newUser: User = {
-          username: response.data.data.user.username,
-          role: response.data.data.user.role,
-          year: response.data.data.user.year,
-          gender: response.data.data.user.gender,
-          room: response.data.data.user.room,
-        };
+        const newUser = toUser(response.data.data.user);
 
         dispatch(setUser(newUser));
-        router.replace("/dashboard/profile");
+        router.replace(homeFor(newUser));
       }
     } catch (error) {
       const axiosError = error as AxiosError;
 
-      if (axiosError.response.status == 401) {
+      if (axiosError.response?.status == 401) {
         setError("Invalid username or password");
         console.error("Unauthorised");
       }

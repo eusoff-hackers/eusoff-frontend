@@ -43,6 +43,7 @@ const savedUser: User | null =
     ? null
     : {
         username: oldState.username,
+        name: oldState.name,
         role: oldState.role,
         year: oldState.year,
         gender: oldState.gender,

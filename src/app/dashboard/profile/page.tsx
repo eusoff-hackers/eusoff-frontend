@@ -104,8 +104,9 @@ const ProfilePage = () => {
             </div>
             <div className="text-center sm:text-left">
               <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800">
-                {user.username} {isSuperhero && "✨"}
+                {user.name ?? user.username} {isSuperhero && "✨"}
               </h1>
+              {user.name && <p className="text-gray-500">{user.username}</p>}
               <p className="text-gray-500">Year {user.year}</p>
               <p className="text-gray-500">Gender: {user.gender}</p>
               <p className="text-gray-500">Room: {user.room}</p>
