@@ -49,7 +49,7 @@ const InstructionsPage = () => {
               <li>Made it through final cut last year = 1 point (each sport)</li>
             </ol>
             <br />
-            <p>3. Eusoffians are to bid during their round only. </p>
+            <p>3. Eusoffians bid in their own round. If you don&apos;t get a number, you may bid again in later rounds. </p>
             <br />
 
             <p>4. Eusoffians are to enter the website using the given username and password and submit their top 5 numbers.</p>
@@ -72,11 +72,11 @@ const InstructionsPage = () => {
 
               <li>Since there are more Eusoffians than unique jersey numbers, the numbers will be shared, but only to a certain limit, and with some exceptions. </li>
 
-              <li>#0 - #9 will <strong>not</strong> be shared.</li>
+              <li>#1 - #9 will <strong>not</strong> be shared. #0 can be shared like any other number.</li>
 
-              <li>All numbers in Round 1 will <strong>not</strong> be shared. Only one person of each gender can get a specific number, eg. If Jason (M), Lily (F) and Anna (F) all bid for #17 in Round 1, only Jason and one of Lily or Anna will get it. </li>
+              <li>Numbers are <strong>not</strong> shared within Round 1. Only one person of each gender can get a specific number in that round, eg. If Jason (M), Lily (F) and Anna (F) all bid for #17 in Round 1, only Jason and one of Lily or Anna will get it. </li>
 
-              <li>Numbers that are not taken in Round 1, can be shared by up to 3 people per gender. </li>
+              <li>From Round 2 onwards, every number (including those given out in Round 1) can be shared by up to 3 people per gender in total. </li>
 
               <li>However, there will be no sharing of numbers in the team sports below.</li>
               
@@ -119,7 +119,9 @@ const InstructionsPage = () => {
               
               <li>The allocation will also take into account the aforementioned quota, as well as each bidder&apos;s CCA. </li>
 
-              <li>Once the bids of one round have been processed, numbers that hit the quota will be blocked and inaccessible to Eusoffians who are bidding in subsequent rounds. </li>
+              <li>Once the bids of one round have been processed, numbers that hit the quota (3 per gender) will be blocked for subsequent rounds. </li>
+
+              <li>After Round 4, anyone still without a number will be assigned an available number automatically. </li>
             </ul>
           </div>
           <br/>
