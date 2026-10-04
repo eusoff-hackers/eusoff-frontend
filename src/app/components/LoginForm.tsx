@@ -2,113 +2,118 @@
 
 import React, { useEffect, useState } from "react";
 
-import type { AxiosError } from "axios";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
-import { homeFor, toUser } from "@/src/app/lib/api";
+import { api, errorMessage, errorStatus, homeFor, toUser } from "@/src/app/lib/api";
 import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
-
-const axios = require("axios").default;
-axios.defaults.withCredentials = true;
 
 export default function LoginForm() {
   const user = useSelector(selectUser);
   const router = useRouter();
-
-  useEffect(() => {
-    if (user !== null) {
-      router.push(homeFor(user));
-    }
-  });
+  const dispatch = useDispatch();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const dispatch = useDispatch();
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (user !== null) router.push(homeFor(user));
+  }, [user, router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
+    if (!username.trim() || !password) {
+      setError("Enter your username and password.");
+      return;
+    }
+    setSubmitting(true);
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/login`, {
-        credentials: {
-          username,
-          password,
-        },
-      });
-
+      const response = await api.post("/user/login", { credentials: { username: username.trim(), password } });
       if (response.data.success) {
         const newUser = toUser(response.data.data.user);
-
         dispatch(setUser(newUser));
         router.replace(homeFor(newUser));
+        return;
       }
-    } catch (error) {
-      const axiosError = error as AxiosError;
-
-      if (axiosError.response?.status == 401) {
-        setError("Invalid username or password");
-        console.error("Unauthorised");
-      }
-      console.error("Error during login", error);
+      setError("Sign in failed. Please try again.");
+    } catch (err) {
+      setError(errorStatus(err) === 401 ? "That username and password don't match." : errorMessage(err));
+      console.error("Error during login", err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="flex w-full flex-col rounded-xl bg-white p-10 shadow-xl">
-      <h2 className="mb-5 text-left text-2xl font-bold text-gray-800">Login</h2>
-      <form onSubmit={e => handleSubmit(e)} className="w-full">
-        <div id="input" className="my-5 flex w-full flex-col">
-          <label htmlFor="username" className="mb-2 text-gray-500">
-            Username
-          </label>
-          <input
-            type="text"
+    <div className="surface-card p-5 sm:p-8">
+      <h2 className="text-2xl font-medium tracking-heading">Sign in</h2>
+      <p className="mt-1.5 text-sm text-silver">Use your matric number and the password sent to you.</p>
+
+      <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-5">
+        <div className="space-y-2">
+          <Label htmlFor="username">Username</Label>
+          <Input
             id="username"
+            name="username"
+            autoComplete="username"
+            autoCapitalize="characters"
+            spellCheck={false}
             value={username}
             onChange={e => setUsername(e.target.value)}
-            placeholder="Please insert your matric number"
-            className="appearance-none rounded-lg border-2 border-gray-100 px-4 py-3 text-black placeholder-gray-300 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+            placeholder="A0123456X"
+            aria-invalid={!!error || undefined}
+            aria-describedby={error ? "login-error" : undefined}
           />
         </div>
-        <div id="input" className="my-5 flex w-full flex-col">
-          <label htmlFor="password" className="mb-2 text-gray-500">
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            placeholder="Please insert your password"
-            className="appearance-none rounded-lg border-2 border-gray-100 px-4 py-3 text-black placeholder-gray-300 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-600"
-          />
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <div className="relative">
+            <Input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="xxxx-xxxx-xxxx-xxxx"
+              className="pr-12 tracking-wide"
+              aria-invalid={!!error || undefined}
+              aria-describedby={error ? "login-error" : undefined}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(v => !v)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+              className="absolute right-0.5 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md text-silver transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua"
+            >
+              {showPassword ? (
+                <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.5} />
+              ) : (
+                <Eye className="h-[18px] w-[18px]" strokeWidth={1.5} />
+              )}
+            </button>
+          </div>
         </div>
-        {error == "" ? <></> : <div className="font-bold text-red-500">{error}!</div>}
-        <div id="button" className="my-5 flex w-full flex-col">
-          <button type="submit" className="w-full rounded-lg bg-green-600 py-4 text-green-100">
-            <div className="flex flex-row items-center justify-center">
-              <div className="mr-2">
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                  ></path>
-                </svg>
-              </div>
-              <div className="font-bold">Sign In</div>
-            </div>
-          </button>
-        </div>
+
+        {error && (
+          <p id="login-error" role="alert" className="text-sm text-danger">
+            {error}
+          </p>
+        )}
+
+        <Button type="submit" variant="cta" size="lg" className="w-full" disabled={submitting}>
+          {submitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
+          {submitting ? "Signing in" : "Sign in"}
+        </Button>
       </form>
     </div>
   );
