@@ -11,8 +11,9 @@ import { formatCountdown, formatSgtDay, formatSgtTime } from "@/src/app/lib/time
 interface RoundTimelineProps {
   rounds: RoundWindow[];
   now: number;
-  /** Round to mark as "Your round". */
+  /** Round to call out, e.g. the resident's own round. */
   highlightRound?: number;
+  highlightLabel?: string;
   className?: string;
 }
 
@@ -32,7 +33,13 @@ export function StatusPill({ status, className }: { status: RoundWindow["status"
 }
 
 /** Four bidding rounds with status and a live countdown to the next open/close. */
-export default function RoundTimeline({ rounds, now, highlightRound, className }: RoundTimelineProps) {
+export default function RoundTimeline({
+  rounds,
+  now,
+  highlightRound,
+  highlightLabel = "Your round",
+  className,
+}: RoundTimelineProps) {
   const next = nextRoundEvent(rounds, now);
   const sorted = [...rounds].sort((a, b) => a.round - b.round);
 
@@ -56,7 +63,7 @@ export default function RoundTimeline({ rounds, now, highlightRound, className }
                 Round {r.round}
                 {mine && (
                   <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-900">
-                    Your round
+                    {highlightLabel}
                   </span>
                 )}
               </span>
