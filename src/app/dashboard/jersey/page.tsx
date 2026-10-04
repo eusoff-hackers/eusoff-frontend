@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,11 +9,14 @@ import { useDispatch, useSelector } from "react-redux";
 import BiddingTable from "@/src/app/components/BiddingTable";
 import Loading from "@/src/app/components/Loading";
 import RoundTimeline from "@/src/app/components/RoundTimeline";
-import { JerseyHeader, StatusBanner } from "@/src/app/dashboard/jersey/JerseyOverview";
+import { ErrorState } from "@/src/app/components/system";
+import { AllocatedCard, JerseyIdentity, PointsCard, StatusBanner } from "@/src/app/dashboard/jersey/JerseyOverview";
 import type { BiddingData, EligibleBids, UserBid } from "@/src/app/dashboard/jersey/types";
-import { apiGet, errorMessage, errorStatus } from "@/src/app/lib/api";
+import { apiGet, errorStatus } from "@/src/app/lib/api";
 import { useNow } from "@/src/app/lib/time";
 import { removeUser, selectUser } from "@/src/app/redux/Resources/userSlice";
+
+const GRID_ID = "numbers";
 
 const Jersey: React.FC = () => {
   const user = useSelector(selectUser);
@@ -36,7 +38,7 @@ const Jersey: React.FC = () => {
   } = useQuery<UserBid>({
     queryKey: ["user_bids"],
     queryFn: () => apiGet<UserBid>("/jersey/info"),
-    // Keep the status banner in step with round open/close
+    // Keep the status card in step with round open/close
     refetchInterval: 30_000,
   });
 
@@ -51,9 +53,7 @@ const Jersey: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (user == null) {
-      router.push("/");
-    }
+    if (user == null) router.push("/");
   }, [user, router]);
 
   useEffect(() => {
@@ -67,14 +67,8 @@ const Jersey: React.FC = () => {
 
   if (userBidsError && !userBids) {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-6">
-        <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-900">
-          <p className="font-medium">Couldn&apos;t load your jersey info</p>
-          <p className="text-sm">{errorMessage(userBidsError)}</p>
-          <Button variant="outline" size="sm" className="mt-3" onClick={() => refetchUserBids()}>
-            Try again
-          </Button>
-        </div>
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+        <ErrorState title="Your jersey info didn't load" error={userBidsError} onRetry={() => refetchUserBids()} />
       </div>
     );
   }
@@ -82,28 +76,57 @@ const Jersey: React.FC = () => {
   if (userBids === undefined) return <Loading />;
 
   const rounds = userBids.system.rounds ?? [];
+  const allocated = !!(userBids.info.isAllocated && userBids.info.jersey);
+  const scrollToGrid = () => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.getElementById(GRID_ID)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  };
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-4 px-3 py-4 sm:px-6 sm:py-6">
-      <JerseyHeader user={user} data={userBids} />
-      <StatusBanner data={userBids} now={now} bidCount={userBids.bids.length} />
+    <div className="mx-auto w-full max-w-5xl space-y-4 px-4 py-6 sm:px-6 sm:py-10">
+      <JerseyIdentity user={user} round={userBids.info.round} />
+
+      {allocated ? (
+        <div className="pt-2">
+          <AllocatedCard data={userBids} />
+        </div>
+      ) : (
+        <div className="grid gap-4 pt-2 md:grid-cols-[1.15fr,1fr]">
+          <PointsCard data={userBids} />
+          {/* On phones the actionable status comes first. */}
+          <div className="order-first flex min-w-0 flex-col md:order-none [&>section]:flex-1">
+            <StatusBanner
+              data={userBids}
+              now={now}
+              bidCount={userBids.bids.filter(b => b.round == null || b.round === userBids.system.bidRound).length}
+              onChoose={scrollToGrid}
+            />
+          </div>
+        </div>
+      )}
+
       {rounds.length > 0 && (
-        <section className="rounded-xl border bg-card p-4 shadow-sm sm:p-5">
-          <h2 className="mb-3 text-lg font-semibold">Round schedule</h2>
+        <section className="surface-card p-4 sm:p-6" aria-labelledby="schedule-heading">
+          <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="schedule-heading" className="text-[17px] font-medium tracking-heading text-white">
+              Round schedule
+            </h2>
+            <p className="text-[13px] text-[#93a19f]">Singapore time</p>
+          </div>
           <RoundTimeline rounds={rounds} now={now} highlightRound={userBids.info.round} />
-          <p className="mt-3 text-xs text-muted-foreground">
-            All times in Singapore time. Numbers are allocated after each round closes, by choice rank, then points,
-            then seniority.
-          </p>
         </section>
       )}
-      <BiddingTable
-        user={user}
-        userBids={userBids}
-        refetchUserBids={refetchUserBids}
-        biddings={bids}
-        userEligibleBids={userEligibleBids}
-      />
+
+      {!allocated && (
+        <BiddingTable
+          user={user}
+          userBids={userBids}
+          refetchUserBids={refetchUserBids}
+          biddings={bids}
+          userEligibleBids={userEligibleBids}
+          gridId={GRID_ID}
+        />
+      )}
     </div>
   );
 };

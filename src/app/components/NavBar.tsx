@@ -5,65 +5,100 @@ import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { LogOut, Shield, Shirt, User as UserIcon } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
+import { usePathname } from "next/navigation";
+import { useSelector } from "react-redux";
 
-import { api } from "@/src/app/lib/api";
-import { removeUser, selectUser } from "@/src/app/redux/Resources/userSlice";
+import { Wordmark } from "@/src/app/components/Brand";
+import { useLogout } from "@/src/app/lib/useLogout";
+import { selectUser } from "@/src/app/redux/Resources/userSlice";
 
+/**
+ * Resident navigation: a slim top bar everywhere, plus a fixed bottom tab bar on phones so the
+ * primary destinations sit under the thumb.
+ */
 export default function NavBar() {
-  const route = useRouter();
   const pathname = usePathname();
-  const dispatch = useDispatch();
   const user = useSelector(selectUser);
+  const logout = useLogout();
   // The redux user is restored from localStorage, so only read it after mount to avoid hydration mismatches.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const logout = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    dispatch(removeUser());
-    localStorage.clear();
-    try {
-      await api.post("/user/logout");
-    } catch (error) {
-      console.error("Logout error");
-    }
-    route.push("/");
-  };
-
   const links = [
-    { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
     { href: "/dashboard/jersey", label: "Jersey", icon: Shirt },
+    { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
     ...(mounted && user?.role === "ADMIN" ? [{ href: "/admin", label: "Admin", icon: Shield }] : []),
   ];
 
-  const itemClass =
-    "flex min-h-[40px] items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 lg:gap-3 lg:text-base";
-
   return (
-    <nav aria-label="Dashboard" className="w-full bg-emerald-950 px-3 py-2 text-white lg:min-h-screen lg:p-5">
-      <p className="hidden text-2xl font-semibold lg:mb-5 lg:block">Dashboard</p>
-      <ul className="flex flex-wrap items-center gap-1 lg:flex-col lg:items-stretch lg:space-y-1">
-        {links.map(({ href, label, icon: Icon }) => (
-          <li key={href}>
-            <Link
-              href={href}
-              aria-current={pathname === href ? "page" : undefined}
-              className={cn(itemClass, pathname === href && "bg-white/10 text-amber-200")}
-            >
-              <Icon className="h-4 w-4 lg:h-5 lg:w-5" aria-hidden />
-              <span>{label}</span>
-            </Link>
-          </li>
-        ))}
-        <li className="ml-auto lg:ml-0">
-          <a href="/" onClick={logout} className={itemClass}>
-            <LogOut className="h-4 w-4 lg:h-5 lg:w-5" aria-hidden />
-            <span>Logout</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
+    <>
+      <header className="sticky top-0 z-30 border-b border-hairline bg-canvas/85 pt-[env(safe-area-inset-top)] backdrop-blur-md">
+        <div className="mx-auto flex h-14 max-w-5xl items-center gap-4 px-4 sm:h-16 sm:px-6">
+          <Link
+            href="/dashboard/jersey"
+            className="-ml-1 rounded-md px-1 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua"
+          >
+            <Wordmark />
+          </Link>
+
+          <nav aria-label="Main" className="ml-auto hidden items-center gap-1 md:flex">
+            {links.map(({ href, label }) => {
+              const active = pathname === href || pathname.startsWith(`${href}/`);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "relative inline-flex h-10 items-center rounded-md px-3 text-[12px] font-medium uppercase tracking-[0.12em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua",
+                    active ? "text-white" : "text-silver hover:text-white",
+                  )}
+                >
+                  {label}
+                  {active && <span aria-hidden className="absolute inset-x-3 -bottom-[11px] h-px bg-biolum" />}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <button
+            type="button"
+            onClick={logout}
+            className="ml-auto inline-flex h-10 items-center gap-2 rounded-md px-3 text-[13px] text-silver transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua md:ml-2"
+          >
+            <LogOut className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+            Sign out
+          </button>
+        </div>
+      </header>
+
+      {/* Phone tab bar */}
+      <nav
+        aria-label="Main"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-hairline bg-recessed/95 backdrop-blur-md md:hidden"
+      >
+        <ul className="mx-auto flex max-w-md items-stretch px-2 pb-safe">
+          {links.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href || pathname.startsWith(`${href}/`);
+            return (
+              <li key={href} className="flex-1">
+                <Link
+                  href={href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "relative flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium tracking-[0.04em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-aqua",
+                    active ? "text-white" : "text-[#93a19f] hover:text-silver",
+                  )}
+                >
+                  {active && <span aria-hidden className="absolute inset-x-6 top-0 h-px bg-biolum" />}
+                  <Icon className={cn("h-[22px] w-[22px]", active && "text-aqua")} strokeWidth={1.5} aria-hidden />
+                  {label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </>
   );
 }

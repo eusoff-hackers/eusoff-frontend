@@ -18,9 +18,15 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 
 import LeaderboardDialog from "@/src/app/components/LeaderboardDialog";
-import type { RoomInfoType } from "@/src/app/dashboard/profile/page";
 import type { User } from "@/src/app/redux/Resources/userSlice";
 import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
+
+interface RoomInfoType {
+  isEligible: boolean;
+  points: number;
+  canBid: boolean;
+  bids?: { room: { block: string; number: number } }[];
+}
 
 export interface RoomType {
   block: string;

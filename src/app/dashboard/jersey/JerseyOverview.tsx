@@ -2,8 +2,9 @@
 
 import React from "react";
 
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Clock, Hourglass, Lock, Megaphone } from "lucide-react";
+import { ArrowDown, CheckCircle2, Clock, Hourglass, Lock, OctagonAlert } from "lucide-react";
 
 import type { PointsBreakdown, UserBid } from "@/src/app/dashboard/jersey/types";
 import type { RoundWindow } from "@/src/app/lib/rounds";
@@ -17,73 +18,132 @@ const BREAKDOWN_LABELS: { key: keyof PointsBreakdown; label: string }[] = [
   { key: "adjustment", label: "Adjustment" },
 ];
 
-export function JerseyHeader({ user, data }: { user: User; data: UserBid }) {
-  const { info } = data;
-  const breakdown = info.breakdown;
-
+/** Name, matric and room. */
+export function JerseyIdentity({ user, round }: { user: User; round: number }) {
   return (
-    <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-3 bg-emerald-950 px-4 py-4 text-white sm:px-6">
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-widest text-amber-300">Jersey bidding 26/27</p>
-          <h1 className="mt-1 break-words text-xl font-semibold sm:text-2xl">{user.name ?? user.username}</h1>
-          <p className="text-sm text-emerald-50/70">
-            {user.username} · Room {user.room}
+    <header className="animate-fade-up">
+      <p className="eyebrow">
+        Round {round} <span className="mx-1.5 text-white/30">/</span> Jersey bidding 26/27
+      </p>
+      <h1 className="mt-3 break-words text-[1.875rem] font-medium leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.75rem]">
+        {user.name ?? user.username}
+      </h1>
+      <p className="mt-2 text-sm tabular-nums text-silver">
+        {user.username}
+        {user.room && user.room !== "-" && <span className="text-[#93a19f]"> &nbsp;·&nbsp; Room {user.room}</span>}
+      </p>
+    </header>
+  );
+}
+
+function Breakdown({ breakdown }: { breakdown: PointsBreakdown }) {
+  return (
+    <ul className="flex flex-wrap gap-1.5" aria-label="Points breakdown">
+      {BREAKDOWN_LABELS.filter(b => b.key !== "adjustment" || breakdown.adjustment !== 0).map(b => (
+        <li key={b.key} className="inline-flex h-8 items-center gap-2 rounded-md bg-recessed px-2.5 text-[13px] text-silver">
+          {b.label}
+          <span className="font-medium tabular-nums text-mist">
+            {b.key === "adjustment" && breakdown.adjustment > 0 ? "+" : ""}
+            {breakdown[b.key]}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Teams({ teams }: { teams: UserBid["info"]["teams"] }) {
+  return (
+    <div>
+      <p className="mb-2 text-[13px] text-silver">Teams</p>
+      {teams.length === 0 ? (
+        <p className="text-sm text-[#93a19f]">No teams on record.</p>
+      ) : (
+        <ul className="flex flex-wrap gap-1.5">
+          {teams.map(({ team }) => (
+            <li
+              key={team.name}
+              className={cn(
+                "inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-[13px]",
+                team.shareable ? "border-hairline text-mist" : "border-warn/30 text-warn",
+              )}
+            >
+              {!team.shareable && <Lock className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden />}
+              {team.name}
+              {!team.shareable && <span className="sr-only">(non-shareable)</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+      {teams.some(t => !t.team.shareable) && (
+        <p className="mt-2 text-[13px] text-[#93a19f]">
+          <Lock className="mr-1 inline h-3 w-3 align-[-1px]" strokeWidth={1.5} aria-hidden />
+          Non-shareable: you can&apos;t take a number a teammate already holds.
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Once allocated, the number is the whole story: one wide card. */
+export function AllocatedCard({ data }: { data: UserBid }) {
+  const { info } = data;
+  return (
+    <section
+      role="status"
+      className="surface-card grid min-w-0 gap-6 overflow-hidden p-5 sm:p-8 md:grid-cols-[minmax(0,auto),1fr] md:gap-14"
+    >
+      <div>
+        <p className="eyebrow flex items-center gap-2 text-lavender">
+          <CheckCircle2 className="h-4 w-4" strokeWidth={1.5} aria-hidden /> Your number
+        </p>
+        <p className="stat mt-5 text-[8rem] sm:text-[11rem]" aria-label={`Jersey number ${info.jersey!.number}`}>
+          {info.jersey!.number}
+        </p>
+      </div>
+      <div className="flex min-w-0 flex-col gap-5 md:pt-10">
+        <div>
+          <h2 className="text-[1.375rem] font-medium leading-tight tracking-heading text-white sm:text-2xl">
+            Number {info.jersey!.number} is yours
+          </h2>
+          <p className="mt-2 text-[15px] text-silver">
+            {info.allocatedRound ? `Allocated in round ${info.allocatedRound}. ` : ""}This is your jersey number for IHG
+            26/27. Nothing else to do.
           </p>
         </div>
-        <div className="rounded-lg bg-white/10 px-3 py-2 text-center">
-          <p className="text-[11px] uppercase tracking-wide text-emerald-50/70">Your round</p>
-          <p className="text-2xl font-bold tabular-nums text-amber-300">{info.round}</p>
-        </div>
-      </div>
-
-      <div className="grid gap-4 px-4 py-4 sm:grid-cols-[auto,1fr] sm:items-start sm:gap-6 sm:px-6">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Points</p>
-          <p className="text-4xl font-bold tabular-nums text-emerald-900">{info.points}</p>
+          <p className="mb-2 text-[13px] text-silver">
+            <span className="tabular-nums text-mist">{info.points}</span> points
+          </p>
+          {info.breakdown && <Breakdown breakdown={info.breakdown} />}
         </div>
-        <div className="min-w-0 space-y-3">
-          {breakdown && (
-            <ul className="flex flex-wrap gap-1.5" aria-label="Points breakdown">
-              {BREAKDOWN_LABELS.filter(b => b.key !== "adjustment" || breakdown.adjustment !== 0).map(b => (
-                <li
-                  key={b.key}
-                  className="inline-flex items-center gap-1.5 rounded-full border bg-slate-50 px-2.5 py-1 text-xs"
-                >
-                  <span className="text-muted-foreground">{b.label}</span>
-                  <span className="font-semibold tabular-nums">
-                    {b.key === "adjustment" && breakdown.adjustment > 0 ? "+" : ""}
-                    {breakdown[b.key]}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-          <div>
-            <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">Teams</p>
-            {info.teams.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No teams on record.</p>
-            ) : (
-              <ul className="flex flex-wrap gap-1.5">
-                {info.teams.map(({ team }) => (
-                  <li
-                    key={team.name}
-                    className={cn(
-                      "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium",
-                      team.shareable ? "bg-emerald-100 text-emerald-900" : "bg-amber-100 text-amber-900",
-                    )}
-                    title={
-                      team.shareable ? undefined : "Non-shareable: you can't take a number a teammate already holds"
-                    }
-                  >
-                    {!team.shareable && <Lock className="h-3 w-3" aria-label="Non-shareable" />}
-                    {team.name}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+        <Teams teams={info.teams} />
+      </div>
+    </section>
+  );
+}
+
+/** The big lavender stat: your points, with how they add up. */
+export function PointsCard({ data }: { data: UserBid }) {
+  const { info } = data;
+  return (
+    <section className="surface-card relative flex min-w-0 flex-col overflow-hidden p-5 sm:p-6" aria-label="Your points">
+      <p className="eyebrow">Your points</p>
+      <div className="mt-4 flex items-end gap-3">
+        <p className="stat text-[5.5rem] sm:text-[7rem]">{info.points}</p>
+        <p className="mb-2 text-sm text-silver">
+          Breaks ties
+          <br />
+          on the same choice
+        </p>
+      </div>
+      {info.breakdown && (
+        <div className="mt-5">
+          <Breakdown breakdown={info.breakdown} />
         </div>
+      )}
+      <div className="mt-5 border-t border-hairline pt-4">
+        <Teams teams={info.teams} />
       </div>
     </section>
   );
@@ -91,77 +151,94 @@ export function JerseyHeader({ user, data }: { user: User; data: UserBid }) {
 
 type Tone = "info" | "open" | "wait" | "done" | "warn";
 
-const TONES: Record<Tone, string> = {
-  info: "border-slate-200 bg-white",
-  open: "border-emerald-300 bg-emerald-50",
-  wait: "border-amber-200 bg-amber-50",
-  done: "border-emerald-900 bg-emerald-950 text-white",
-  warn: "border-amber-300 bg-amber-50",
+const TONE_ICON: Record<Tone, string> = {
+  info: "text-silver",
+  open: "text-aqua",
+  wait: "text-warn",
+  done: "text-lavender",
+  warn: "text-warn",
 };
 
-function Banner({
+const TONE_LABEL: Record<Tone, string> = {
+  info: "Not yet",
+  open: "Bidding open",
+  wait: "Allocating",
+  done: "Allocated",
+  warn: "Action needed",
+};
+
+function StatusShell({
   tone,
   icon: Icon,
   title,
   children,
-  aside,
+  countdown,
+  action,
 }: {
   tone: Tone;
   icon: React.ElementType;
   title: React.ReactNode;
   children?: React.ReactNode;
-  aside?: React.ReactNode;
+  countdown?: { label: string; at: number; now: number };
+  action?: React.ReactNode;
 }) {
   return (
     <section
       role="status"
-      className={cn("flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center sm:p-5", TONES[tone])}
+      className={cn(
+        "surface-card flex min-w-0 flex-col p-5 sm:p-6",
+        tone === "open" && "border-aqua/25",
+        tone === "warn" && "border-warn/30",
+      )}
     >
-      <Icon
-        className={cn("hidden h-8 w-8 shrink-0 sm:block", tone === "done" ? "text-amber-300" : "text-emerald-800")}
-      />
-      <div className="min-w-0 flex-1">
-        <h2 className="text-lg font-semibold">{title}</h2>
-        {children && (
-          <div className={cn("mt-0.5 text-sm", tone === "done" ? "text-emerald-50/80" : "text-muted-foreground")}>
-            {children}
-          </div>
-        )}
-      </div>
-      {aside}
+      <p className={cn("eyebrow flex items-center gap-2", TONE_ICON[tone])}>
+        <Icon className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+        {TONE_LABEL[tone]}
+      </p>
+      <h2 className="mt-4 text-[1.375rem] font-medium leading-tight tracking-heading text-white sm:text-2xl">{title}</h2>
+      {children && <div className="mt-2 text-[15px] text-silver">{children}</div>}
+      {countdown && countdown.at > countdown.now && (
+        <div className="mt-5 rounded-xl bg-recessed px-4 py-3">
+          <p className="text-[13px] text-silver">{countdown.label}</p>
+          <p className="mt-1 text-[1.75rem] font-medium leading-none tracking-[-0.02em] tabular-nums text-white">
+            {formatCountdown(countdown.at - countdown.now)}
+          </p>
+        </div>
+      )}
+      {action && <div className="mt-5 sm:mt-auto sm:pt-5">{action}</div>}
     </section>
   );
 }
 
-function Countdown({ label, at, now }: { label: string; at: number; now: number }) {
-  return (
-    <div className="shrink-0 rounded-lg bg-white/70 px-3 py-2 text-left sm:text-right">
-      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="text-xl font-semibold tabular-nums">{formatCountdown(at - now)}</p>
-    </div>
-  );
-}
-
-export function StatusBanner({ data, now, bidCount }: { data: UserBid; now: number; bidCount: number }) {
+export function StatusBanner({
+  data,
+  now,
+  bidCount,
+  onChoose,
+}: {
+  data: UserBid;
+  now: number;
+  bidCount: number;
+  onChoose?: () => void;
+}) {
   const { info, system, canBid } = data;
   const rounds: RoundWindow[] = system.rounds ?? [];
   const mine = rounds.find(r => r.round === info.round);
 
   if (info.isAllocated && info.jersey) {
     return (
-      <Banner
-        tone="done"
-        icon={CheckCircle2}
-        title="You've been allocated your number"
-        aside={
-          <div className="flex h-24 w-24 shrink-0 items-center justify-center self-center rounded-xl bg-amber-300 text-5xl font-bold tabular-nums text-emerald-950 sm:self-auto">
-            {info.jersey.number}
-          </div>
-        }
-      >
-        {info.allocatedRound ? `Allocated in round ${info.allocatedRound}.` : null} This is your jersey number for IHG
-        26/27.
-      </Banner>
+      <StatusShell tone="done" icon={CheckCircle2} title={`Number ${info.jersey.number} is yours`}>
+        {info.allocatedRound ? `Allocated in round ${info.allocatedRound}. ` : ""}This is your jersey number for IHG 26/27.
+        Nothing else to do.
+      </StatusShell>
+    );
+  }
+
+  if (data.blockedReason) {
+    return (
+      <StatusShell tone="warn" icon={OctagonAlert} title="You can't bid yet">
+        {data.blockedReason}
+      </StatusShell>
     );
   }
 
@@ -169,60 +246,67 @@ export function StatusBanner({ data, now, bidCount }: { data: UserBid; now: numb
     const openRound = rounds.find(r => r.status === "open");
     const closeAt = openRound?.close ?? system.bidClose;
     return (
-      <Banner
+      <StatusShell
         tone="open"
-        icon={Megaphone}
-        title="Bidding is open — submit your top 5"
-        aside={closeAt > now ? <Countdown label="Closes in" at={closeAt} now={now} /> : undefined}
+        icon={Clock}
+        title={bidCount === 0 ? "Pick your five numbers" : `${bidCount} of 5 choices saved`}
+        countdown={closeAt ? { label: "Round closes in", at: closeAt, now } : undefined}
+        action={
+          onChoose && (
+            <Button variant="cta" size="lg" className="w-full" onClick={onChoose}>
+              {bidCount === 0 ? "Choose numbers" : "Edit choices"}
+              <ArrowDown className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+            </Button>
+          )
+        }
       >
-        Pick up to 5 numbers in order of preference below ({bidCount}/5 chosen). You can change them until the round
-        closes{closeAt ? ` at ${formatSgt(closeAt)}` : ""}.
-      </Banner>
+        Order matters: numbers are allocated by choice rank, then points.
+        {closeAt ? ` You can change them until ${formatSgt(closeAt)}.` : ""}
+      </StatusShell>
     );
   }
 
   if (mine?.status === "scheduled") {
     return (
-      <Banner
+      <StatusShell
         tone="info"
         icon={Clock}
-        title={`Not your round yet — you bid in round ${info.round}`}
-        aside={mine.open > now ? <Countdown label="Opens in" at={mine.open} now={now} /> : undefined}
+        title={`You bid in round ${info.round}`}
+        countdown={mine.open > now ? { label: "Your round opens in", at: mine.open, now } : undefined}
       >
-        Bidding for round {info.round} opens {formatSgt(mine.open)}. Numbers already taken in earlier rounds will be
-        greyed out.
-      </Banner>
+        Bidding opens {formatSgt(mine.open)}. Numbers taken in earlier rounds will be greyed out.
+      </StatusShell>
     );
   }
 
   if (mine?.status === "open") {
     return (
-      <Banner tone="warn" icon={Lock} title={`Round ${info.round} is open, but bidding is unavailable for you`}>
-        If you think this is a mistake, please contact the jersey committee.
-      </Banner>
+      <StatusShell tone="warn" icon={Lock} title="Bidding is unavailable for you">
+        Round {info.round} is open, but your account can&apos;t bid. Contact the jersey committee if this looks wrong.
+      </StatusShell>
     );
   }
 
   if (mine && (mine.status === "closed" || mine.status === "allocating")) {
     return (
-      <Banner tone="wait" icon={Hourglass} title="Waiting for allocation">
-        Round {info.round} has closed. Numbers are allocated by choice rank, then points, then seniority — check back
+      <StatusShell tone="wait" icon={Hourglass} title="Waiting for allocation">
+        Round {info.round} has closed. Numbers are allocated by choice rank, then points, then seniority. Check back
         shortly.
-      </Banner>
+      </StatusShell>
     );
   }
 
   if (mine?.status === "allocated") {
     return (
-      <Banner tone="warn" icon={Hourglass} title={`Round ${info.round} has been allocated`}>
-        You didn&apos;t receive a number in your round. Please contact the jersey committee for next steps.
-      </Banner>
+      <StatusShell tone="warn" icon={Hourglass} title="No number from your round">
+        None of your choices were free in round {info.round}. Contact the jersey committee for next steps.
+      </StatusShell>
     );
   }
 
   return (
-    <Banner tone="info" icon={Clock} title="Bidding isn't open for you right now">
+    <StatusShell tone="info" icon={Clock} title="Bidding isn't open for you right now">
       Check the round schedule below.
-    </Banner>
+    </StatusShell>
   );
 }

@@ -59,6 +59,8 @@ export interface UserBid {
   bids: Bid[];
   system: System;
   canBid: boolean;
+  /** Set when the resident can't bid for a reason other than the clock (e.g. gender missing). */
+  blockedReason?: string;
 }
 
 export interface Bidding {

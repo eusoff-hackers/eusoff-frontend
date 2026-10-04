@@ -14,13 +14,15 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import type { QueryObserverResult } from "@tanstack/react-query";
-import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2, X } from "lucide-react";
 
+import { Segmented } from "@/src/app/components/system";
 import type { BiddingData, EligibleBids, UserBid } from "@/src/app/dashboard/jersey/types";
 import { api, errorMessage } from "@/src/app/lib/api";
 import type { User } from "@/src/app/redux/Resources/userSlice";
 
 const MAX_BIDS = 5;
+const ORDINAL = ["1st", "2nd", "3rd", "4th", "5th"];
 
 interface BiddingTableProps {
   user: User;
@@ -28,6 +30,8 @@ interface BiddingTableProps {
   refetchUserBids: () => Promise<QueryObserverResult<UserBid, Error>>;
   biddings: BiddingData | undefined;
   userEligibleBids: EligibleBids | undefined;
+  /** Anchor id for the number grid, so the status card's CTA can scroll to it. */
+  gridId?: string;
 }
 
 interface BidEntry {
@@ -35,14 +39,25 @@ interface BidEntry {
   priority: number;
 }
 
-// User submit bid form
-const BiddingTable: React.FC<BiddingTableProps> = ({ user, userBids, refetchUserBids, biddings, userEligibleBids }) => {
+type GenderKey = "male" | "female";
+const genderKey = (g: string | undefined): GenderKey | null => (g === "male" || g === "female" ? g : null);
+
+const BiddingTable: React.FC<BiddingTableProps> = ({
+  user,
+  userBids,
+  refetchUserBids,
+  biddings,
+  userEligibleBids,
+  gridId = "numbers",
+}) => {
   const { toast } = useToast();
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+  const [view, setView] = useState<"all" | "available">("all");
 
   const canBid = userBids.canBid;
   const activeRound = userBids.system.bidRound;
+  const myGender = genderKey(user.gender);
 
   // While bidding, only this round's bids are editable; otherwise show everything on record.
   const currentBids: BidEntry[] = userBids.bids
@@ -53,6 +68,19 @@ const BiddingTable: React.FC<BiddingTableProps> = ({ user, userBids, refetchUser
   const eligible = new Set(userEligibleBids?.jerseys ?? []);
   const isFull = currentBids.length >= MAX_BIDS;
 
+  /** Other residents of your gender bidding for a number this round (they compete for the same quota). */
+  const demandFor = (n: number) => {
+    const b = biddings?.[n];
+    if (!b) return 0;
+    const count = myGender ? b[myGender].length : b.male.length + b.female.length;
+    return Math.max(0, count - (rankOf.has(n) ? 1 : 0));
+  };
+  const quotaFor = (n: number) => {
+    const q = biddings?.[n]?.quota;
+    if (!q) return null;
+    return myGender ? q[myGender] : q.male + q.female;
+  };
+
   // The server replaces this round's bids and takes priority from array order (index 0 = top choice).
   const submitBids = async (numbers: number[], successTitle: string) => {
     setSaving(true);
@@ -62,7 +90,7 @@ const BiddingTable: React.FC<BiddingTableProps> = ({ user, userBids, refetchUser
       toast({ variant: "success", title: successTitle });
       return true;
     } catch (err) {
-      toast({ variant: "destructive", title: "Couldn't update your bids", description: errorMessage(err) });
+      toast({ variant: "destructive", title: "Your choices weren't saved", description: errorMessage(err) });
       return false;
     } finally {
       setSaving(false);
@@ -72,14 +100,14 @@ const BiddingTable: React.FC<BiddingTableProps> = ({ user, userBids, refetchUser
   const numbers = currentBids.map(b => b.number);
 
   const handlePlaceBid = async (number: number) => {
-    const ok = await submitBids([...numbers, number], `Added #${number} as choice ${numbers.length + 1}`);
+    const ok = await submitBids([...numbers, number], `Added ${number} as your ${ORDINAL[numbers.length]} choice`);
     if (ok) setSelectedNumber(null);
   };
 
   const handleDeleteBid = (number: number) =>
     submitBids(
       numbers.filter(n => n !== number),
-      `Removed #${number}`,
+      `Removed ${number}`,
     );
 
   const handleMove = (index: number, delta: -1 | 1) => {
@@ -92,97 +120,153 @@ const BiddingTable: React.FC<BiddingTableProps> = ({ user, userBids, refetchUser
 
   const selected = selectedNumber != null ? biddings?.[selectedNumber] : undefined;
   const bidders = selected
-    ? [...selected.male.map(b => ({ ...b, gender: "M" })), ...selected.female.map(b => ({ ...b, gender: "F" }))].sort(
-        (a, b) => (b.points ?? 0) - (a.points ?? 0),
-      )
+    ? [
+        ...selected.male.map(b => ({ ...b, gender: "male" as const })),
+        ...selected.female.map(b => ({ ...b, gender: "female" as const })),
+      ]
+        .filter(b => !myGender || b.gender === myGender)
+        .sort((a, b) => (b.points ?? 0) - (a.points ?? 0))
     : [];
   const alreadyBid = selectedNumber != null && rankOf.has(selectedNumber);
-  const genderQuota =
-    selected &&
-    (user.gender === "female" ? selected.quota.female : user.gender === "male" ? selected.quota.male : null);
+  const selectedQuota = selectedNumber != null ? quotaFor(selectedNumber) : null;
+  const ahead = bidders.filter(b => (b.points ?? 0) > userBids.info.points).length;
+
+  const availableCount = Array.from({ length: 100 }, (_, i) => i).filter(n => eligible.has(n) || rankOf.has(n)).length;
+  const gridNumbers = Array.from({ length: 100 }, (_, i) => i).filter(
+    n => view === "all" || eligible.has(n) || rankOf.has(n),
+  );
 
   return (
     <div className="space-y-4">
-      {/* Current bids */}
-      <section className="rounded-xl border bg-card p-4 shadow-sm sm:p-5">
-        <div className="mb-3 flex items-baseline justify-between gap-2">
-          <h2 className="text-lg font-semibold">Your choices</h2>
-          <span className="text-sm tabular-nums text-muted-foreground">
-            {currentBids.length}/{MAX_BIDS}
+      {/* Choices */}
+      <section className="surface-card p-4 sm:p-6" aria-labelledby="choices-heading">
+        <div className="mb-4 flex items-baseline justify-between gap-2">
+          <h2 id="choices-heading" className="text-[17px] font-medium tracking-heading text-white">
+            Your choices
+          </h2>
+          <span className="text-sm tabular-nums text-silver">
+            <span className="text-mist">{currentBids.length}</span> / {MAX_BIDS}
           </span>
         </div>
-        {currentBids.length === 0 ? (
-          <p className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
-            {canBid ? "No choices yet — tap an available number below to add it." : "You have no bids on record."}
-          </p>
-        ) : (
-          <ol className="space-y-2">
-            {currentBids.map((bid, index) => (
-              <li key={bid.number} className="flex items-center gap-3 rounded-lg border bg-slate-50 p-2 pl-3">
-                <span className="w-14 shrink-0 text-xs font-medium text-muted-foreground">Choice {index + 1}</span>
-                <span className="inline-flex h-10 min-w-[3rem] items-center justify-center rounded-md bg-emerald-950 px-2 text-lg font-bold tabular-nums text-amber-200">
-                  {bid.number}
-                </span>
-                <span className="flex-1" />
+
+        <ol className="grid gap-2 sm:grid-cols-5">
+          {Array.from({ length: MAX_BIDS }, (_, index) => {
+            const bid = currentBids[index];
+            if (!bid) {
+              return (
+                <li
+                  key={`empty-${index}`}
+                  className="flex h-16 items-center gap-3 rounded-xl border border-dashed border-white/[0.12] px-4 sm:h-auto sm:min-h-[132px] sm:flex-col sm:items-start sm:justify-between sm:p-4"
+                >
+                  <span className="text-[13px] text-[#93a19f]">{ORDINAL[index]}</span>
+                  <span className="text-[13px] text-[#93a19f]">
+                    {canBid && index === currentBids.length ? "Tap a number below" : "Empty"}
+                  </span>
+                </li>
+              );
+            }
+            const demand = demandFor(bid.number);
+            return (
+              <li
+                key={bid.number}
+                className="flex min-w-0 animate-fade-up items-center gap-3 rounded-xl bg-recessed py-2 pl-4 pr-1.5 sm:min-h-[132px] sm:flex-col sm:items-stretch sm:p-4"
+              >
+                <span className="w-9 shrink-0 text-[13px] text-silver sm:w-auto">{ORDINAL[index]}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[2rem] font-medium leading-none tracking-[-0.03em] tabular-nums text-lavender">
+                    {bid.number}
+                  </p>
+                  <p className="mt-1 truncate text-xs text-[#93a19f]">
+                    {demand === 0 ? "No one else yet" : `${demand} other${demand === 1 ? "" : "s"} bidding`}
+                  </p>
+                </div>
                 {canBid && (
-                  <div className="flex items-center gap-0.5">
+                  <div className="flex shrink-0 items-center sm:-mx-1.5 sm:-mb-1.5 sm:justify-between">
                     <Button
                       variant="ghost"
                       size="icon"
                       disabled={saving || index === 0}
                       onClick={() => handleMove(index, -1)}
-                      aria-label={`Move #${bid.number} up`}
+                      aria-label={`Move ${bid.number} up to ${ORDINAL[index - 1] ?? ""} choice`}
                     >
-                      <ArrowUp className="h-4 w-4" />
+                      <ChevronUp className="h-[18px] w-[18px]" strokeWidth={1.5} />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       disabled={saving || index === currentBids.length - 1}
                       onClick={() => handleMove(index, 1)}
-                      aria-label={`Move #${bid.number} down`}
+                      aria-label={`Move ${bid.number} down to ${ORDINAL[index + 1] ?? ""} choice`}
                     >
-                      <ArrowDown className="h-4 w-4" />
+                      <ChevronDown className="h-[18px] w-[18px]" strokeWidth={1.5} />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       disabled={saving}
                       onClick={() => handleDeleteBid(bid.number)}
-                      aria-label={`Remove #${bid.number}`}
-                      className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                      aria-label={`Remove ${bid.number}`}
+                      className="hover:bg-danger/10 hover:text-danger"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <X className="h-[18px] w-[18px]" strokeWidth={1.5} />
                     </Button>
                   </div>
                 )}
               </li>
-            ))}
-          </ol>
+            );
+          })}
+        </ol>
+        {saving && (
+          <p className="mt-3 flex items-center gap-2 text-[13px] text-silver" aria-live="polite">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden /> Saving your choices
+          </p>
         )}
       </section>
 
       {/* Number grid */}
-      <section className="rounded-xl border bg-card p-4 shadow-sm sm:p-5">
-        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-lg font-semibold">Numbers</h2>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <span className="h-3 w-3 rounded-sm border bg-white" aria-hidden /> available
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="h-3 w-3 rounded-sm bg-amber-300" aria-hidden /> your choice
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="h-3 w-3 rounded-sm bg-slate-200" aria-hidden /> unavailable
-            </span>
-          </div>
+      <section id={gridId} className="surface-card scroll-mt-20 p-4 sm:p-6" aria-labelledby="numbers-heading">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 id="numbers-heading" className="text-[17px] font-medium tracking-heading text-white">
+            Numbers
+          </h2>
+          <Segmented
+            label="Show numbers"
+            value={view}
+            onChange={setView}
+            options={[
+              { value: "all", label: "All", count: 100 },
+              { value: "available", label: "Available", count: availableCount },
+            ]}
+          />
         </div>
-        <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-8 sm:gap-2 lg:grid-cols-10">
-          {Array.from({ length: 100 }, (_, i) => i).map(number => {
+
+        <ul className="mb-4 flex flex-wrap gap-x-4 gap-y-2 text-[13px] text-silver" aria-label="Legend">
+          <li className="flex items-center gap-2">
+            <span className="h-3.5 w-3.5 rounded-[4px] border border-white/15 bg-white/[0.06]" aria-hidden /> Available
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="h-3.5 w-3.5 rounded-[4px] bg-lavender" aria-hidden /> Your
+            choice
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="h-3.5 w-3.5 rounded-[4px] bg-recessed" aria-hidden /> Taken or not allowed
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-[11px] font-medium tabular-nums text-warn" aria-hidden>
+              3
+            </span>
+            Others bidding
+          </li>
+        </ul>
+
+        <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-10 sm:gap-2">
+          {gridNumbers.map(number => {
             const isEligible = eligible.has(number);
             const rank = rankOf.get(number);
             const chosen = rank != null;
+            const demand = demandFor(number);
+            const quota = quotaFor(number);
+            const contested = quota != null && demand >= Math.max(1, quota);
             return (
               <button
                 key={number}
@@ -191,89 +275,117 @@ const BiddingTable: React.FC<BiddingTableProps> = ({ user, userBids, refetchUser
                 disabled={!isEligible && !chosen}
                 aria-label={
                   chosen
-                    ? `Number ${number}, your choice ${rank + 1}`
-                    : `Number ${number}${isEligible ? "" : ", unavailable"}`
+                    ? `Number ${number}, your ${ORDINAL[rank]} choice`
+                    : `Number ${number}${isEligible ? (demand ? `, ${demand} others bidding` : ", available") : ", unavailable"}`
                 }
                 className={cn(
-                  "relative flex h-11 min-w-0 items-center justify-center rounded-md border text-base font-semibold tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-1 sm:h-12",
+                  "group relative flex h-12 min-w-0 items-center justify-center rounded-md text-[17px] font-medium tabular-nums transition-[background-color,border-color,color,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua sm:h-14 sm:text-lg",
                   chosen
-                    ? "border-amber-400 bg-amber-300 text-emerald-950"
+                    ? "bg-lavender text-canvas hover:brightness-95"
                     : isEligible
-                      ? "bg-white hover:border-emerald-600 hover:bg-emerald-50"
-                      : "cursor-not-allowed border-transparent bg-slate-100 text-slate-400",
+                      ? "border border-white/[0.1] bg-white/[0.04] text-mist hover:border-aqua/50 hover:bg-aqua/[0.06] active:scale-[0.96]"
+                      : "cursor-not-allowed bg-recessed text-low",
                 )}
               >
                 {number}
                 {chosen && (
-                  <span className="absolute right-0.5 top-0.5 text-[10px] font-bold leading-none text-emerald-900">
+                  <span className="absolute left-1.5 top-1 text-[10px] font-semibold leading-none text-canvas/70">
                     {rank + 1}
+                  </span>
+                )}
+                {!chosen && isEligible && demand > 0 && (
+                  <span
+                    className={cn(
+                      "absolute bottom-1 right-1.5 text-[10px] font-medium leading-none tabular-nums",
+                      contested ? "text-warn" : "text-silver/70",
+                    )}
+                    aria-hidden
+                  >
+                    {demand}
                   </span>
                 )}
               </button>
             );
           })}
         </div>
+        <p className="mt-4 text-[13px] text-[#93a19f]">
+          Corner counts show other {myGender ?? "resident"} bidders this round. Amber means more bidders than slots.
+        </p>
       </section>
 
       <Dialog open={selectedNumber != null} onOpenChange={open => !open && setSelectedNumber(null)}>
-        <DialogContent className="flex max-h-[90vh] w-[calc(100%-1rem)] max-w-lg flex-col rounded-lg p-4 sm:p-6">
-          <DialogHeader className="text-left">
-            <DialogTitle>Number {selectedNumber}</DialogTitle>
+        <DialogContent className="flex max-w-md flex-col">
+          <DialogHeader>
+            <p className="eyebrow">Number</p>
+            <DialogTitle className="!mt-2 text-[4.5rem] leading-none tracking-[-0.04em] tabular-nums text-lavender">
+              {selectedNumber}
+            </DialogTitle>
             <DialogDescription>
-              Your points: <span className="font-semibold text-foreground">{userBids.info.points}</span>
-              {genderQuota != null && (
+              {selectedQuota != null && (
                 <>
-                  {" "}
-                  · {genderQuota} {user.gender} slot{genderQuota === 1 ? "" : "s"} left
+                  <span className="tabular-nums text-mist">{selectedQuota}</span> {myGender ?? ""} slot
+                  {selectedQuota === 1 ? "" : "s"} left.{" "}
+                </>
+              )}
+              You have <span className="tabular-nums text-mist">{userBids.info.points}</span> points
+              {bidders.length > 0 && (
+                <>
+                  ; <span className="tabular-nums text-mist">{ahead}</span> bidder{ahead === 1 ? " has" : "s have"} more.
                 </>
               )}
             </DialogDescription>
           </DialogHeader>
-          {selected && (
-            <div className="grid grid-cols-2 gap-2 text-center text-sm">
-              <div className="rounded-md bg-slate-50 p-2">
-                <p className="text-xs text-muted-foreground">Male quota</p>
-                <p className="font-semibold tabular-nums">{selected.quota.male}</p>
-              </div>
-              <div className="rounded-md bg-slate-50 p-2">
-                <p className="text-xs text-muted-foreground">Female quota</p>
-                <p className="font-semibold tabular-nums">{selected.quota.female}</p>
-              </div>
-            </div>
-          )}
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <h3 className="mb-2 text-sm font-semibold">Other bidders ({bidders.length})</h3>
+
+          <div className="min-h-0">
+            <h3 className="mb-2 text-[13px] font-medium text-silver">
+              {myGender ? `Other ${myGender} bidders` : "Other bidders"}{" "}
+              <span className="tabular-nums text-mist">{bidders.length}</span>
+            </h3>
             {bidders.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No bids on this number yet.</p>
+              <p className="rounded-xl bg-recessed px-4 py-3 text-sm text-silver">No one else has bid on this number.</p>
             ) : (
-              <ul className="divide-y rounded-md border text-sm">
+              <ul className="max-h-56 overflow-y-auto rounded-xl bg-recessed">
                 {bidders.map((bid, index) => (
-                  <li key={index} className="flex items-center justify-between px-3 py-2">
-                    <span>
-                      Room {bid.user?.room ?? "—"} <span className="text-muted-foreground">({bid.gender})</span>
+                  <li
+                    key={index}
+                    className="flex items-center justify-between gap-3 border-b border-hairline px-4 py-2.5 text-sm last:border-0"
+                  >
+                    <span className="truncate text-silver">Room {bid.user?.room ?? "unknown"}</span>
+                    <span
+                      className={cn(
+                        "shrink-0 tabular-nums",
+                        (bid.points ?? 0) > userBids.info.points ? "text-white" : "text-silver",
+                      )}
+                    >
+                      {bid.points} pts
                     </span>
-                    <span className="font-medium tabular-nums">{bid.points} pts</span>
                   </li>
                 ))}
               </ul>
             )}
           </div>
-          <DialogFooter className="gap-2">
+
+          <DialogFooter>
             {alreadyBid ? (
-              <p className="text-sm text-muted-foreground">This is your choice {rankOf.get(selectedNumber!)! + 1}.</p>
+              <p className="text-sm text-silver">
+                This is your {ORDINAL[rankOf.get(selectedNumber!)!]} choice.
+              </p>
             ) : (
               <Button
-                className="w-full sm:w-auto"
+                variant="cta"
+                size="lg"
+                className="w-full"
                 disabled={!canBid || isFull || saving || selectedNumber == null}
                 onClick={() => selectedNumber != null && handlePlaceBid(selectedNumber)}
               >
+                {saving && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
                 {!canBid
                   ? "Bidding closed"
                   : isFull
-                    ? `You already have ${MAX_BIDS} choices`
+                    ? `You have ${MAX_BIDS} choices`
                     : saving
-                      ? "Saving…"
-                      : `Add as choice ${currentBids.length + 1}`}
+                      ? "Saving"
+                      : `Add as ${ORDINAL[currentBids.length]} choice`}
               </Button>
             )}
           </DialogFooter>

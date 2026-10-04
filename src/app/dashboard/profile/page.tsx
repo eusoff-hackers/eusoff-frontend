@@ -1,220 +1,116 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
+
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight, LogOut } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSelector, useDispatch } from "react-redux";
-import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+
 import Loading from "@/src/app/components/Loading";
-import { type AxiosError } from "axios";
-const axios = require("axios");
+import { PageHeader, Skeleton } from "@/src/app/components/system";
+import type { UserBid } from "@/src/app/dashboard/jersey/types";
+import { apiGet, errorStatus } from "@/src/app/lib/api";
+import { useLogout } from "@/src/app/lib/useLogout";
+import { removeUser, selectUser } from "@/src/app/redux/Resources/userSlice";
 
-export interface RoomInfoType {
-  isEligible: boolean;
-  points: number;
-  canBid: boolean;
-  bids?: { room: { block: string; number: number } }[];
-}
+const genderLabel = (g: string | undefined) =>
+  g === "male" ? "Male" : g === "female" ? "Female" : "Not on record";
 
-const ProfilePage = () => {
+export default function ProfilePage() {
   const user = useSelector(selectUser);
   const router = useRouter();
   const dispatch = useDispatch();
-
+  const logout = useLogout();
   const [isClient, setIsClient] = useState(false);
-  const [roomBidInfo, setRoomBidInfo] = useState<RoomInfoType>();
-  const [ccaPoints, setCcaPoints] = useState<{ cca: string; points: number }[]>(
-    []
-  );
-  const [easterEgg, setEasterEgg] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // New loading flag
 
+  const { data, error, isLoading } = useQuery<UserBid>({
+    queryKey: ["user_bids"],
+    queryFn: () => apiGet<UserBid>("/jersey/info"),
+    enabled: user != null,
+  });
+
+  useEffect(() => setIsClient(true), []);
   useEffect(() => {
-    if (!user) {
-      router.push("/");
-      return;
-    }
-    setIsClient(true);
-    fetchRoomBidInfo();
+    if (user == null) router.push("/");
   }, [user, router]);
-
-  const fetchRoomBidInfo = async () => {
-    try {
-      setIsLoading(true); // Set loading to true when fetch starts
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/room/info`
-      );
-      if (response.data.success) {
-        const roomBidInfo: RoomInfoType = {
-          isEligible: response.data.data.info.isEligible,
-          points: response.data.data.info.points,
-          canBid: response.data.data.info.canBid,
-          bids: response.data.data.bids,
-        };
-        setRoomBidInfo(roomBidInfo);
-        setCcaPoints(response.data.data.info.pointsDistribution || []); // Default to empty array if undefined
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError;
-        if (axiosError.response?.status === 401) {
-          dispatch(setUser(null));
-          router.push("/");
-        }
-      }
-      console.error("Error fetching data:", error);
-    } finally {
-      setIsLoading(false); // Set loading to false when fetch completes (success or failure)
+  useEffect(() => {
+    if (errorStatus(error) === 401) {
+      dispatch(removeUser());
+      router.push("/");
     }
-  };
+  }, [error, dispatch, router]);
 
-  const isSuperhero = roomBidInfo?.points && roomBidInfo.points > 100;
+  if (!isClient || !user) return <Loading />;
 
-  const handleEasterEggClick = () => {
-    if (!easterEgg) {
-      setEasterEgg(true);
-      setTimeout(() => setEasterEgg(false), 3000); // Hide after 3 seconds
-    }
-  };
+  const details: { label: string; value: React.ReactNode }[] = [
+    { label: "Matric number", value: user.username },
+    { label: "Room", value: user.room && user.room !== "-" ? user.room : "Not on record" },
+    { label: "Year", value: user.year ? `Year ${user.year}` : "Not on record" },
+    { label: "Gender", value: genderLabel(user.gender) },
+    { label: "Bidding round", value: data ? `Round ${data.info.round}` : isLoading ? null : "Not on record" },
+  ];
 
-  return !isClient || !user ? (
-    <Loading />
-  ) : (
-    <div className="min-h-screen bg-gray-100 p-4 sm:p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Profile Header */}
-        <div
-          className="bg-white rounded-lg shadow-sm p-6 transform hover:shadow-md transition-all duration-300 animate-fade-in"
-          onClick={handleEasterEggClick}
-        >
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-            <div className="relative">
-              <Image
-                className="rounded-full border-2 border-gray-300 shadow-sm hover:animate-wiggle"
-                src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-                alt="profile picture"
-                width={90}
-                height={90}
-              />
-              {isSuperhero && (
-                <span className="absolute -top-1 -right-1 bg-gray-200 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center animate-bounce">
-                  🌟
-                </span>
-              )}
-            </div>
-            <div className="text-center sm:text-left">
-              <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800">
-                {user.name ?? user.username} {isSuperhero && "✨"}
-              </h1>
-              {user.name && <p className="text-gray-500">{user.username}</p>}
-              <p className="text-gray-500">Year {user.year}</p>
-              <p className="text-gray-500">Gender: {user.gender}</p>
-              <p className="text-gray-500">Room: {user.room}</p>
-              <div className="mt-2 flex flex-wrap gap-2 justify-center sm:justify-start">
-                {/* <span className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">
-                  Points: {roomBidInfo?.points || "Loading..."}
-                </span> */}
-                {isSuperhero && (
-                  <span className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">
-                    Star Status
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-          {easterEgg && (
-            <p className="mt-2 text-center text-sm text-gray-500 animate-bounce">
-              Surprise! You found a hidden spark! ✨
-            </p>
-          )}
-        </div>
+  const allocated = data?.info.isAllocated && data.info.jersey;
 
-        {/* CCA Points Distribution */}
-        {/* <div className="bg-white rounded-lg shadow-sm p-6 animate-slide-up">
-          <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-6 text-center">
-            Your Activities
+  return (
+    <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
+      <PageHeader eyebrow="Profile" title={user.name ?? user.username} />
+
+      <div className="grid gap-4 md:grid-cols-[1.4fr,1fr]">
+        <section className="surface-card p-4 sm:p-6" aria-labelledby="details-heading">
+          <h2 id="details-heading" className="text-[17px] font-medium tracking-heading text-white">
+            Your details
           </h2>
-          {isLoading ? (
-            <p className="text-gray-500 text-center">
-              Loading your activities...
-            </p>
-          ) : ccaPoints.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-              {ccaPoints
-                .sort((a, b) => b.points - a.points)
-                .map((cca, index) => (
-                  <div
-                    key={index}
-                    className="group bg-gray-50 p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
-                  >
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-700 font-medium truncate">
-                        {cca.cca}
-                      </span>
-                      <div className="relative">
-                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-semibold shadow-sm group-hover:animate-pulse">
-                          {cca.points}
-                        </div>
-                        <span className="absolute -top-1 -right-1 text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                          pts
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-            </div>
+          <dl className="mt-4">
+            {details.map(d => (
+              <div
+                key={d.label}
+                className="flex items-baseline justify-between gap-4 border-b border-hairline py-3.5 last:border-0"
+              >
+                <dt className="text-sm text-silver">{d.label}</dt>
+                <dd className="min-w-0 break-words text-right text-[15px] tabular-nums text-mist">
+                  {d.value ?? <Skeleton className="ml-auto h-4 w-20" />}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-4 text-[13px] text-[#93a19f]">Something wrong here? Contact the jersey committee.</p>
+        </section>
+
+        <section className="surface-card flex flex-col p-4 sm:p-6" aria-labelledby="jersey-heading">
+          <h2 id="jersey-heading" className="eyebrow">
+            {allocated ? "Your number" : "Your points"}
+          </h2>
+          {!data ? (
+            <Skeleton className="mt-5 h-20 w-28" />
           ) : (
-            <p className="text-gray-500 text-center">No activities found.</p>
+            <p className="stat mt-5 text-[5.5rem]">{allocated ? data.info.jersey!.number : data.info.points}</p>
           )}
-          {isSuperhero && (
-            <p className="mt-4 text-sm text-gray-500 text-center animate-pulse">
-              Shining bright like a star! 🌟
-            </p>
-          )}
-        </div> */}
+          <p className="mt-3 text-sm text-silver">
+            {!data
+              ? " "
+              : allocated
+                ? `Allocated in round ${data.info.allocatedRound ?? data.info.round}. ${data.info.points} points.`
+                : "No number allocated yet."}
+          </p>
+          <div className="mt-6 md:mt-auto md:pt-6">
+            <Link href="/dashboard/jersey" className={cn(buttonVariants({ variant: "outline" }), "w-full")}>
+              {allocated ? "View jersey page" : "Go to bidding"}
+              <ArrowRight className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+            </Link>
+          </div>
+        </section>
       </div>
 
-      {/* Hidden Bunny Easter Egg */}
-      <div
-        className="fixed bottom-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors"
-        onClick={() => alert("Bunny says: You’re hopping awesome! 🐾")}
-      >
-        🐰
+      <div className="mt-8 flex justify-start">
+        <Button variant="ghost" onClick={logout}>
+          <LogOut className="h-4 w-4" strokeWidth={1.5} aria-hidden /> Sign out
+        </Button>
       </div>
     </div>
   );
-};
-
-export default ProfilePage;
-
-/* Custom Tailwind Animations */
-const customStyles = `
-  @tailwind components;
-  @layer components {
-    .animate-fade-in {
-      animation: fadeIn 0.5s ease-in;
-    }
-    .animate-slide-up {
-      animation: slideUp 0.5s ease-out;
-    }
-    .animate-wiggle {
-      animation: wiggle 0.5s infinite;
-    }
-    .animate-pulse {
-      animation: pulse 1.5s infinite;
-    }
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  @keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-  @keyframes wiggle {
-    0% { transform: rotate(-3deg); }
-    50% { transform: rotate(3deg); }
-    100% { transform: rotate(-3deg); }
-  }
-`;
+}
