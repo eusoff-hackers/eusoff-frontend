@@ -81,3 +81,9 @@ export function useNow(intervalMs = 1000, serverNow?: number): number {
 
   return now + offset;
 }
+
+/** "never" / "3h ago" / "Mon, 5 Oct" for last-login style timestamps. */
+export function formatLastSeen(ms: number | null | undefined, now: number): string {
+  if (ms == null) return "Never";
+  return formatRelative(ms, now);
+}

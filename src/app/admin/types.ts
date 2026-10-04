@@ -42,10 +42,11 @@ export interface AdminUser {
   username: string;
   name: string;
   room: string;
-  gender: Gender;
+  /** null until an admin sets it; such residents can't bid. */
+  gender: Gender | null;
   year: number;
   role: string;
-  email: string;
+  email: string | null;
   round: number;
   points: number;
   breakdown: Breakdown;
@@ -54,6 +55,8 @@ export interface AdminUser {
   jersey: number | null;
   allocatedRound: number | null;
   bids: AdminBid[];
+  /** Epoch ms of last successful login; null = never logged in. */
+  lastLogin?: number | null;
 }
 
 export interface AdminUserPatch {
@@ -70,7 +73,7 @@ export interface BidUser {
   _id: string;
   name: string;
   room: string;
-  gender: Gender;
+  gender: Gender | null;
   points: number;
   year: number;
 }
@@ -103,4 +106,67 @@ export interface Issue {
 
 export interface Settings {
   allowLogin: boolean;
+}
+
+// ---- v2 additions ----
+
+export interface AnalyticsRound {
+  round: number;
+  status: Round["status"];
+  eligible: number;
+  carryover: number;
+  bidders: number;
+  nonBidders: number;
+  allocated: number;
+  unallocatedBidders: number;
+  /** Allocated with their 1st..5th choice. */
+  choiceHits: number[];
+}
+
+export interface Analytics {
+  generatedAt: number;
+  coverage: { residents: number; allocated: number; unallocated: number; unknownGender: number; neverLoggedIn: number };
+  rounds: AnalyticsRound[];
+  /** Numbers 0..99, bids of the current round. */
+  demand: { number: number; total: number; byChoice: number[]; male: number; female: number; holders: number }[];
+  teams: { team: string; members: number; allocated: number; bidders: number }[];
+  points: { points: number; residents: number; allocated: number; gotTopChoice: number }[];
+  activity: {
+    loginsByHour: { hour: number; count: number }[];
+    bidsByHour: { hour: number; count: number }[];
+    uniqueLogins: number;
+  };
+}
+
+export interface NonBidder {
+  _id: string;
+  name: string;
+  username: string;
+  room: string;
+  gender: Gender | null;
+  /** Their own round. */
+  round: number;
+  points: number;
+  /** From an earlier round and still without a number (optional bidder). */
+  carryover: boolean;
+  lastLogin: number | null;
+}
+
+export interface AssignUser {
+  _id: string;
+  name: string;
+  room: string;
+  gender: Gender | null;
+  points: number;
+  round: number;
+}
+
+export interface AssignPreview {
+  results: { user: AssignUser; number: number }[];
+  impossible: { user: AssignUser; reason: string }[];
+}
+
+export interface AssignResult {
+  assigned: number;
+  impossible: AssignPreview["impossible"] | number;
 }

@@ -324,3 +324,17 @@ export function Callout({
     </div>
   );
 }
+
+/** Flag for residents who have never signed in. */
+export function NeverBadge({ className }: { className?: string }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex h-5 items-center whitespace-nowrap rounded-[4px] border border-warn/35 px-1.5 text-[11px] font-medium leading-none text-warn",
+        className,
+      )}
+    >
+      Never logged in
+    </span>
+  );
+}

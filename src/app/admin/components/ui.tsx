@@ -7,6 +7,7 @@ export {
   ErrorState,
   GenderTag,
   LoadingBlock,
+  NeverBadge,
   NumberChip,
   PageHeader,
   Panel,

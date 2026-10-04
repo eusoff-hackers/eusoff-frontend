@@ -10,6 +10,10 @@ import { useDispatch } from "react-redux";
 
 import type {
   AdminJersey,
+  Analytics,
+  AssignPreview,
+  AssignResult,
+  NonBidder,
   AdminUser,
   AdminUserPatch,
   AllocationPreview,
@@ -31,6 +35,8 @@ export const adminKeys = {
   bids: (round: number) => ["admin", "bids", round] as const,
   issues: ["admin", "issues"] as const,
   settings: ["admin", "settings"] as const,
+  analytics: ["admin", "analytics"] as const,
+  nonBidders: (round: number) => ["admin", "non-bidders", round] as const,
 };
 
 /** A 401 on any admin endpoint means the session is gone or no longer admin: send them to login. */
@@ -64,6 +70,9 @@ export const useRoundBids = (round: number) =>
   useAdminQuery<RoundBids[]>(adminKeys.bids(round), `/admin/bids?round=${round}`, 30_000);
 export const useIssues = () => useAdminQuery<Issue[]>(adminKeys.issues, "/admin/issues");
 export const useSettings = () => useAdminQuery<Settings>(adminKeys.settings, "/admin/settings");
+export const useAnalytics = () => useAdminQuery<Analytics>(adminKeys.analytics, "/admin/analytics", 60_000);
+export const useNonBidders = (round: number) =>
+  useAdminQuery<NonBidder[]>(adminKeys.nonBidders(round), `/admin/rounds/${round}/non-bidders`, 60_000);
 
 /**
  * Mutation that toasts on success/error and refreshes admin data.
@@ -119,4 +128,8 @@ export const adminApi = {
   patchIssue: ({ id, resolved }: { id: string; resolved: boolean }) =>
     apiSend<Issue>("patch", `/admin/issues/${id}`, { resolved }),
   patchSettings: (body: Settings) => apiSend<Settings>("patch", "/admin/settings", body),
+  assignPreview: (upToRound?: number) =>
+    apiSend<AssignPreview>("post", "/admin/assign-remaining/preview", upToRound ? { upToRound } : {}),
+  assignRemaining: (upToRound?: number) =>
+    apiSend<AssignResult>("post", "/admin/assign-remaining", upToRound ? { upToRound } : {}),
 };
