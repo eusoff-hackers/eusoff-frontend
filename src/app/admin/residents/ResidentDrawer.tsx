@@ -45,7 +45,7 @@ function GenderFix({ user }: { user: AdminUser }) {
       <div className="flex gap-3">
         <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warn" strokeWidth={1.5} aria-hidden />
         <div className="min-w-0 flex-1">
-          <p id="gender-fix-title" className="font-medium text-white">
+          <p id="gender-fix-title" className="font-medium text-heading">
             Gender unknown
           </p>
           <p className="mt-0.5 text-sm text-silver">
@@ -184,7 +184,7 @@ function ResidentForm({ user }: { user: AdminUser }) {
                 <p className="mt-3 text-lg text-silver">Not allocated</p>
               )}
               {user.allocatedRound != null && (
-                <p className="mt-1 text-xs text-[#93a19f]">Allocated in round {user.allocatedRound}</p>
+                <p className="mt-1 text-xs text-faint">Allocated in round {user.allocatedRound}</p>
               )}
             </div>
             {user.isAllocated &&
@@ -260,7 +260,7 @@ function ResidentForm({ user }: { user: AdminUser }) {
                     onChange={e => setBreakdown(b => ({ ...b, [f.key]: e.target.value }))}
                     aria-describedby={`bd-${f.key}-hint`}
                   />
-                  <p id={`bd-${f.key}-hint`} className="text-xs text-[#93a19f]">
+                  <p id={`bd-${f.key}-hint`} className="text-xs text-faint">
                     {f.hint}
                   </p>
                 </div>
@@ -351,7 +351,7 @@ function ResidentForm({ user }: { user: AdminUser }) {
 
         <Section title="Teams">
           {user.teams.length === 0 ? (
-            <p className="text-sm text-[#93a19f]">No teams recorded.</p>
+            <p className="text-sm text-faint">No teams recorded.</p>
           ) : (
             <div className="flex flex-wrap gap-1.5">
               {user.teams.map(t => (
@@ -365,7 +365,7 @@ function ResidentForm({ user }: { user: AdminUser }) {
 
         <Section title="Bids">
           {Object.keys(bidsByRound).length === 0 ? (
-            <p className="text-sm text-[#93a19f]">No bids placed.</p>
+            <p className="text-sm text-faint">No bids placed.</p>
           ) : (
             <ul className="space-y-2">
               {Object.entries(bidsByRound).map(([round, numbers]) => (
@@ -373,7 +373,7 @@ function ResidentForm({ user }: { user: AdminUser }) {
                   <span className="w-16 text-[13px] text-silver">Round {round}</span>
                   {numbers.map((n, i) => (
                     <span key={`${n}-${i}`} className="inline-flex items-center gap-1">
-                      <span className="text-[10px] tabular-nums text-[#93a19f]">{i + 1}</span>
+                      <span className="text-[10px] tabular-nums text-faint">{i + 1}</span>
                       <NumberChip n={n} highlight={user.jersey === n} />
                     </span>
                   ))}
@@ -394,7 +394,7 @@ function ResidentForm({ user }: { user: AdminUser }) {
           </p>
           {password ? (
             <div className="rounded-xl border border-warn/35 bg-warn/[0.07] p-3">
-              <p className="text-sm font-medium text-white">New password. Shown once, copy it now.</p>
+              <p className="text-sm font-medium text-heading">New password. Shown once, copy it now.</p>
               <div className="mt-2 flex items-center gap-2">
                 <code className="min-w-0 flex-1 select-all break-all rounded-md bg-recessed px-3 py-2 font-mono text-base text-mist">
                   {password}
@@ -442,6 +442,23 @@ export default function ResidentDrawer({ user, onClose }: { user: AdminUser | nu
                 <span className="text-mist">{user.points} pts</span>
                 {user.lastLogin == null && <NeverBadge />}
               </SheetDescription>
+              {(user.previousResident || (user.captainOf?.length ?? 0) > 0) && (
+                <ul className="mt-2.5 flex flex-wrap gap-1.5" aria-label="Recognition">
+                  {user.previousResident && (
+                    <li className="inline-flex h-6 items-center rounded-[5px] bg-lavender/10 px-2 text-[12px] font-medium text-lavender">
+                      Previous resident
+                    </li>
+                  )}
+                  {user.captainOf?.map(t => (
+                    <li
+                      key={t}
+                      className="inline-flex h-6 items-center rounded-[5px] bg-lavender/10 px-2 text-[12px] font-medium text-lavender"
+                    >
+                      Captain, {t}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             <div className="flex min-h-0 flex-1 flex-col pt-1">
               <ResidentForm key={`${user._id}-${user.gender}`} user={user} />

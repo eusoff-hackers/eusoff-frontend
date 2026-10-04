@@ -70,7 +70,7 @@ export default function IssuesPage() {
             <section key={category} className="surface-card overflow-hidden">
               <h2 className="flex items-center justify-between gap-3 border-b border-hairline bg-recessed/60 px-4 py-3 text-[15px] font-medium sm:px-5">
                 <span className="min-w-0 break-words">{category}</span>
-                <span className="shrink-0 rounded-[5px] bg-white/[0.07] px-2 py-0.5 text-xs font-medium tabular-nums text-mist">
+                <span className="shrink-0 rounded-[5px] bg-ink/[0.07] px-2 py-0.5 text-xs font-medium tabular-nums text-mist">
                   {items.length}
                 </span>
               </h2>
@@ -79,7 +79,7 @@ export default function IssuesPage() {
                   const checked = pendingId === issue._id ? !!pendingValue : issue.resolved;
                   return (
                     <li key={issue._id} className="border-b border-hairline last:border-0">
-                      <label className="flex min-h-[48px] cursor-pointer items-start gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03] sm:px-5">
+                      <label className="flex min-h-[48px] cursor-pointer items-start gap-3 px-4 py-3 transition-colors hover:bg-ink/[0.03] sm:px-5">
                         <input
                           type="checkbox"
                           className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer accent-[#5eead4]"
@@ -88,7 +88,7 @@ export default function IssuesPage() {
                           onChange={e => setResolved.mutate({ id: issue._id, resolved: e.target.checked })}
                         />
                         <span
-                          className={cn("min-w-0 break-words text-sm text-mist", checked && "text-[#93a19f] line-through")}
+                          className={cn("min-w-0 break-words text-sm text-mist", checked && "text-faint line-through")}
                         >
                           {issue.detail}
                         </span>

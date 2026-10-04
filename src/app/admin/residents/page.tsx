@@ -99,7 +99,7 @@ export default function ResidentsPage() {
         <Callout tone="warn" icon={AlertTriangle} className="mb-4 items-center">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p>
-              <span className="font-medium text-white">
+              <span className="font-medium text-heading">
                 {unknownGender} resident{unknownGender === 1 ? " has" : "s have"} no gender on record
               </span>{" "}
               and can&apos;t bid until it&apos;s set.
@@ -231,10 +231,10 @@ export default function ResidentsPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedId(u._id)}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-aqua"
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-ink/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-aqua"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[15px] text-white">{u.name}</p>
+                    <p className="truncate text-[15px] text-heading">{u.name}</p>
                     <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-silver">
                       <span className="tabular-nums">{u.room}</span>
                       <GenderTag gender={u.gender} />
@@ -244,7 +244,7 @@ export default function ResidentsPage() {
                     </p>
                   </div>
                   <NumberChip n={u.jersey} highlight={u.jersey != null} />
-                  <ChevronRight className="h-4 w-4 shrink-0 text-[#93a19f]" strokeWidth={1.5} aria-hidden />
+                  <ChevronRight className="h-4 w-4 shrink-0 text-faint" strokeWidth={1.5} aria-hidden />
                 </button>
               </li>
             ))}
@@ -252,9 +252,9 @@ export default function ResidentsPage() {
 
           {/* Tablet/desktop: table */}
           <div className="surface-card hidden overflow-hidden md:block">
-            <div className="overflow-x-auto">
+            <div className="max-h-[calc(100dvh-13rem)] overflow-auto overscroll-contain">
               <table className="w-full text-sm tabular-nums">
-                <thead className="border-b border-hairline bg-recessed/60 text-left">
+                <thead className="sticky top-0 z-[1] bg-recessed text-left [box-shadow:inset_0_-1px_0_rgb(var(--ink)/0.1)]">
                   <tr className="[&>th]:h-10 [&>th]:whitespace-nowrap [&>th]:px-3 [&>th]:text-[11px] [&>th]:font-medium [&>th]:uppercase [&>th]:tracking-[0.12em] [&>th]:text-silver">
                     <th className="!pl-5">Resident</th>
                     <th>Room</th>
@@ -271,32 +271,32 @@ export default function ResidentsPage() {
                     <tr
                       key={u._id}
                       onClick={() => setSelectedId(u._id)}
-                      className="cursor-pointer border-b border-hairline transition-colors last:border-0 hover:bg-white/[0.03]"
+                      className="cursor-pointer border-b border-hairline transition-colors last:border-0 hover:bg-ink/[0.03]"
                     >
-                      <td className="max-w-[18rem] py-2.5 pl-5 pr-3">
+                      <td className="max-w-[18rem] py-2 pl-5 pr-3">
                         <button
                           type="button"
                           onClick={e => {
                             e.stopPropagation();
                             setSelectedId(u._id);
                           }}
-                          className="block max-w-full truncate rounded text-left text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua"
+                          className="block max-w-full truncate rounded text-left text-heading hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua"
                         >
                           {u.name}
                         </button>
-                        <span className="block text-xs text-[#93a19f]">{u.username}</span>
+                        <span className="block text-xs text-faint">{u.username}</span>
                       </td>
-                      <td className="px-3 py-2.5 text-silver">{u.room}</td>
-                      <td className="px-3 py-2.5">
+                      <td className="px-3 py-2 text-silver">{u.room}</td>
+                      <td className="px-3 py-2">
                         <GenderTag gender={u.gender} />
                       </td>
-                      <td className="px-3 py-2.5 text-silver">{u.round}</td>
-                      <td className="px-3 py-2.5 text-right text-mist">{u.points}</td>
-                      <td className="px-3 py-2.5 text-right text-silver">{u.bids.length}</td>
-                      <td className={cn("whitespace-nowrap px-3 py-2.5 text-silver")}>
+                      <td className="px-3 py-2 text-silver">{u.round}</td>
+                      <td className="px-3 py-2 text-right text-mist">{u.points}</td>
+                      <td className="px-3 py-2 text-right text-silver">{u.bids.length}</td>
+                      <td className={cn("whitespace-nowrap px-3 py-2 text-silver")}>
                         {u.lastLogin == null ? <NeverBadge /> : formatLastSeen(u.lastLogin, now)}
                       </td>
-                      <td className="py-2.5 pl-3 pr-5 text-right">
+                      <td className="py-2 pl-3 pr-5 text-right">
                         <NumberChip n={u.jersey} highlight={u.jersey != null} />
                       </td>
                     </tr>

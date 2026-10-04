@@ -76,7 +76,7 @@ export default function SettingsPage() {
           ) : (
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <label htmlFor="allow-login" className="font-medium text-white">
+                <label htmlFor="allow-login" className="font-medium text-heading">
                   Allow resident login
                 </label>
                 <p className="mt-0.5 text-sm text-silver">

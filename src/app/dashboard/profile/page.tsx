@@ -62,7 +62,7 @@ export default function ProfilePage() {
 
       <div className="grid gap-4 md:grid-cols-[1.4fr,1fr]">
         <section className="surface-card p-4 sm:p-6" aria-labelledby="details-heading">
-          <h2 id="details-heading" className="text-[17px] font-medium tracking-heading text-white">
+          <h2 id="details-heading" className="text-[17px] font-medium tracking-heading text-heading">
             Your details
           </h2>
           <dl className="mt-4">
@@ -78,7 +78,7 @@ export default function ProfilePage() {
               </div>
             ))}
           </dl>
-          <p className="mt-4 text-[13px] text-[#93a19f]">Something wrong here? Contact the jersey committee.</p>
+          <p className="mt-4 text-[13px] text-faint">Something wrong here? Contact the jersey committee.</p>
         </section>
 
         <section className="surface-card flex flex-col p-4 sm:p-6" aria-labelledby="jersey-heading">
@@ -88,7 +88,7 @@ export default function ProfilePage() {
           {!data ? (
             <Skeleton className="mt-5 h-20 w-28" />
           ) : (
-            <p className="stat mt-5 text-[5.5rem]">{allocated ? data.info.jersey!.number : data.info.points}</p>
+            <p className="stat mt-4 text-[clamp(3.5rem,2.6rem+4vw,5rem)]">{allocated ? data.info.jersey!.number : data.info.points}</p>
           )}
           <p className="mt-3 text-sm text-silver">
             {!data

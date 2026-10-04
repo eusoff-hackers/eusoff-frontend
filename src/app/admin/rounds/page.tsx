@@ -39,7 +39,7 @@ const ordinal = (n: number) => ["1st", "2nd", "3rd", "4th", "5th"][n] ?? `${n + 
 function PersonLine({ name, meta }: { name: string; meta: React.ReactNode }) {
   return (
     <div className="min-w-0 flex-1">
-      <p className="truncate text-sm text-white">{name}</p>
+      <p className="truncate text-sm text-heading">{name}</p>
       <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs tabular-nums text-silver">{meta}</p>
     </div>
   );
@@ -91,7 +91,7 @@ function PreviewDialog({
                       <span
                         className={cn(
                           "shrink-0 rounded-[5px] px-2 py-1 text-[11px] font-medium",
-                          r.choice === 0 ? "bg-aqua/10 text-aqua" : "bg-white/[0.06] text-silver",
+                          r.choice === 0 ? "bg-aqua/10 text-aqua" : "bg-ink/[0.06] text-silver",
                         )}
                       >
                         {ordinal(r.choice)} choice
@@ -176,7 +176,7 @@ function RoundCard({
   return (
     <article className={cn("surface-card min-w-0 p-4 sm:p-6", round.status === "open" && "border-aqua/25")}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xl font-medium tracking-heading text-white">Round {round.round}</h2>
+        <h2 className="text-xl font-medium tracking-heading text-heading">Round {round.round}</h2>
         <StatusPill status={round.status} />
       </div>
       <p className="mt-1 h-5 text-sm tabular-nums text-aqua">{countdown}</p>
@@ -205,7 +205,7 @@ function RoundCard({
         </div>
       </div>
       {invalid && <p className="mt-2 text-sm text-danger">Close must be after open.</p>}
-      {locked && <p className="mt-2 text-xs text-[#93a19f]">Times are locked once a round is allocated.</p>}
+      {locked && <p className="mt-2 text-xs text-faint">Times are locked once a round is allocated.</p>}
 
       {round.summary && (
         <dl className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-recessed p-3">
@@ -216,12 +216,12 @@ function RoundCard({
           ].map(([l, v]) => (
             <div key={l}>
               <dt className="text-xs text-silver">{l}</dt>
-              <dd className="mt-1 text-xl font-medium tabular-nums text-white">{v}</dd>
+              <dd className="mt-1 text-xl font-medium tabular-nums text-heading">{v}</dd>
             </div>
           ))}
         </dl>
       )}
-      {round.allocatedAt && <p className="mt-2 text-xs text-[#93a19f]">Allocated {formatSgt(round.allocatedAt)}</p>}
+      {round.allocatedAt && <p className="mt-2 text-xs text-faint">Allocated {formatSgt(round.allocatedAt)}</p>}
 
       <div className="mt-5 flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" onClick={onPreview} disabled={busy}>
@@ -246,7 +246,7 @@ function RoundCard({
         )}
       </div>
       {(round.status === "scheduled" || round.status === "open") && (
-        <p className="mt-2 text-xs text-[#93a19f]">Allocate now unlocks once the round has closed.</p>
+        <p className="mt-2 text-xs text-faint">Allocate now unlocks once the round has closed.</p>
       )}
       {round.status === "allocating" && <p className="mt-2 text-xs text-warn">Allocation is running.</p>}
     </article>
@@ -325,7 +325,7 @@ export default function RoundsPage() {
       />
 
       <Callout icon={Info} className="mb-4">
-        Allocation runs <span className="text-white">automatically</span> when a round closes: by choice rank, then
+        Allocation runs <span className="text-heading">automatically</span> when a round closes: by choice rank, then
         points, seniority, then random. Preview shows the likely outcome at any time. Allocate now is only needed if
         the automatic run didn&apos;t happen; Undo releases a round&apos;s numbers so it can run again.
       </Callout>

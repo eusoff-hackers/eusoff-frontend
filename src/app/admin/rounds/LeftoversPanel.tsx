@@ -117,7 +117,7 @@ export default function LeftoversPanel({ rounds }: { rounds: Round[] }) {
                       <td className="py-2 pl-4 pr-3">
                         <NumberChip n={r.number} highlight />
                       </td>
-                      <td className="max-w-[14rem] truncate px-3 py-2 text-white">{r.user.name}</td>
+                      <td className="max-w-[14rem] truncate px-3 py-2 text-heading">{r.user.name}</td>
                       <td className="px-3 py-2 text-silver">{r.user.room}</td>
                       <td className="px-3 py-2">
                         <GenderTag gender={r.user.gender} />
@@ -140,7 +140,7 @@ export default function LeftoversPanel({ rounds }: { rounds: Round[] }) {
                     key={i.user._id}
                     className="flex flex-wrap items-center justify-between gap-2 border-b border-hairline px-4 py-2.5 text-sm last:border-0"
                   >
-                    <span className="min-w-0 truncate text-white">
+                    <span className="min-w-0 truncate text-heading">
                       {i.user.name} <span className="text-silver">{i.user.room}</span>
                     </span>
                     <span className="text-warn">{i.reason}</span>

@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 
 import { Wordmark } from "@/src/app/components/Brand";
+import ThemeToggle from "@/src/app/components/ThemeToggle";
 import { useLogout } from "@/src/app/lib/useLogout";
 import { selectUser } from "@/src/app/redux/Resources/userSlice";
 
@@ -51,7 +52,7 @@ export default function NavBar() {
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "relative inline-flex h-10 items-center rounded-md px-3 text-[12px] font-medium uppercase tracking-[0.12em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua",
-                    active ? "text-white" : "text-silver hover:text-white",
+                    active ? "text-heading" : "text-silver hover:text-heading",
                   )}
                 >
                   {label}
@@ -61,13 +62,15 @@ export default function NavBar() {
             })}
           </nav>
 
+          <ThemeToggle className="ml-auto md:ml-2" />
           <button
             type="button"
             onClick={logout}
-            className="ml-auto inline-flex h-10 items-center gap-2 rounded-md px-3 text-[13px] text-silver transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua md:ml-2"
+            aria-label="Sign out"
+            className="-mr-2 inline-flex h-10 items-center gap-2 rounded-md px-2.5 text-[13px] text-silver transition-colors hover:bg-ink/[0.06] hover:text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua sm:px-3"
           >
             <LogOut className="h-4 w-4" strokeWidth={1.5} aria-hidden />
-            Sign out
+            <span className="hidden sm:inline">Sign out</span>
           </button>
         </div>
       </header>
@@ -87,7 +90,7 @@ export default function NavBar() {
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "relative flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium tracking-[0.04em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-aqua",
-                    active ? "text-white" : "text-[#93a19f] hover:text-silver",
+                    active ? "text-heading" : "text-faint hover:text-silver",
                   )}
                 >
                   {active && <span aria-hidden className="absolute inset-x-6 top-0 h-px bg-biolum" />}

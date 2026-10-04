@@ -105,18 +105,6 @@ const Jersey: React.FC = () => {
         </div>
       )}
 
-      {rounds.length > 0 && (
-        <section className="surface-card p-4 sm:p-6" aria-labelledby="schedule-heading">
-          <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
-            <h2 id="schedule-heading" className="text-[17px] font-medium tracking-heading text-white">
-              Round schedule
-            </h2>
-            <p className="text-[13px] text-[#93a19f]">Singapore time</p>
-          </div>
-          <RoundTimeline rounds={rounds} now={now} highlightRound={userBids.info.round} />
-        </section>
-      )}
-
       {!allocated && (
         <BiddingTable
           user={user}
@@ -127,6 +115,19 @@ const Jersey: React.FC = () => {
           gridId={GRID_ID}
         />
       )}
+
+      {rounds.length > 0 && (
+        <section className="surface-card p-4 sm:p-6" aria-labelledby="schedule-heading">
+          <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="schedule-heading" className="text-[17px] font-medium tracking-heading text-heading">
+              Round schedule
+            </h2>
+            <p className="text-[13px] text-faint">Singapore time</p>
+          </div>
+          <RoundTimeline rounds={rounds} now={now} highlightRound={userBids.info.round} />
+        </section>
+      )}
+
     </div>
   );
 };

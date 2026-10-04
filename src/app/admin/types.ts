@@ -57,6 +57,9 @@ export interface AdminUser {
   bids: AdminBid[];
   /** Epoch ms of last successful login; null = never logged in. */
   lastLogin?: number | null;
+  previousResident?: boolean;
+  /** Team codes this resident captains. */
+  captainOf?: string[];
 }
 
 export interface AdminUserPatch {

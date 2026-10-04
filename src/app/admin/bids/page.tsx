@@ -104,7 +104,7 @@ export default function BidsPage() {
               className="flex flex-col gap-2.5 border-b border-hairline px-4 py-3 last:border-0 sm:flex-row sm:items-center sm:px-5"
             >
               <div className="min-w-0 sm:w-72 sm:shrink-0">
-                <p className="truncate text-[15px] text-white">{row.user.name}</p>
+                <p className="truncate text-[15px] text-heading">{row.user.name}</p>
                 <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs tabular-nums text-silver">
                   <span>{row.user.room}</span>
                   <GenderTag gender={row.user.gender} />
@@ -115,8 +115,8 @@ export default function BidsPage() {
               <ol className="flex flex-wrap gap-1.5" aria-label="Choices in order">
                 {row.bids.map((b, i) => (
                   <li key={`${b.number}-${i}`} className="flex items-center gap-1">
-                    <span className="w-2 text-[10px] tabular-nums text-[#93a19f]">{i + 1}</span>
-                    <NumberChip n={b.number} highlight={filterNum === b.number} className={cn(i === 0 && "text-white")} />
+                    <span className="w-2 text-[10px] tabular-nums text-faint">{i + 1}</span>
+                    <NumberChip n={b.number} highlight={filterNum === b.number} className={cn(i === 0 && "text-heading")} />
                   </li>
                 ))}
               </ol>

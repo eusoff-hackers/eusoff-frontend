@@ -29,7 +29,7 @@ type View = "all" | "own" | "carry";
 
 function CarryTag() {
   return (
-    <span className="inline-flex h-5 items-center whitespace-nowrap rounded-[4px] bg-white/[0.07] px-1.5 text-[11px] font-medium leading-none text-mist">
+    <span className="inline-flex h-5 items-center whitespace-nowrap rounded-[4px] bg-ink/[0.07] px-1.5 text-[11px] font-medium leading-none text-mist">
       Carry-over
     </span>
   );
@@ -92,7 +92,7 @@ export default function NonBiddersPage() {
     <>
       <Link
         href="/admin/rounds"
-        className="-ml-2 mb-4 inline-flex h-10 items-center gap-1.5 rounded-md px-2 text-[13px] text-silver transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua"
+        className="-ml-2 mb-4 inline-flex h-10 items-center gap-1.5 rounded-md px-2 text-[13px] text-silver transition-colors hover:text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={1.5} aria-hidden /> Rounds
       </Link>
@@ -151,7 +151,7 @@ export default function NonBiddersPage() {
                 <dd
                   className={cn(
                     "mt-2 text-[1.75rem] font-medium leading-none tracking-[-0.03em] tabular-nums sm:text-[2.25rem]",
-                    s.warn ? "text-warn" : "text-white",
+                    s.warn ? "text-warn" : "text-heading",
                   )}
                 >
                   {s.value}
@@ -188,7 +188,7 @@ export default function NonBiddersPage() {
                 {list.map(n => (
                   <li key={n._id} className="border-b border-hairline px-4 py-3 last:border-0">
                     <div className="flex items-start justify-between gap-3">
-                      <p className="min-w-0 truncate text-[15px] text-white">{n.name}</p>
+                      <p className="min-w-0 truncate text-[15px] text-heading">{n.name}</p>
                       <span className="shrink-0 text-[13px] tabular-nums text-mist">{n.points} pts</span>
                     </div>
                     <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs tabular-nums text-silver">
@@ -203,8 +203,9 @@ export default function NonBiddersPage() {
                 ))}
               </ul>
               {/* desktop */}
-              <table className="hidden w-full text-sm tabular-nums md:table">
-                <thead className="border-b border-hairline bg-recessed/60 text-left">
+              <div className="hidden max-h-[calc(100dvh-12rem)] overflow-auto overscroll-contain md:block">
+              <table className="w-full text-sm tabular-nums">
+                <thead className="sticky top-0 z-[1] bg-recessed text-left [box-shadow:inset_0_-1px_0_rgb(var(--ink)/0.1)]">
                   <tr className="[&>th]:h-10 [&>th]:px-3 [&>th]:text-[11px] [&>th]:font-medium [&>th]:uppercase [&>th]:tracking-[0.12em] [&>th]:text-silver">
                     <th className="!pl-5">Resident</th>
                     <th>Room</th>
@@ -217,27 +218,28 @@ export default function NonBiddersPage() {
                 <tbody>
                   {list.map(n => (
                     <tr key={n._id} className={cn("border-b border-hairline last:border-0")}>
-                      <td className="max-w-[20rem] py-2.5 pl-5 pr-3">
-                        <span className="block truncate text-white">{n.name}</span>
-                        <span className="text-xs text-[#93a19f]">{n.username}</span>
+                      <td className="max-w-[20rem] py-2 pl-5 pr-3">
+                        <span className="block truncate text-heading">{n.name}</span>
+                        <span className="text-xs text-faint">{n.username}</span>
                       </td>
-                      <td className="px-3 py-2.5 text-silver">{n.room}</td>
-                      <td className="px-3 py-2.5">
+                      <td className="px-3 py-2 text-silver">{n.room}</td>
+                      <td className="px-3 py-2">
                         <GenderTag gender={n.gender} />
                       </td>
-                      <td className="px-3 py-2.5">
+                      <td className="px-3 py-2">
                         <span className="inline-flex items-center gap-2 text-silver">
                           {n.round} {n.carryover && <CarryTag />}
                         </span>
                       </td>
-                      <td className="px-3 py-2.5 text-right text-mist">{n.points}</td>
-                      <td className="whitespace-nowrap py-2.5 pl-3 pr-5 text-silver">
+                      <td className="px-3 py-2 text-right text-mist">{n.points}</td>
+                      <td className="whitespace-nowrap py-2 pl-3 pr-5 text-silver">
                         {n.lastLogin == null ? <NeverBadge /> : formatLastSeen(n.lastLogin, now)}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           )}
         </>

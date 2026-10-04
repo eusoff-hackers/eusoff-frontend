@@ -64,7 +64,7 @@ export default function RoundTimeline({
           <li
             key={r.round}
             aria-current={r.status === "open" ? "step" : undefined}
-            className="relative flex min-w-0 gap-4 pb-5 last:pb-0 md:flex-col md:gap-3 md:pb-0"
+            className="relative flex min-w-0 gap-3.5 pb-4 last:pb-0 md:flex-col md:gap-3 md:pb-0"
           >
             {/* Rail: vertical on phones, horizontal from md */}
             <div className="relative flex w-3 shrink-0 flex-col items-center md:w-full md:flex-row">
@@ -76,7 +76,7 @@ export default function RoundTimeline({
                     ? "border-lavender/60 bg-lavender/80"
                     : live(r.status)
                       ? "border-aqua bg-aqua"
-                      : "border-white/25 bg-canvas",
+                      : "border-ink/25 bg-canvas",
                 )}
               />
               {!last && (
@@ -84,7 +84,7 @@ export default function RoundTimeline({
                   aria-hidden
                   className={cn(
                     "absolute left-1/2 top-4 h-[calc(100%-0.25rem)] w-px -translate-x-1/2 md:left-4 md:top-1/2 md:h-px md:w-[calc(100%+0.75rem-1rem)] md:translate-x-0 md:-translate-y-1/2",
-                    done(r.status) ? "bg-lavender/40" : "bg-white/[0.12]",
+                    done(r.status) ? "bg-lavender/40" : "bg-ink/[0.12]",
                   )}
                 />
               )}
@@ -97,10 +97,10 @@ export default function RoundTimeline({
               )}
             >
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[15px] font-medium text-white">Round {r.round}</span>
+                <span className="text-[15px] font-medium text-heading">Round {r.round}</span>
                 <StatusPill status={r.status} />
                 {mine && (
-                  <span className="inline-flex h-6 items-center rounded-[5px] bg-white/[0.08] px-2 text-[11px] font-medium text-mist">
+                  <span className="inline-flex h-6 items-center rounded-[5px] bg-ink/[0.08] px-2 text-[11px] font-medium text-mist">
                     {highlightLabel}
                   </span>
                 )}

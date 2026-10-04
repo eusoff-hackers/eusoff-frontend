@@ -5,22 +5,27 @@ import React, { useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Minimal dependency-free chart kit for the dark-teal admin.
- * Series colours are a validated categorical set on #003734 (CVD ΔE ≥ 8, AA ≥ 3:1):
- *   viz-1 #1aa596 (teal) · viz-2 #b06fcf (orchid) · viz-3 #c08232 (ochre).
+ * Minimal dependency-free chart kit, theme-aware through CSS variables.
+ * Series colours are validated categorical sets (CVD ΔE ≥ 8, ≥ 3:1 vs the card surface) per theme:
+ *   light on #ffffff: #00897a teal · #a24fc4 orchid · #b8741c ochre
+ *   dark on #003734:  #1aa596 teal · #b06fcf orchid · #c08232 ochre
  * Text always uses text tokens, never series colours. Every mark has a hover/focus tooltip.
  */
-export const SERIES = ["#1aa596", "#b06fcf", "#c08232"] as const;
+export const SERIES = ["rgb(var(--viz-1))", "rgb(var(--viz-2))", "rgb(var(--viz-3))"] as const;
+export const NEUTRAL = "rgb(var(--ink) / 0.16)";
 
-/** Single-hue sequential ramp for magnitude on dark: dim teal → bright aqua. */
-export function sequential(t: number): string {
-  const c = Math.max(0, Math.min(1, t));
-  // interpolate in RGB between #06433f and #a7f3e6 (perceptually close to monotone in L for this short ramp)
-  const a = [6, 67, 63];
-  const b = [167, 243, 230];
-  const mix = a.map((v, i) => Math.round(v + (b[i] - v) * Math.pow(c, 0.85)));
-  return `rgb(${mix[0]}, ${mix[1]}, ${mix[2]})`;
+/**
+ * Single-hue sequential ramp for magnitude, binned into 5 steps (pale to deep teal on light,
+ * dim to bright aqua on dark). Binning keeps every label at ≥ 5:1: a continuous ramp always has a
+ * mid band where neither ink reaches AA.
+ */
+export function seqStep(value: number, max: number): 0 | 1 | 2 | 3 | 4 | 5 {
+  if (value <= 0 || max <= 0) return 0;
+  return Math.min(5, Math.max(1, Math.ceil((value / max) * 5))) as 1 | 2 | 3 | 4 | 5;
 }
+export const seqColor = (step: number) => `rgb(var(--seq-${Math.max(1, Math.min(5, step))}))`;
+export const seqText = (step: number) => (step >= 4 ? "text-seq-on-hi" : "text-seq-on-lo");
+export const SEQ_GRADIENT = `linear-gradient(90deg, ${[1, 2, 3, 4, 5].map(seqColor).join(", ")})`;
 
 export const fmt = (n: number) => n.toLocaleString("en-SG");
 export const pct = (n: number, d: number) => (d > 0 ? `${Math.round((n / d) * 100)}%` : "–");
@@ -59,7 +64,7 @@ export function ChartTooltip({
   return (
     <div
       role="tooltip"
-      className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[calc(100%+8px)] whitespace-nowrap rounded-lg border border-white/15 bg-recessed px-3 py-2 text-xs text-silver"
+      className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[calc(100%+8px)] whitespace-nowrap rounded-lg border border-ink/15 bg-raised px-3 py-2 [box-shadow:var(--pop-shadow)] text-xs text-silver"
       style={{ left, top: tip.y }}
     >
       {children}
@@ -72,7 +77,7 @@ export function TipRow({ color, label, value }: { color?: string; label: React.R
     <div className="flex items-center gap-2">
       {color && <span className="h-2 w-2 shrink-0 rounded-[2px]" style={{ background: color }} aria-hidden />}
       <span className="flex-1">{label}</span>
-      <span className="pl-3 font-medium tabular-nums text-white">{value}</span>
+      <span className="pl-3 font-medium tabular-nums text-heading">{value}</span>
     </div>
   );
 }
@@ -137,10 +142,10 @@ export function ColumnChart({
           <div
             key={g}
             aria-hidden
-            className="absolute inset-x-0 border-t border-dashed border-white/[0.06]"
+            className="absolute inset-x-0 border-t border-dashed border-ink/[0.06]"
             style={{ top: height - g * height }}
           >
-            <span className="absolute -top-2 right-0 text-[10px] tabular-nums text-[#93a19f]">
+            <span className="absolute -top-2 right-0 text-[10px] tabular-nums text-faint">
               {fmt(Math.round(max * g))}
             </span>
           </div>
@@ -179,13 +184,13 @@ export function ColumnChart({
                     />
                   ) : null,
                 )}
-                {total === 0 && <div className="h-px w-full bg-white/10" />}
+                {total === 0 && <div className="h-px w-full bg-ink/10" />}
               </div>
             );
           })}
         </div>
         {/* baseline + x labels */}
-        <div aria-hidden className="absolute left-0 right-8 border-t border-white/15" style={{ top: height }} />
+        <div aria-hidden className="absolute left-0 right-8 border-t border-ink/15" style={{ top: height }} />
         <div aria-hidden className="absolute left-0 right-8" style={{ top: height + 6 }}>
           {data.map((d, i) => {
             const text = i % labelEvery === 0 ? (d.label !== undefined ? d.label : String(d.key)) : "";
@@ -193,7 +198,7 @@ export function ColumnChart({
             return (
               <span
                 key={d.key}
-                className="absolute -translate-x-1/2 whitespace-nowrap text-[10px] tabular-nums text-[#93a19f]"
+                className="absolute -translate-x-1/2 whitespace-nowrap text-[10px] tabular-nums text-faint"
                 style={{ left: `${((i + 0.5) / data.length) * 100}%` }}
               >
                 {text}
@@ -249,7 +254,7 @@ export function StackBar({
 }) {
   const total = segments.reduce((a, s) => a + s.value, 0);
   const id = useId();
-  if (total === 0) return <div className="h-2.5 rounded-[3px] bg-white/[0.06]" aria-label={`${ariaLabel}: no data`} />;
+  if (total === 0) return <div className="h-2.5 rounded-[3px] bg-ink/[0.06]" aria-label={`${ariaLabel}: no data`} />;
   return (
     <div className="flex w-full gap-[2px]" role="img" aria-label={ariaLabel} aria-describedby={id} style={{ height }}>
       {segments

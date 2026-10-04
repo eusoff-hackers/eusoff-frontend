@@ -17,7 +17,10 @@ import {
   TipRow,
   fmt,
   pct,
-  sequential,
+  SEQ_GRADIENT,
+  seqColor,
+  seqStep,
+  seqText,
   useChartTooltip,
 } from "@/src/app/admin/components/charts";
 import {
@@ -35,8 +38,8 @@ import { formatRelative, useNow } from "@/src/app/lib/time";
 
 const ORD = ["1st", "2nd", "3rd", "4th", "5th"];
 /** 5-step sequential ramp for ordered choice ranks (1st = brightest). */
-const RANK_COLORS = [1, 0.78, 0.58, 0.4, 0.24].map(sequential);
-const NEUTRAL = "rgba(255,255,255,0.16)";
+const RANK_COLORS = [5, 4, 3, 2, 1].map(seqColor);
+const NEUTRAL = "rgb(var(--ink) / 0.16)";
 
 /* ------------------------------------------------------------------ funnel */
 
@@ -61,7 +64,7 @@ function Funnel({ rounds }: { rounds: AnalyticsRound[] }) {
         {rounds.map(r => (
           <article key={r.round} className="min-w-0 rounded-xl bg-recessed p-4">
             <div className="flex items-center justify-between gap-2">
-              <h3 className="text-[15px] font-medium text-white">Round {r.round}</h3>
+              <h3 className="text-[15px] font-medium text-heading">Round {r.round}</h3>
               <StatusPill status={r.status} />
             </div>
             <div className="mt-4 space-y-2.5" role="img" aria-label={`Round ${r.round}: ${r.eligible} expected, ${r.carryover} carry-over, ${r.bidders} bid, ${r.allocated} allocated`}>
@@ -75,7 +78,7 @@ function Funnel({ rounds }: { rounds: AnalyticsRound[] }) {
                     />
                     <span className="truncate tabular-nums text-mist">
                       {fmt(row.value)}
-                      {row.sub && <span className="ml-1.5 text-[#93a19f]">{row.sub}</span>}
+                      {row.sub && <span className="ml-1.5 text-faint">{row.sub}</span>}
                     </span>
                   </div>
                 </div>
@@ -85,7 +88,7 @@ function Funnel({ rounds }: { rounds: AnalyticsRound[] }) {
               <div>
                 <dt className="text-silver">Didn&apos;t bid</dt>
                 <dd className="mt-0.5 flex items-center gap-2 tabular-nums">
-                  <span className={cn("text-lg font-medium", r.nonBidders ? "text-warn" : "text-white")}>
+                  <span className={cn("text-lg font-medium", r.nonBidders ? "text-warn" : "text-heading")}>
                     {fmt(r.nonBidders)}
                   </span>
                   {r.status !== "scheduled" && (
@@ -100,14 +103,14 @@ function Funnel({ rounds }: { rounds: AnalyticsRound[] }) {
               </div>
               <div>
                 <dt className="text-silver">Bid, no number</dt>
-                <dd className="mt-0.5 text-lg font-medium tabular-nums text-white">{fmt(r.unallocatedBidders)}</dd>
+                <dd className="mt-0.5 text-lg font-medium tabular-nums text-heading">{fmt(r.unallocatedBidders)}</dd>
               </div>
             </dl>
           </article>
         ))}
       </div>
       <details className="group mt-4 text-[13px]">
-        <summary className="inline-flex h-10 cursor-pointer items-center rounded-md px-2 text-silver hover:text-white">
+        <summary className="inline-flex h-10 cursor-pointer items-center rounded-md px-2 text-silver hover:text-heading">
           Show as table
         </summary>
         <div className="mt-2 overflow-x-auto rounded-xl bg-recessed">
@@ -244,9 +247,7 @@ function DemandMap({ demand }: { demand: Analytics["demand"] }) {
           <div className="grid grid-cols-10 gap-1 sm:gap-1.5" role="grid" aria-label="Bids per number, 0 to 99">
             {byNumber.map(d => {
               const v = valueOf(d);
-              const t = v / max;
-              // dark ink once the fill is light enough that white would drop below AA
-              const light = t > 0.22;
+              const step = seqStep(v, max);
               return (
                 <div
                   key={d.number}
@@ -256,16 +257,16 @@ function DemandMap({ demand }: { demand: Analytics["demand"] }) {
                   aria-label={`Number ${d.number}: ${v} bids${d.holders ? `, ${d.holders} holders` : ""}`}
                   className={cn(
                     "relative flex aspect-square min-w-0 cursor-default items-center justify-center rounded-[4px] text-[11px] tabular-nums outline-none transition-[outline-color] focus-visible:ring-2 focus-visible:ring-aqua sm:text-[13px]",
-                    v === 0 ? "bg-recessed text-low" : light ? "text-canvas" : "text-white",
-                    tip?.data.number === d.number && "outline outline-1 outline-white/60",
+                    v === 0 ? "bg-recessed text-faint" : seqText(step),
+                    tip?.data.number === d.number && "outline outline-1 outline-ink/60",
                   )}
-                  style={v ? { background: sequential(0.12 + 0.88 * t) } : undefined}
+                  style={v ? { background: seqColor(step) } : undefined}
                 >
                   {d.number}
                   {d.holders > 0 && (
                     <span
                       aria-hidden
-                      className="absolute right-[3px] top-[3px] h-1.5 w-1.5 rounded-full bg-lavender ring-1 ring-canvas/60"
+                      className="absolute right-[3px] top-[3px] h-1.5 w-1.5 rounded-full bg-lavender-fill ring-1 ring-canvas/60"
                     />
                   )}
                 </div>
@@ -275,7 +276,7 @@ function DemandMap({ demand }: { demand: Analytics["demand"] }) {
           <ChartTooltip tip={tip} width={ref.current?.clientWidth ?? 320}>
             {tip && (
               <div className="min-w-[10rem] space-y-1">
-                <p className="mb-1 text-sm font-medium text-white">Number {tip.data.number}</p>
+                <p className="mb-1 text-sm font-medium text-heading">Number {tip.data.number}</p>
                 <TipRow label="All bids" value={tip.data.total} />
                 {tip.data.byChoice.map((c, i) => (
                   <TipRow key={i} color={RANK_COLORS[i]} label={`${ORD[i]} choice`} value={c} />
@@ -290,22 +291,22 @@ function DemandMap({ demand }: { demand: Analytics["demand"] }) {
         <aside className="space-y-5 text-[13px]">
           <div>
             <p className="text-silver">Bids shown</p>
-            <p className="mt-1 text-[2rem] font-medium leading-none tracking-[-0.03em] tabular-nums text-white">
+            <p className="mt-1 text-[2rem] font-medium leading-none tracking-[-0.03em] tabular-nums text-heading">
               {fmt(total)}
             </p>
           </div>
           <div>
             <div
               className="h-2.5 w-full rounded-[3px]"
-              style={{ background: `linear-gradient(90deg, ${sequential(0.12)}, ${sequential(1)})` }}
+              style={{ background: SEQ_GRADIENT }}
               aria-hidden
             />
-            <div className="mt-1.5 flex justify-between tabular-nums text-[#93a19f]">
+            <div className="mt-1.5 flex justify-between tabular-nums text-faint">
               <span>1</span>
               <span>{fmt(max)} bids</span>
             </div>
             <p className="mt-3 flex items-center gap-2 text-silver">
-              <span className="h-1.5 w-1.5 rounded-full bg-lavender" aria-hidden /> Already held by someone
+              <span className="h-1.5 w-1.5 rounded-full bg-lavender-fill" aria-hidden /> Already held by someone
             </p>
           </div>
           <div>
@@ -351,7 +352,7 @@ function PointsOutcome({ points }: { points: Analytics["points"] }) {
           values: [p.gotTopChoice, Math.max(0, p.allocated - p.gotTopChoice), Math.max(0, p.residents - p.allocated)],
           tooltip: (
             <div className="space-y-1">
-              <p className="mb-1 text-sm font-medium text-white">{p.points} points</p>
+              <p className="mb-1 text-sm font-medium text-heading">{p.points} points</p>
               <TipRow label="Residents" value={p.residents} />
               <TipRow color={colors[0]} label="Got 1st choice" value={p.gotTopChoice} />
               <TipRow color={colors[1]} label="Got another" value={p.allocated - p.gotTopChoice} />
@@ -361,7 +362,7 @@ function PointsOutcome({ points }: { points: Analytics["points"] }) {
           ),
         }))}
       />
-      <p className="mt-1 text-center text-[11px] text-[#93a19f]">Points</p>
+      <p className="mt-1 text-center text-[11px] text-faint">Points</p>
     </>
   );
 }
@@ -444,7 +445,7 @@ function HourlyChart({
   return (
     <div>
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="text-[15px] font-medium text-white">{label}</h3>
+        <h3 className="text-[15px] font-medium text-heading">{label}</h3>
         <p className="text-[13px] text-silver">
           <span className="tabular-nums text-mist">{fmt(total)}</span> in 7 days
           {peak.count > 0 && (
@@ -567,7 +568,7 @@ export default function AnalyticsPage() {
         <DemandMap demand={data.demand} />
       </Panel>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <div className="mt-4 grid items-start gap-4 lg:grid-cols-2">
         <Panel title="Which choice people got" description="Allocated residents, by the rank of the number they got">
           <ChoiceHits rounds={data.rounds} />
         </Panel>

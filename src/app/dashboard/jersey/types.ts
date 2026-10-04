@@ -14,8 +14,12 @@ export interface UserInfo {
   isAllocated: boolean;
   jersey?: JerseyType; // Only present if isAllocated is true
   allocatedRound?: number;
+  /** Internal to the committee; the backend no longer sends it to residents. Never render it. */
   breakdown?: PointsBreakdown;
   teams: TeamContainer[];
+  previousResident?: boolean;
+  /** Team codes this resident captains. */
+  captainOf?: string[];
 }
 
 export interface JerseyType {

@@ -4,83 +4,88 @@ import React from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ArrowDown, CheckCircle2, Clock, Hourglass, Lock, OctagonAlert } from "lucide-react";
+import { ArrowDown, Award, CheckCircle2, Clock, Hourglass, Lock, OctagonAlert } from "lucide-react";
 
-import type { PointsBreakdown, UserBid } from "@/src/app/dashboard/jersey/types";
+import type { UserBid } from "@/src/app/dashboard/jersey/types";
 import type { RoundWindow } from "@/src/app/lib/rounds";
+import { teamName } from "@/src/app/lib/teams";
 import { formatCountdown, formatSgt } from "@/src/app/lib/time";
 import type { User } from "@/src/app/redux/Resources/userSlice";
-
-const BREAKDOWN_LABELS: { key: keyof PointsBreakdown; label: string }[] = [
-  { key: "finalCut2526", label: "Final cut 25/26" },
-  { key: "firstCut2627", label: "First cut 26/27" },
-  { key: "captain", label: "Captaincy" },
-  { key: "adjustment", label: "Adjustment" },
-];
 
 /** Name, matric and room. */
 export function JerseyIdentity({ user, round }: { user: User; round: number }) {
   return (
     <header className="animate-fade-up">
       <p className="eyebrow">
-        Round {round} <span className="mx-1.5 text-white/30">/</span> Jersey bidding 26/27
+        Round {round} <span className="mx-1.5 text-heading/30">/</span> Jersey bidding 26/27
       </p>
-      <h1 className="mt-3 break-words text-[1.875rem] font-medium leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.75rem]">
+      <h1 className="mt-2.5 break-words text-[clamp(1.5rem,1.1rem+1.8vw,2.25rem)] font-medium leading-[1.08] tracking-[-0.03em] text-heading">
         {user.name ?? user.username}
       </h1>
       <p className="mt-2 text-sm tabular-nums text-silver">
         {user.username}
-        {user.room && user.room !== "-" && <span className="text-[#93a19f]"> &nbsp;·&nbsp; Room {user.room}</span>}
+        {user.room && user.room !== "-" && <span className="text-faint"> &nbsp;·&nbsp; Room {user.room}</span>}
       </p>
     </header>
   );
 }
 
-function Breakdown({ breakdown }: { breakdown: PointsBreakdown }) {
+/**
+ * What residents see next to their points: their current sports, plus "Previous resident" and
+ * "Captain" tags. The category maths behind the total is internal to the committee.
+ */
+function Standing({ info }: { info: UserBid["info"] }) {
+  const teams = info.teams;
+  const captainOf = info.captainOf ?? [];
+  const tags = info.previousResident || captainOf.length > 0;
   return (
-    <ul className="flex flex-wrap gap-1.5" aria-label="Points breakdown">
-      {BREAKDOWN_LABELS.filter(b => b.key !== "adjustment" || breakdown.adjustment !== 0).map(b => (
-        <li key={b.key} className="inline-flex h-8 items-center gap-2 rounded-md bg-recessed px-2.5 text-[13px] text-silver">
-          {b.label}
-          <span className="font-medium tabular-nums text-mist">
-            {b.key === "adjustment" && breakdown.adjustment > 0 ? "+" : ""}
-            {breakdown[b.key]}
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function Teams({ teams }: { teams: UserBid["info"]["teams"] }) {
-  return (
-    <div>
-      <p className="mb-2 text-[13px] text-silver">Teams</p>
-      {teams.length === 0 ? (
-        <p className="text-sm text-[#93a19f]">No teams on record.</p>
-      ) : (
-        <ul className="flex flex-wrap gap-1.5">
-          {teams.map(({ team }) => (
+    <div className="space-y-3">
+      {tags && (
+        <ul className="flex flex-wrap gap-1.5" aria-label="Recognition">
+          {info.previousResident && (
+            <li className="inline-flex h-7 items-center rounded-md bg-lavender/10 px-2.5 text-[13px] font-medium text-lavender">
+              Previous resident
+            </li>
+          )}
+          {captainOf.map(t => (
             <li
-              key={team.name}
-              className={cn(
-                "inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-[13px]",
-                team.shareable ? "border-hairline text-mist" : "border-warn/30 text-warn",
-              )}
+              key={t}
+              className="inline-flex h-7 items-center gap-1.5 rounded-md bg-lavender/10 px-2.5 text-[13px] font-medium text-lavender"
             >
-              {!team.shareable && <Lock className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden />}
-              {team.name}
-              {!team.shareable && <span className="sr-only">(non-shareable)</span>}
+              <Award className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />
+              Captain, {teamName(t)}
             </li>
           ))}
         </ul>
       )}
-      {teams.some(t => !t.team.shareable) && (
-        <p className="mt-2 text-[13px] text-[#93a19f]">
-          <Lock className="mr-1 inline h-3 w-3 align-[-1px]" strokeWidth={1.5} aria-hidden />
-          Non-shareable: you can&apos;t take a number a teammate already holds.
-        </p>
-      )}
+      <div>
+        <p className="mb-2 text-[13px] text-silver">Your sports</p>
+        {teams.length === 0 ? (
+          <p className="text-sm text-faint">No teams on record.</p>
+        ) : (
+          <ul className="flex flex-wrap gap-1.5">
+            {teams.map(({ team }) => (
+              <li
+                key={team.name}
+                className={cn(
+                  "inline-flex h-7 items-center gap-1.5 rounded-md border px-2.5 text-[13px]",
+                  team.shareable ? "border-ink/[0.14] text-mist" : "border-warn/40 text-warn",
+                )}
+              >
+                {!team.shareable && <Lock className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden />}
+                {teamName(team.name)}
+                {!team.shareable && <span className="sr-only">(non-shareable)</span>}
+              </li>
+            ))}
+          </ul>
+        )}
+        {teams.some(t => !t.team.shareable) && (
+          <p className="mt-2 text-[12px] text-faint">
+            <Lock className="mr-1 inline h-3 w-3 align-[-1px]" strokeWidth={1.5} aria-hidden />
+            Non-shareable team: you can&apos;t take a number a teammate already holds.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
@@ -97,13 +102,13 @@ export function AllocatedCard({ data }: { data: UserBid }) {
         <p className="eyebrow flex items-center gap-2 text-lavender">
           <CheckCircle2 className="h-4 w-4" strokeWidth={1.5} aria-hidden /> Your number
         </p>
-        <p className="stat mt-5 text-[8rem] sm:text-[11rem]" aria-label={`Jersey number ${info.jersey!.number}`}>
+        <p className="stat mt-4 text-[clamp(6rem,4rem+10vw,10rem)]" aria-label={`Jersey number ${info.jersey!.number}`}>
           {info.jersey!.number}
         </p>
       </div>
       <div className="flex min-w-0 flex-col gap-5 md:pt-10">
         <div>
-          <h2 className="text-[1.375rem] font-medium leading-tight tracking-heading text-white sm:text-2xl">
+          <h2 className="text-[1.375rem] font-medium leading-tight tracking-heading text-heading sm:text-2xl">
             Number {info.jersey!.number} is yours
           </h2>
           <p className="mt-2 text-[15px] text-silver">
@@ -111,13 +116,10 @@ export function AllocatedCard({ data }: { data: UserBid }) {
             26/27. Nothing else to do.
           </p>
         </div>
-        <div>
-          <p className="mb-2 text-[13px] text-silver">
-            <span className="tabular-nums text-mist">{info.points}</span> points
-          </p>
-          {info.breakdown && <Breakdown breakdown={info.breakdown} />}
-        </div>
-        <Teams teams={info.teams} />
+        <p className="text-[13px] text-silver">
+          <span className="font-medium tabular-nums text-heading">{info.points}</span> points
+        </p>
+        <Standing info={info} />
       </div>
     </section>
   );
@@ -129,21 +131,14 @@ export function PointsCard({ data }: { data: UserBid }) {
   return (
     <section className="surface-card relative flex min-w-0 flex-col overflow-hidden p-5 sm:p-6" aria-label="Your points">
       <p className="eyebrow">Your points</p>
-      <div className="mt-4 flex items-end gap-3">
-        <p className="stat text-[5.5rem] sm:text-[7rem]">{info.points}</p>
-        <p className="mb-2 text-sm text-silver">
-          Breaks ties
-          <br />
-          on the same choice
+      <div className="mt-3 flex items-end gap-4">
+        <p className="stat text-[clamp(3.5rem,2.6rem+4vw,5.5rem)]">{info.points}</p>
+        <p className="mb-1.5 max-w-[22ch] text-[13px] leading-snug text-silver">
+          From your IHG record. Points break ties between residents on the same choice.
         </p>
       </div>
-      {info.breakdown && (
-        <div className="mt-5">
-          <Breakdown breakdown={info.breakdown} />
-        </div>
-      )}
-      <div className="mt-5 border-t border-hairline pt-4">
-        <Teams teams={info.teams} />
+      <div className="mt-4 border-t border-hairline pt-4">
+        <Standing info={info} />
       </div>
     </section>
   );
@@ -195,12 +190,12 @@ function StatusShell({
         <Icon className="h-4 w-4" strokeWidth={1.5} aria-hidden />
         {TONE_LABEL[tone]}
       </p>
-      <h2 className="mt-4 text-[1.375rem] font-medium leading-tight tracking-heading text-white sm:text-2xl">{title}</h2>
+      <h2 className="mt-3 text-[clamp(1.25rem,1.1rem+0.6vw,1.5rem)] font-medium leading-tight tracking-heading text-heading">{title}</h2>
       {children && <div className="mt-2 text-[15px] text-silver">{children}</div>}
       {countdown && countdown.at > countdown.now && (
-        <div className="mt-5 rounded-xl bg-recessed px-4 py-3">
+        <div className="mt-4 flex items-baseline justify-between gap-3 rounded-xl bg-recessed px-4 py-3">
           <p className="text-[13px] text-silver">{countdown.label}</p>
-          <p className="mt-1 text-[1.75rem] font-medium leading-none tracking-[-0.02em] tabular-nums text-white">
+          <p className="text-[clamp(1.25rem,1rem+1vw,1.625rem)] font-medium leading-none tracking-[-0.02em] tabular-nums text-heading">
             {formatCountdown(countdown.at - countdown.now)}
           </p>
         </div>

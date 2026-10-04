@@ -24,10 +24,10 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <header className={cn("mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-end sm:justify-between", className)}>
+    <header className={cn("mb-5 flex flex-col gap-3 sm:mb-7 sm:flex-row sm:items-end sm:justify-between", className)}>
       <div className="min-w-0">
-        {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
-        <h1 className="text-[1.75rem] font-medium leading-[1.05] tracking-[-0.03em] text-white sm:text-[2.25rem]">
+        {eyebrow && <p className="eyebrow mb-2.5">{eyebrow}</p>}
+        <h1 className="text-[clamp(1.5rem,1.2rem+1.3vw,2.125rem)] font-medium leading-[1.08] tracking-[-0.03em] text-heading">
           {title}
         </h1>
         {description && <p className="mt-2 max-w-[62ch] text-sm text-silver sm:text-[15px]">{description}</p>}
@@ -59,7 +59,7 @@ export function Panel({
       {(title || actions) && (
         <div className="mb-4 flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
           <div className="min-w-0">
-            {title && <h2 className="text-[17px] font-medium leading-tight tracking-heading text-white">{title}</h2>}
+            {title && <h2 className="text-[17px] font-medium leading-tight tracking-heading text-heading">{title}</h2>}
             {description && <p className="mt-1 text-[13px] text-silver">{description}</p>}
           </div>
           {actions}
@@ -87,12 +87,12 @@ export function StatCard({
   className?: string;
 }) {
   return (
-    <div className={cn("surface-card min-w-0 p-4 sm:p-5", tone === "warn" && "border-warn/30", className)}>
+    <div className={cn("surface-card min-w-0 p-4", tone === "warn" && "border-warn/40", className)}>
       <p className="eyebrow truncate">{label}</p>
       <p
         className={cn(
-          "mt-3 text-[2rem] font-medium leading-none tracking-[-0.035em] tabular-nums sm:text-[2.5rem]",
-          accent ? "text-lavender" : tone === "warn" ? "text-warn" : "text-white",
+          "mt-2.5 text-[clamp(1.5rem,1.15rem+1.3vw,2.125rem)] font-medium leading-none tracking-[-0.035em] tabular-nums",
+          accent ? "text-lavender" : tone === "warn" ? "text-warn" : "text-heading",
         )}
       >
         {value}
@@ -108,7 +108,7 @@ export const Select = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttrib
     <div className={cn("relative min-w-0", className)}>
       <select
         ref={ref}
-        className="h-11 w-full min-w-0 appearance-none rounded-md border border-white/[0.12] bg-recessed pl-3 pr-9 text-[15px] text-mist transition-colors hover:border-white/20 focus-visible:border-aqua/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua/25 disabled:opacity-50 [&>option]:bg-raised"
+        className="h-11 w-full min-w-0 appearance-none rounded-md border border-ink/[0.16] bg-field pl-3 pr-9 text-[15px] text-mist transition-colors hover:border-ink/20 focus-visible:border-aqua/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua/25 disabled:opacity-50 [&>option]:bg-raised"
         {...props}
       >
         {children}
@@ -147,7 +147,7 @@ export function Switch({
       onClick={() => onCheckedChange(!checked)}
       className={cn(
         "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua focus-visible:ring-offset-2 focus-visible:ring-offset-raised disabled:opacity-50",
-        checked ? "border-aqua/40 bg-aqua/30" : "border-white/15 bg-recessed",
+        checked ? "border-aqua/40 bg-aqua/30" : "border-ink/15 bg-recessed",
         // Generous hit area without changing the visual size
         "before:absolute before:-inset-2 before:content-['']",
       )}
@@ -193,11 +193,11 @@ export function Segmented<T extends string | number>({
             onClick={() => onChange(o.value)}
             className={cn(
               "inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-3 text-[13px] font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua",
-              active ? "bg-raised text-white outline outline-1 -outline-offset-1 outline-white/10" : "text-silver hover:text-white",
+              active ? "bg-raised text-heading outline outline-1 -outline-offset-1 outline-ink/10" : "text-silver hover:text-heading",
             )}
           >
             {o.label}
-            {o.count != null && <span className={cn("tabular-nums", active ? "text-silver" : "text-[#93a19f]")}>{o.count}</span>}
+            {o.count != null && <span className={cn("tabular-nums", active ? "text-silver" : "text-faint")}>{o.count}</span>}
           </button>
         );
       })}
@@ -206,7 +206,7 @@ export function Segmented<T extends string | number>({
 }
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn("animate-pulse rounded-md bg-white/[0.05]", className)} />;
+  return <div className={cn("animate-pulse rounded-md bg-ink/[0.05]", className)} />;
 }
 
 export function LoadingBlock({ rows = 4, className }: { rows?: number; className?: string }) {
@@ -225,7 +225,7 @@ export function ErrorState({ error, onRetry, title }: { error: unknown; onRetry?
       <div className="flex items-start gap-3">
         <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-danger" strokeWidth={1.5} aria-hidden />
         <div>
-          <p className="font-medium text-white">{title ?? "This data didn't load"}</p>
+          <p className="font-medium text-heading">{title ?? "This data didn't load"}</p>
           <p className="mt-0.5 text-sm text-silver">{errorMessage(error)}</p>
         </div>
       </div>
@@ -242,7 +242,7 @@ export function EmptyState({ children, className }: { children: React.ReactNode;
   return (
     <p
       className={cn(
-        "rounded-xl border border-dashed border-white/[0.12] px-4 py-8 text-center text-sm text-silver",
+        "rounded-xl border border-dashed border-ink/[0.12] px-4 py-8 text-center text-sm text-silver",
         className,
       )}
     >
@@ -259,7 +259,7 @@ export function GenderTag({ gender }: { gender: string | null | undefined }) {
         "inline-flex h-5 min-w-[20px] items-center justify-center rounded-[4px] px-1 text-[11px] font-medium leading-none",
         !known
           ? "border border-dashed border-warn/60 text-warn"
-          : "bg-white/[0.07] text-mist",
+          : "bg-ink/[0.07] text-mist",
       )}
       title={known ? gender! : "Gender unknown"}
     >
@@ -283,7 +283,7 @@ export function NumberChip({
     <span
       className={cn(
         "inline-flex h-8 min-w-[2.25rem] items-center justify-center rounded-md px-1.5 text-sm font-medium tabular-nums",
-        n == null ? "border border-dashed border-white/15 text-[#93a19f]" : "bg-recessed text-mist",
+        n == null ? "border border-dashed border-ink/15 text-faint" : "bg-recessed text-mist",
         highlight && "bg-lavender/10 text-lavender outline outline-1 -outline-offset-1 outline-lavender/40",
         className,
       )}
@@ -318,7 +318,7 @@ export function Callout({
     <div className={cn("flex gap-3 rounded-xl border p-3.5 text-sm sm:p-4", tones[tone], className)}>
       {Icon && <Icon className={cn("mt-0.5 h-[18px] w-[18px] shrink-0", iconTone)} strokeWidth={1.5} aria-hidden />}
       <div className="min-w-0">
-        {title && <p className="font-medium text-white">{title}</p>}
+        {title && <p className="font-medium text-heading">{title}</p>}
         {children && <div className={cn(title && "mt-0.5")}>{children}</div>}
       </div>
     </div>

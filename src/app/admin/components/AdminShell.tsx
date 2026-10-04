@@ -23,6 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { useOverview } from "@/src/app/admin/api";
 import { Wordmark } from "@/src/app/components/Brand";
+import ThemeToggle from "@/src/app/components/ThemeToggle";
 import { apiGet, toUser } from "@/src/app/lib/api";
 import { useLogout } from "@/src/app/lib/useLogout";
 import { selectUser, setUser } from "@/src/app/redux/Resources/userSlice";
@@ -98,7 +99,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
               className={cn(
                 linkBase,
                 "relative",
-                active ? "bg-white/[0.06] text-white" : "text-silver hover:bg-white/[0.04] hover:text-white",
+                active ? "bg-ink/[0.06] text-heading" : "text-silver hover:bg-ink/[0.04] hover:text-heading",
               )}
             >
               {active && <span aria-hidden className="absolute inset-y-2.5 left-0 w-px bg-biolum" />}
@@ -125,26 +126,30 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex h-full flex-col bg-recessed px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-5">
       <div className="mb-6 px-3">
         <Wordmark />
-        <p className="eyebrow mt-4 text-aqua/90">Jersey admin</p>
+        <p className="eyebrow mt-4 text-aqua">Jersey admin</p>
       </div>
       <nav aria-label="Admin" className="flex-1 overflow-y-auto">
         <NavLinks onNavigate={onNavigate} />
       </nav>
       <div className="mt-4 space-y-0.5 border-t border-hairline pt-3">
+        <div className="flex items-center justify-between gap-2 pb-1 pl-3">
+          <span className="text-[13px] text-silver">Theme</span>
+          <ThemeToggle />
+        </div>
         {user && (
-          <p className="truncate px-3 pb-2 text-xs text-[#93a19f]">Signed in as {user.name ?? user.username}</p>
+          <p className="truncate px-3 pb-2 text-xs text-faint">Signed in as {user.name ?? user.username}</p>
         )}
         <Link
           href="/dashboard/jersey"
           onClick={onNavigate}
-          className={cn(linkBase, "text-silver hover:bg-white/[0.04] hover:text-white")}
+          className={cn(linkBase, "text-silver hover:bg-ink/[0.04] hover:text-heading")}
         >
           <Shirt className="h-[18px] w-[18px]" strokeWidth={1.5} aria-hidden /> Resident view
         </Link>
         <button
           type="button"
           onClick={logout}
-          className={cn(linkBase, "w-full text-silver hover:bg-white/[0.04] hover:text-white")}
+          className={cn(linkBase, "w-full text-silver hover:bg-ink/[0.04] hover:text-heading")}
         >
           <LogOut className="h-[18px] w-[18px]" strokeWidth={1.5} aria-hidden /> Sign out
         </button>
@@ -178,7 +183,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       <header className="sticky top-0 z-30 border-b border-hairline bg-canvas/85 pt-[env(safe-area-inset-top)] backdrop-blur-md lg:hidden">
         <div className="flex h-14 items-center gap-3 px-4">
           <Wordmark crest />
-          <span className="eyebrow ml-auto text-aqua/90">Admin</span>
+          <span className="eyebrow ml-1 text-aqua">Admin</span>
+          <ThemeToggle className="-mr-1 ml-auto" />
         </div>
       </header>
 
@@ -208,7 +214,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "relative flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-aqua",
-                    active ? "text-white" : "text-[#93a19f] hover:text-silver",
+                    active ? "text-heading" : "text-faint hover:text-silver",
                   )}
                 >
                   {active && <span aria-hidden className="absolute inset-x-4 top-0 h-px bg-biolum" />}
@@ -225,7 +231,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               aria-label="More admin pages"
               className={cn(
                 "relative flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-aqua",
-                !inTabs ? "text-white" : "text-[#93a19f] hover:text-silver",
+                !inTabs ? "text-heading" : "text-faint hover:text-silver",
               )}
             >
               {!inTabs && <span aria-hidden className="absolute inset-x-4 top-0 h-px bg-biolum" />}
