@@ -7,16 +7,16 @@ import { cn } from "@/lib/utils";
 /**
  * Minimal dependency-free chart kit, theme-aware through CSS variables.
  * Series colours are validated categorical sets (CVD ΔE ≥ 8, ≥ 3:1 vs the card surface) per theme:
- *   light on #ffffff: #00897a teal · #a24fc4 orchid · #b8741c ochre
- *   dark on #003734:  #1aa596 teal · #b06fcf orchid · #c08232 ochre
+ *   light on #ffffff: #3f6fb5 slate blue, #b5404f crest red, #b8860b gold (all-pairs pass)
+ *   dark on #261a1d:  #5585cc slate blue, #cf5a68 crest red, #b98a26 gold (all-pairs pass)
  * Text always uses text tokens, never series colours. Every mark has a hover/focus tooltip.
  */
 export const SERIES = ["rgb(var(--viz-1))", "rgb(var(--viz-2))", "rgb(var(--viz-3))"] as const;
 export const NEUTRAL = "rgb(var(--ink) / 0.16)";
 
 /**
- * Single-hue sequential ramp for magnitude, binned into 5 steps (pale to deep teal on light,
- * dim to bright aqua on dark). Binning keeps every label at ≥ 5:1: a continuous ramp always has a
+ * Single-hue sequential ramp for magnitude, binned into 5 steps (apricot to crest maroon on light,
+ * deep maroon to gold on dark). Binning keeps every label at ≥ 5:1: a continuous ramp always has a
  * mid band where neither ink reaches AA.
  */
 export function seqStep(value: number, max: number): 0 | 1 | 2 | 3 | 4 | 5 {

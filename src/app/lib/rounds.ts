@@ -15,7 +15,7 @@ export const ROUND_STATUS_LABEL: Record<RoundStatus, string> = {
   allocated: "Allocated",
 };
 
-/** Tailwind classes for a small status pill (dark-teal system, AA on every surface). */
+/** Tailwind classes for a small status pill (AA on every surface, both themes). */
 export const ROUND_STATUS_STYLE: Record<RoundStatus, string> = {
   scheduled: "border-ink/15 bg-ink/[0.04] text-silver",
   open: "border-aqua/35 bg-aqua/10 text-aqua",

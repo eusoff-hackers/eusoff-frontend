@@ -5,82 +5,96 @@
 @layer base {
   /*
    * Theme tokens. Colours are RGB channel triplets so Tailwind opacity modifiers work (bg-aqua/10).
-   * Light is the default; dark is the original Auros abyss. Switched by data-theme on <html>.
+   * Eusoff colourway (sampled from the original login): sunflower > apricot > coral gradient as the
+   * brand moment, white cards on a warm off-white canvas, navy-slate ink, green primary action,
+   * crest maroon for big numbers and gold for highlights. Token *names* are historical
+   * (aqua = positive/primary green, lavender = big-stat accent) so components stay unchanged.
+   * Light is the default; dark is a warm maroon/charcoal counterpart. Switched by data-theme.
    */
   :root,
   :root[data-theme="light"] {
     color-scheme: light;
-    --canvas: 238 244 243; /* cool off-white, faint teal */
-    --recessed: 227 236 235; /* wells, inputs, grid "taken" */
+    --canvas: 251 246 240; /* warm off-white, tinted from the gradient */
+    --recessed: 243 235 225; /* wells, grid "taken" */
     --raised: 255 255 255; /* cards */
-    --field: 247 250 250; /* inputs */
-    --low: 125 139 138; /* disabled ink */
-    --heading: 1 38 36; /* abyss teal */
-    --silver: 58 83 81; /* body, 7.4:1 on canvas */
-    --mist: 11 48 45; /* emphasis */
-    --faint: 84 104 102; /* tertiary labels, AA on every surface */
-    --ink: 1 38 36; /* base for hairlines and tints */
-    --lavender: 122 42 140; /* big statistics on light: deep plum */
-    --lavender-fill: 236 212 244; /* lavender fills, always with dark text */
-    --on-accent: 1 38 36;
-    --aqua: 11 110 102;
-    --warn: 138 83 0;
-    --danger: 179 36 63;
-    --viz-1: 0 137 122;
-    --viz-2: 162 79 196;
-    --viz-3: 184 116 28;
-    /* 5-step magnitude ramp; steps 1-3 take --seq-on-lo ink, 4-5 --seq-on-hi (all ≥ 5:1) */
-    --seq-1: 200 225 222;
-    --seq-2: 160 194 190;
-    --seq-3: 122 164 159;
-    --seq-4: 60 118 111;
-    --seq-5: 7 90 83;
-    --seq-on-lo: 1 38 36;
+    --field: 255 255 255; /* inputs */
+    --low: 156 163 175; /* disabled ink */
+    --heading: 31 41 55; /* navy-slate #1f2937 */
+    --silver: 75 85 99; /* body #4b5563, 7:1 on canvas */
+    --mist: 17 24 39; /* emphasis */
+    --faint: 95 102 115; /* tertiary, AA on every surface */
+    --ink: 31 41 55; /* base for hairlines and tints */
+    --lavender: 123 30 43; /* big statistics: crest maroon #7b1e2b */
+    --lavender-fill: 248 221 140; /* gold highlight fill, always with dark text */
+    --on-accent: 31 41 55;
+    --aqua: 43 117 54; /* positive / open / links: green, AA as text */
+    --primary: 55 134 64; /* Sign In green, 4.5:1 with white */
+    --on-primary: 255 255 255;
+    --gold: 212 160 23; /* crest gold, decorative only */
+    --warn: 138 90 0;
+    --danger: 180 35 24;
+    --viz-1: 63 111 181;
+    --viz-2: 181 64 79;
+    --viz-3: 184 134 11;
+    /* 5-step magnitude ramp, apricot to maroon; steps 1-3 take --seq-on-lo ink, 4-5 --seq-on-hi */
+    --seq-1: 251 230 200;
+    --seq-2: 244 195 143;
+    --seq-3: 233 154 104;
+    --seq-4: 168 71 58;
+    --seq-5: 123 30 43;
+    --seq-on-lo: 31 41 55;
     --seq-on-hi: 255 255 255;
-    --scrim: 1 38 36 / 0.32;
-    --aurora: linear-gradient(90deg, #a3f1e8 0%, #d9fbf8 30%, #fdf4fe 56%, #efc1fa 100%);
-    --biolum: linear-gradient(90deg, #00827c, #5fd3c7);
-    --card-shadow: 0 1px 2px rgb(1 38 36 / 0.04), 0 1px 1px rgb(1 38 36 / 0.02);
-    --pop-shadow: 0 16px 40px rgb(1 38 36 / 0.14), 0 2px 6px rgb(1 38 36 / 0.06);
-    --glow-a: rgb(0 130 124 / 0.1);
-    --glow-b: rgb(250 209 255 / 0.22);
+    --scrim: 31 41 55 / 0.4;
+    --brand: linear-gradient(135deg, #f7db65 0%, #efab6a 52%, #e87d74 100%);
+    --band-ink: 31 41 55;
+    --aurora: var(--brand);
+    --biolum: linear-gradient(90deg, #e9b949, #e87d74);
+    --card-shadow: 0 1px 2px rgb(124 74 40 / 0.06), 0 4px 14px -6px rgb(124 74 40 / 0.1);
+    --pop-shadow: 0 18px 44px rgb(124 74 40 / 0.18), 0 2px 6px rgb(31 41 55 / 0.06);
+    --glow-a: rgb(247 219 101 / 0.14);
+    --glow-b: rgb(232 125 116 / 0.08);
   }
 
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --canvas: 1 38 36;
-    --recessed: 1 29 28;
-    --raised: 0 55 52;
-    --field: 1 29 28;
-    --low: 112 119 119;
-    --heading: 255 255 255;
-    --silver: 187 199 198;
-    --mist: 237 255 254;
-    --faint: 147 161 159;
-    --ink: 255 255 255;
-    --lavender: 253 233 255;
-    --lavender-fill: 253 233 255;
-    --on-accent: 1 38 36;
-    --aqua: 94 234 212;
-    --warn: 232 196 138;
-    --danger: 245 163 181;
-    --viz-1: 26 165 150;
-    --viz-2: 176 111 207;
-    --viz-3: 192 130 50;
-    --seq-1: 6 67 63;
-    --seq-2: 31 89 84;
-    --seq-3: 53 112 106;
-    --seq-4: 102 168 159;
-    --seq-5: 147 220 208;
+    --canvas: 27 19 21;
+    --recessed: 20 13 15;
+    --raised: 38 26 29;
+    --field: 20 13 15;
+    --low: 110 98 96;
+    --heading: 248 241 234;
+    --silver: 212 198 191;
+    --mist: 252 247 242;
+    --faint: 168 150 143;
+    --ink: 255 244 236;
+    --lavender: 242 199 92; /* big stats: gold */
+    --lavender-fill: 242 199 92;
+    --on-accent: 27 19 21;
+    --aqua: 108 199 119;
+    --primary: 55 134 64;
+    --on-primary: 255 255 255;
+    --gold: 242 199 92;
+    --warn: 244 160 127; /* coral */
+    --danger: 255 143 143;
+    --viz-1: 85 133 204;
+    --viz-2: 207 90 104;
+    --viz-3: 185 138 38;
+    --seq-1: 58 34 38;
+    --seq-2: 92 47 47;
+    --seq-3: 135 67 47;
+    --seq-4: 212 138 90;
+    --seq-5: 242 195 117;
     --seq-on-lo: 255 255 255;
-    --seq-on-hi: 1 38 36;
-    --scrim: 0 12 11 / 0.72;
-    --aurora: linear-gradient(90deg, #cbfffc 0%, #edfffe 26%, #fffdfa 48%, #fad1ff 89%);
-    --biolum: linear-gradient(90deg, #00827c, #cbfffc);
+    --seq-on-hi: 27 19 21;
+    --scrim: 0 0 0 / 0.6;
+    --brand: linear-gradient(135deg, #4a2a1f 0%, #5a2430 55%, #3a1b24 100%);
+    --band-ink: 248 241 234;
+    --aurora: var(--brand);
+    --biolum: linear-gradient(90deg, #f2c75c, #e87d74);
     --card-shadow: none;
-    --pop-shadow: none;
-    --glow-a: rgb(0 130 124 / 0.22);
-    --glow-b: rgb(250 209 255 / 0.07);
+    --pop-shadow: 0 18px 44px rgb(0 0 0 / 0.45);
+    --glow-a: rgb(232 125 116 / 0.07);
+    --glow-b: rgb(242 199 92 / 0.05);
   }
 
   * {
@@ -197,6 +211,23 @@ html.theme-fade *::after {
     border-color 200ms ease-out,
     color 200ms ease-out,
     fill 200ms ease-out !important;
+}
+
+/* Login backdrop: the Eusoff gradient with a very slow drift (static under reduced motion). */
+.login-backdrop {
+  background: var(--brand);
+  background-size: 160% 160%;
+  background-position: 0% 0%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .login-backdrop {
+    animation: brand-drift 28s ease-in-out infinite alternate;
+  }
+}
+@keyframes brand-drift {
+  to {
+    background-position: 100% 100%;
+  }
 }
 
 @layer utilities {

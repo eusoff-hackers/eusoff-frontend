@@ -33,11 +33,11 @@ export default function NavBar() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-hairline bg-canvas/85 pt-[env(safe-area-inset-top)] backdrop-blur-md">
+      <header className="sticky top-0 z-30 bg-brand pt-[env(safe-area-inset-top)] text-band-ink [box-shadow:0_1px_0_rgb(var(--ink)/0.08)]">
         <div className="mx-auto flex h-14 max-w-5xl items-center gap-4 px-4 sm:h-16 sm:px-6">
           <Link
             href="/dashboard/jersey"
-            className="-ml-1 rounded-md px-1 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua"
+            className="-ml-1 rounded-md px-1 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-band-ink"
           >
             <Wordmark />
           </Link>
@@ -51,12 +51,11 @@ export default function NavBar() {
                   href={href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "relative inline-flex h-10 items-center rounded-md px-3 text-[12px] font-medium uppercase tracking-[0.12em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua",
-                    active ? "text-heading" : "text-silver hover:text-heading",
+                    "relative inline-flex h-10 items-center rounded-md px-3 text-[14px] font-medium text-band-ink transition-colors hover:bg-band-ink/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-band-ink",
+                    active && "bg-band-ink/[0.1] font-semibold",
                   )}
                 >
                   {label}
-                  {active && <span aria-hidden className="absolute inset-x-3 -bottom-[11px] h-px bg-biolum" />}
                 </Link>
               );
             })}
@@ -67,7 +66,7 @@ export default function NavBar() {
             type="button"
             onClick={logout}
             aria-label="Sign out"
-            className="-mr-2 inline-flex h-10 items-center gap-2 rounded-md px-2.5 text-[13px] text-silver transition-colors hover:bg-ink/[0.06] hover:text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua sm:px-3"
+            className="-mr-2 inline-flex h-10 items-center gap-2 rounded-md px-2.5 text-[14px] font-medium text-band-ink transition-colors hover:bg-band-ink/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-band-ink sm:px-3"
           >
             <LogOut className="h-4 w-4" strokeWidth={1.5} aria-hidden />
             <span className="hidden sm:inline">Sign out</span>

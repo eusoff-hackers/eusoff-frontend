@@ -3,16 +3,14 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
-/** Hall crest + tracked wordmark. The crest sits on its own light tile because the artwork has a white field. */
+/** Hall crest + wordmark, set on the Eusoff gradient band (ink adapts per theme). */
 export function Wordmark({ className, crest = true }: { className?: string; crest?: boolean }) {
   return (
-    <span className={cn("inline-flex items-center gap-2.5", className)}>
+    <span className={cn("inline-flex items-center gap-2", className)}>
       {crest && (
-        <span className="relative inline-flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-md bg-[#fffdfa] outline outline-1 -outline-offset-1 outline-ink/10">
-          <Image src="/eusoff-logo.png" alt="" width={22} height={25} className="h-[22px] w-auto" priority />
-        </span>
+        <Image src="/eusoff-logo.png" alt="" width={480} height={553} className="h-8 w-auto shrink-0" priority />
       )}
-      <span className="text-[13px] font-medium uppercase leading-none tracking-[0.22em] text-heading">Eusoff Hall</span>
+      <span className="text-[17px] font-bold leading-none tracking-[-0.01em] text-band-ink">Eusoff Hall</span>
     </span>
   );
 }

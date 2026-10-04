@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -53,13 +53,14 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="surface-card p-5 sm:p-8">
-      <h2 className="text-2xl font-medium tracking-heading">Sign in</h2>
-      <p className="mt-1.5 text-sm text-silver">Use your matric number and the password sent to you.</p>
+    <div className="rounded-xl bg-raised p-6 [box-shadow:var(--pop-shadow)] sm:p-10">
+      <h2 className="text-[1.75rem] font-bold tracking-[-0.015em] text-heading">Login</h2>
 
-      <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-5">
+      <form onSubmit={handleSubmit} noValidate className="mt-7 space-y-5">
         <div className="space-y-2">
-          <Label htmlFor="username">Username</Label>
+          <Label htmlFor="username" className="text-[15px] font-normal">
+            Username
+          </Label>
           <Input
             id="username"
             name="username"
@@ -68,13 +69,15 @@ export default function LoginForm() {
             spellCheck={false}
             value={username}
             onChange={e => setUsername(e.target.value)}
-            placeholder="A0123456X"
+            placeholder="Please insert your matric number"
             aria-invalid={!!error || undefined}
             aria-describedby={error ? "login-error" : undefined}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password" className="text-[15px] font-normal">
+            Password
+          </Label>
           <div className="relative">
             <Input
               id="password"
@@ -83,7 +86,7 @@ export default function LoginForm() {
               autoComplete="current-password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              placeholder="xxxx-xxxx-xxxx-xxxx"
+              placeholder="Please insert your password"
               className="pr-12 tracking-wide"
               aria-invalid={!!error || undefined}
               aria-describedby={error ? "login-error" : undefined}
@@ -110,9 +113,13 @@ export default function LoginForm() {
           </p>
         )}
 
-        <Button type="submit" variant="cta" size="lg" className="w-full" disabled={submitting}>
-          {submitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-          {submitting ? "Signing in" : "Sign in"}
+        <Button type="submit" variant="cta" size="lg" className="h-[52px] w-full text-base" disabled={submitting}>
+          {submitting ? (
+            <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+          ) : (
+            <LogIn className="h-5 w-5" strokeWidth={2} aria-hidden />
+          )}
+          {submitting ? "Signing in" : "Sign In"}
         </Button>
       </form>
     </div>

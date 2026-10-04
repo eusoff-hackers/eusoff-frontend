@@ -8,7 +8,7 @@ import { AlertCircle, ChevronDown, RefreshCw } from "lucide-react";
 
 import { errorMessage } from "@/src/app/lib/api";
 
-/** Shared building blocks for the abyssal-teal system (resident + admin). */
+/** Shared building blocks for the Eusoff design system (resident + admin). */
 
 export function PageHeader({
   eyebrow,

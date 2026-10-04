@@ -82,7 +82,7 @@ export default function IssuesPage() {
                       <label className="flex min-h-[48px] cursor-pointer items-start gap-3 px-4 py-3 transition-colors hover:bg-ink/[0.03] sm:px-5">
                         <input
                           type="checkbox"
-                          className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer accent-[#5eead4]"
+                          className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer accent-[#378640]"
                           checked={checked}
                           disabled={pendingId === issue._id}
                           onChange={e => setResolved.mutate({ id: issue._id, resolved: e.target.checked })}

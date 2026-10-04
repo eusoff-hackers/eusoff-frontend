@@ -123,10 +123,10 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   const logout = useLogout();
 
   return (
-    <div className="flex h-full flex-col bg-recessed px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-5">
-      <div className="mb-6 px-3">
+    <div className="flex h-full flex-col bg-raised px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-5">
+      <div className="mb-5 rounded-xl bg-brand px-3 py-3.5 [box-shadow:var(--card-shadow)]">
         <Wordmark />
-        <p className="eyebrow mt-4 text-aqua">Jersey admin</p>
+        <p className="mt-2 text-[13px] font-medium text-band-ink">Jersey admin</p>
       </div>
       <nav aria-label="Admin" className="flex-1 overflow-y-auto">
         <NavLinks onNavigate={onNavigate} />
@@ -180,10 +180,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       </aside>
 
       {/* Phone/tablet top bar */}
-      <header className="sticky top-0 z-30 border-b border-hairline bg-canvas/85 pt-[env(safe-area-inset-top)] backdrop-blur-md lg:hidden">
+      <header className="sticky top-0 z-30 bg-brand pt-[env(safe-area-inset-top)] [box-shadow:0_1px_0_rgb(var(--ink)/0.08)] lg:hidden">
         <div className="flex h-14 items-center gap-3 px-4">
           <Wordmark crest />
-          <span className="eyebrow ml-1 text-aqua">Admin</span>
+          <span className="ml-1 text-[13px] font-medium text-band-ink">Admin</span>
           <ThemeToggle className="-mr-1 ml-auto" />
         </div>
       </header>
