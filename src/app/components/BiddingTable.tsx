@@ -1,354 +1,281 @@
-import React from "react";
-import { useState } from "react";
+"use client";
 
-import { Badge } from "@/components/ui/badge";
+import React, { useState } from "react";
+
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 import type { QueryObserverResult } from "@tanstack/react-query";
-import axios from "axios";
-import { Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
 
 import type { BiddingData, EligibleBids, UserBid } from "@/src/app/dashboard/jersey/types";
+import { api, errorMessage } from "@/src/app/lib/api";
 import type { User } from "@/src/app/redux/Resources/userSlice";
 
+const MAX_BIDS = 5;
 
-interface BiddingList {
+interface BiddingTableProps {
   user: User;
   userBids: UserBid;
   refetchUserBids: () => Promise<QueryObserverResult<UserBid, Error>>;
-  biddings: BiddingData;
-  userEligibleBids: EligibleBids;
-  // setBiddings: React.Dispatch<React.SetStateAction<Bidding[]>>;
-  // updateUser: () => void;
-  // setToast: React.Dispatch<React.SetStateAction<ToastMessage>>;
-  // handleOpen: () => void;
+  biddings: BiddingData | undefined;
+  userEligibleBids: EligibleBids | undefined;
 }
 
-axios.defaults.withCredentials = true;
+interface BidEntry {
+  number: number;
+  priority: number;
+}
 
 // User submit bid form
-const BiddingTable: React.FC<BiddingList> = ({ user, userBids, refetchUserBids, biddings, userEligibleBids }) => {
-  const [open, setOpen] = useState(false);
+const BiddingTable: React.FC<BiddingTableProps> = ({ user, userBids, refetchUserBids, biddings, userEligibleBids }) => {
+  const { toast } = useToast();
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
-
-  const curr_userBids = userBids.bids.map(bid => {
-    return {
-      number: bid.jersey.number,
-      priority: bid.priority,
-    };
-  });
+  const [saving, setSaving] = useState(false);
 
   const canBid = userBids.canBid;
+  const activeRound = userBids.system.bidRound;
 
-  const handleOpenModal = (number: number) => {
-    setOpen(true);
-    setSelectedNumber(number);
+  // While bidding, only this round's bids are editable; otherwise show everything on record.
+  const currentBids: BidEntry[] = userBids.bids
+    .filter(bid => !canBid || bid.round == null || bid.round === activeRound)
+    .sort((a, b) => a.priority - b.priority)
+    .map(bid => ({ number: bid.jersey.number, priority: bid.priority }));
+  const rankOf = new Map(currentBids.map((b, i) => [b.number, i]));
+  const eligible = new Set(userEligibleBids?.jerseys ?? []);
+  const isFull = currentBids.length >= MAX_BIDS;
+
+  // The server replaces this round's bids and takes priority from array order (index 0 = top choice).
+  const submitBids = async (numbers: number[], successTitle: string) => {
+    setSaving(true);
+    try {
+      await api.post("/jersey/bid", { bids: numbers.map(number => ({ number })) });
+      await refetchUserBids();
+      toast({ variant: "success", title: successTitle });
+      return true;
+    } catch (err) {
+      toast({ variant: "destructive", title: "Couldn't update your bids", description: errorMessage(err) });
+      return false;
+    } finally {
+      setSaving(false);
+    }
   };
+
+  const numbers = currentBids.map(b => b.number);
 
   const handlePlaceBid = async (number: number) => {
-    try {
-      const newBids = {
-        bids: [
-          ...curr_userBids,
-          {
-            number,
-            priority: curr_userBids.length + 1,
-          },
-        ],
-      };
-      const resp = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/bid`, newBids);
-
-      if (resp.status === 200) {
-        refetchUserBids();
-      }
-    } catch (err) {
-      console.error(err);
-    }
+    const ok = await submitBids([...numbers, number], `Added #${number} as choice ${numbers.length + 1}`);
+    if (ok) setSelectedNumber(null);
   };
 
-  const handleDeleteBid = async (number: number) => {
-    try {
-      const newBids = curr_userBids.filter(bid => bid.number !== number);
-      const resp = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jersey/bid`, {
-        bids: newBids,
-      });
+  const handleDeleteBid = (number: number) =>
+    submitBids(
+      numbers.filter(n => n !== number),
+      `Removed #${number}`,
+    );
 
-      if (resp.status == 200) {
-        refetchUserBids();
-      }
-    } catch (err) {
-      console.error(err);
-    }
+  const handleMove = (index: number, delta: -1 | 1) => {
+    const next = [...numbers];
+    const target = index + delta;
+    if (target < 0 || target >= next.length) return;
+    [next[index], next[target]] = [next[target], next[index]];
+    return submitBids(next, "Order updated");
   };
 
-  // const getEligibleNumbers = () => {
-  //   return userEligibleBids.bids.map(bid => bid.jersey.number);
-  // };
-
-  // const eligibleNumbers = getEligibleNumbers();
-
-  // const deleteBid = (ind: number) => {
-  //   const filteredList = biddings.filter(bidding => bidding.number != biddings[ind].number);
-  //   setBiddings(filteredList);
-  // };
-
-  // Currently unable to make the api call
-  // const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await axiosWithCredentials.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/bid/create`, {
-  //       biddings: biddings,
-  //     });
-
-  //     if (response.data.success) {
-  //       setToast({ message: "biddings submitted", severity: "success" });
-  //       handleOpen();
-  //       updateUser();
-  //     } else {
-  //       console.error("biddings failed");
-  //       setToast({ message: "biddings failed to be submitted", severity: "error" });
-  //       handleOpen();
-  //     }
-  //   } catch (error) {
-  //     console.error("Error during form submission", error);
-  //   }
-  // };
+  const selected = selectedNumber != null ? biddings?.[selectedNumber] : undefined;
+  const bidders = selected
+    ? [...selected.male.map(b => ({ ...b, gender: "M" })), ...selected.female.map(b => ({ ...b, gender: "F" }))].sort(
+        (a, b) => (b.points ?? 0) - (a.points ?? 0),
+      )
+    : [];
+  const alreadyBid = selectedNumber != null && rankOf.has(selectedNumber);
+  const genderQuota =
+    selected &&
+    (user.gender === "female" ? selected.quota.female : user.gender === "male" ? selected.quota.male : null);
 
   return (
-    /*<div>
-      <div className="flex items-center justify-between space-x-4 py-2">
-        <h2 className="py-2 text-xl font-semibold">Submit new biddings:</h2>
-        <div className="flex items-center justify-between space-x-2">
-          <div className="flex rounded-lg p-2 text-sm font-bold text-orange-400">
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              height="24"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              width="24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12" y2="16" />
-            </svg>
-            <p className="pl-2">Ensure you click submit to confirm changes</p>
-          </div>
-
-          {/* {biddings.length == 0 ? (
-          {/* {biddings.length == 0 ? (
-            <></>
-          ) : (
-            <button
-              type="submit"
-              className="rounded bg-blue-500 px-2 py-2 text-white hover:bg-blue-600 focus:outline-none"
-              // onClick={e => handleSubmit(e)}
-            >
-              Submit
-            </button>
-          )} }
+    <div className="space-y-4">
+      {/* Current bids */}
+      <section className="rounded-xl border bg-card p-4 shadow-sm sm:p-5">
+        <div className="mb-3 flex items-baseline justify-between gap-2">
+          <h2 className="text-lg font-semibold">Your choices</h2>
+          <span className="text-sm tabular-nums text-muted-foreground">
+            {currentBids.length}/{MAX_BIDS}
+          </span>
         </div>
-      </div>
-      <table className="min-w-full divide-y divide-gray-200 bg-white">
-        <thead className="bg-gray-800 text-white">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase leading-4 tracking-wider">Ranking</th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase leading-4 tracking-wider">
-              Jersey Number
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase leading-4 tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200 bg-gray-50">
-          {Object.entries(biddings).map(([jerseyNumber, bidding], index) => (
-            <tr key={index} className="hover:bg-gray-100">
-              <td className="whitespace-no-wrap px-6 py-4">{jerseyNumber}</td>
-              {/* <td className="whitespace-no-wrap px-6 py-4">{bidding.number}</td> }
-              <td className="whitespace-no-wrap px-6 py-4">
-                <button
-                  className="rounded bg-red-100 px-3 py-1 text-red-500 hover:bg-red-200 focus:outline-none"
-                  // onClick={() => deleteBid(index)}
-                  // onClick={() => deleteBid(index)}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-            <ArrowUpDown className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-              Submit
-          </Button>
-    </div>*/
-    <div className="container mx-auto p-4">
-      <h1 className="mb-4 text-2xl font-bold">Bidding Table</h1>
-      <Card className="mx-auto mb-2 w-full">
-          <CardHeader className="space-y-1 sm:space-y-1">
-            <CardTitle className="text-l sm:text-l font-bold">{user.username}</CardTitle>
-            <CardDescription className="text-sm sm:text-base">Year: {user.year}, Gender: {user.gender}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <div className="space-y-6">
-              {userBids.info.isAllocated && (
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Allocated Jersey: </h2>
-                  <p className="text-lg font-bold text-primary">{userBids.info.jersey.number}</p>
-                </div>
-              )}
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Round To Bid: {userBids.info.round} </h2>
-                  <p className="text-lg font-bold text-primary">Current Round: {userBids.system.bidRound}</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <h2 className="text-lg font-semibold">Status: </h2>
-                  <p className="text-lg font-bold text-primary">{canBid ? "Can Bid" : "Cannot Bid"}</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <h2 className="text-lg font-semibold">Points:</h2>
-                  <p className="text-lg font-bold text-primary">{userBids.info.points.toLocaleString()}</p>
-                </div>
-                <div>
-                  <h2 className="mb-2 text-lg font-semibold">Teams : </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {userBids.info.teams.map(team => (
-                      <Badge key={team.team.name} variant="outline" className={`bg-green-500 text-white`}>
-                        {team.team.name}
-                      </Badge>
-                    ))}
+        {currentBids.length === 0 ? (
+          <p className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
+            {canBid ? "No choices yet — tap an available number below to add it." : "You have no bids on record."}
+          </p>
+        ) : (
+          <ol className="space-y-2">
+            {currentBids.map((bid, index) => (
+              <li key={bid.number} className="flex items-center gap-3 rounded-lg border bg-slate-50 p-2 pl-3">
+                <span className="w-14 shrink-0 text-xs font-medium text-muted-foreground">Choice {index + 1}</span>
+                <span className="inline-flex h-10 min-w-[3rem] items-center justify-center rounded-md bg-emerald-950 px-2 text-lg font-bold tabular-nums text-amber-200">
+                  {bid.number}
+                </span>
+                <span className="flex-1" />
+                {canBid && (
+                  <div className="flex items-center gap-0.5">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      disabled={saving || index === 0}
+                      onClick={() => handleMove(index, -1)}
+                      aria-label={`Move #${bid.number} up`}
+                    >
+                      <ArrowUp className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      disabled={saving || index === currentBids.length - 1}
+                      onClick={() => handleMove(index, 1)}
+                      aria-label={`Move #${bid.number} down`}
+                    >
+                      <ArrowDown className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      disabled={saving}
+                      onClick={() => handleDeleteBid(bid.number)}
+                      aria-label={`Remove #${bid.number}`}
+                      className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                </div>
+                )}
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+
+      {/* Number grid */}
+      <section className="rounded-xl border bg-card p-4 shadow-sm sm:p-5">
+        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-lg font-semibold">Numbers</h2>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <span className="h-3 w-3 rounded-sm border bg-white" aria-hidden /> available
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-3 w-3 rounded-sm bg-amber-300" aria-hidden /> your choice
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-3 w-3 rounded-sm bg-slate-200" aria-hidden /> unavailable
+            </span>
+          </div>
+        </div>
+        <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-8 sm:gap-2 lg:grid-cols-10">
+          {Array.from({ length: 100 }, (_, i) => i).map(number => {
+            const isEligible = eligible.has(number);
+            const rank = rankOf.get(number);
+            const chosen = rank != null;
+            return (
+              <button
+                key={number}
+                type="button"
+                onClick={() => setSelectedNumber(number)}
+                disabled={!isEligible && !chosen}
+                aria-label={
+                  chosen
+                    ? `Number ${number}, your choice ${rank + 1}`
+                    : `Number ${number}${isEligible ? "" : ", unavailable"}`
+                }
+                className={cn(
+                  "relative flex h-11 min-w-0 items-center justify-center rounded-md border text-base font-semibold tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-1 sm:h-12",
+                  chosen
+                    ? "border-amber-400 bg-amber-300 text-emerald-950"
+                    : isEligible
+                      ? "bg-white hover:border-emerald-600 hover:bg-emerald-50"
+                      : "cursor-not-allowed border-transparent bg-slate-100 text-slate-400",
+                )}
+              >
+                {number}
+                {chosen && (
+                  <span className="absolute right-0.5 top-0.5 text-[10px] font-bold leading-none text-emerald-900">
+                    {rank + 1}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <Dialog open={selectedNumber != null} onOpenChange={open => !open && setSelectedNumber(null)}>
+        <DialogContent className="flex max-h-[90vh] w-[calc(100%-1rem)] max-w-lg flex-col rounded-lg p-4 sm:p-6">
+          <DialogHeader className="text-left">
+            <DialogTitle>Number {selectedNumber}</DialogTitle>
+            <DialogDescription>
+              Your points: <span className="font-semibold text-foreground">{userBids.info.points}</span>
+              {genderQuota != null && (
+                <>
+                  {" "}
+                  · {genderQuota} {user.gender} slot{genderQuota === 1 ? "" : "s"} left
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          {selected && (
+            <div className="grid grid-cols-2 gap-2 text-center text-sm">
+              <div className="rounded-md bg-slate-50 p-2">
+                <p className="text-xs text-muted-foreground">Male quota</p>
+                <p className="font-semibold tabular-nums">{selected.quota.male}</p>
+              </div>
+              <div className="rounded-md bg-slate-50 p-2">
+                <p className="text-xs text-muted-foreground">Female quota</p>
+                <p className="font-semibold tabular-nums">{selected.quota.female}</p>
               </div>
             </div>
-          <div className="mt-4 flex justify-end"></div>
-        </CardContent>
-      </Card>
-
-      {userBids && (
-        <Card className="mx-auto mb-2 w-full">
-          <CardHeader className="space-y-1 sm:space-y-1">
-            <CardTitle className="text-l sm:text-l font-bold">Your Bids</CardTitle>
-            <CardDescription className="text-sm sm:text-base">View and manage your current bids</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[40%] sm:w-[50%]">Bidding Number</TableHead>
-                    <TableHead className="w-[20%] sm:w-[25%]">Priority</TableHead>
-                    <TableHead className="w-[40%] text-right sm:w-[25%]">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {userBids.bids.map((bid, index) => (
-                    <TableRow key={bid.priority}>
-                      <TableCell className="font-medium">{bid.jersey.number}</TableCell>
-                      <TableCell>{bid.priority + 1}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end space-x-1 sm:space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 sm:h-9 sm:w-9"
-                            onClick={() => handleDeleteBid(bid.jersey.number)}
-                            aria-label="Delete"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-            <div className="mt-4 flex justify-end"></div>
-          </CardContent>
-        </Card>
-      )}
-
-      <h1 className="text-l mb-4 font-bold"> Eligible Bidding Numbers : </h1>
-
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10">
-        {Array.from({ length: 100 }, (_, i) => i).map(number => {
-          const isEligible = userEligibleBids !== undefined ? userEligibleBids.jerseys.includes(number) : false; // Check if the number is eligible
-          return (
-            <Button
-              key={number}
-              onClick={() => isEligible && handleOpenModal(number)} // Only open modal if eligible
-              variant="outline"
-              className={`h-12 w-full ${!isEligible ? "cursor-not-allowed opacity-50" : ""}`} // Apply grayed out style if not eligible
-              disabled={!isEligible} // Disable button if not eligible
-            >
-              {number}
-            </Button>
-          );
-        })}
-      </div>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="w-full max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Biddings for Number {selectedNumber}</DialogTitle>
-          </DialogHeader>
-          <h1> Your Points : {userBids.info.points}</h1>
-          {biddings && biddings[selectedNumber] && (
-            <div className="flex flex-row justify-between">
-              <div>Quota M: {biddings[selectedNumber].quota.male}</div>
-              <div>Quota F: {biddings[selectedNumber].quota.female}</div>
-            </div>
           )}
-          <div className="mt-4 max-h-[60vh] overflow-y-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-1/2">Room Number</TableHead>
-                  <TableHead className="w-1/2">User</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {biddings &&
-                  biddings[selectedNumber] &&
-                  biddings[selectedNumber].male.map((bid, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{bid.user.room} (M)</TableCell>
-                      <TableCell>{bid.points}</TableCell>
-                    </TableRow>
-                  ))}
-                {biddings &&
-                  biddings[selectedNumber] &&
-                  biddings[selectedNumber].female.map((bid, index) => {
-                    return (
-                      <TableRow key={index}>
-                        <TableCell>{bid.user.room} (F)</TableCell>
-                        <TableCell>{bid.points}</TableCell>
-                      </TableRow>
-                    );
-                  })}
-
-                {/* {(!selectedNumber || !biddings[selectedNumber] || bids[selectedNumber].length === 0) && (
-                  <TableRow>
-                    <TableCell colSpan={2} className="text-center">
-                      No biddings yet
-                    </TableCell>
-                  </TableRow>
-                )} */}
-              </TableBody>
-            </Table>
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <h3 className="mb-2 text-sm font-semibold">Other bidders ({bidders.length})</h3>
+            {bidders.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No bids on this number yet.</p>
+            ) : (
+              <ul className="divide-y rounded-md border text-sm">
+                {bidders.map((bid, index) => (
+                  <li key={index} className="flex items-center justify-between px-3 py-2">
+                    <span>
+                      Room {bid.user?.room ?? "—"} <span className="text-muted-foreground">({bid.gender})</span>
+                    </span>
+                    <span className="font-medium tabular-nums">{bid.points} pts</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          <DialogFooter className="flex-col space-y-2 sm:flex-row sm:justify-between sm:space-x-2 sm:space-y-0">
-            <Button className="w-full sm:w-auto" disabled={!canBid} onClick={() => handlePlaceBid(selectedNumber)}>
-              Place Bid
-            </Button>
+          <DialogFooter className="gap-2">
+            {alreadyBid ? (
+              <p className="text-sm text-muted-foreground">This is your choice {rankOf.get(selectedNumber!)! + 1}.</p>
+            ) : (
+              <Button
+                className="w-full sm:w-auto"
+                disabled={!canBid || isFull || saving || selectedNumber == null}
+                onClick={() => selectedNumber != null && handlePlaceBid(selectedNumber)}
+              >
+                {!canBid
+                  ? "Bidding closed"
+                  : isFull
+                    ? `You already have ${MAX_BIDS} choices`
+                    : saving
+                      ? "Saving…"
+                      : `Add as choice ${currentBids.length + 1}`}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
