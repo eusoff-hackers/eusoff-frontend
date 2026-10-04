@@ -310,7 +310,7 @@ export function Callout({
   const tones = {
     info: "border-hairline bg-recessed text-silver",
     open: "border-aqua/25 bg-aqua/[0.06] text-silver",
-    warn: "border-warn/30 bg-warn/[0.07] text-silver",
+    warn: "border-warn/30 bg-warn/[0.05] text-silver",
     danger: "border-danger/30 bg-danger/[0.07] text-silver",
   } as const;
   const iconTone = { info: "text-silver", open: "text-aqua", warn: "text-warn", danger: "text-danger" }[tone];
