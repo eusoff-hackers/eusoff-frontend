@@ -17,7 +17,6 @@ import type {
   AdminUser,
   AdminUserPatch,
   AllocationPreview,
-  Issue,
   Overview,
   Round,
   RoundBids,
@@ -33,7 +32,6 @@ export const adminKeys = {
   rounds: ["admin", "rounds"] as const,
   jerseys: ["admin", "jerseys"] as const,
   bids: (round: number) => ["admin", "bids", round] as const,
-  issues: ["admin", "issues"] as const,
   settings: ["admin", "settings"] as const,
   analytics: ["admin", "analytics"] as const,
   nonBidders: (round: number) => ["admin", "non-bidders", round] as const,
@@ -68,7 +66,6 @@ export const useRounds = () => useAdminQuery<Round[]>(adminKeys.rounds, "/admin/
 export const useJerseys = () => useAdminQuery<AdminJersey[]>(adminKeys.jerseys, "/admin/jerseys", 30_000);
 export const useRoundBids = (round: number) =>
   useAdminQuery<RoundBids[]>(adminKeys.bids(round), `/admin/bids?round=${round}`, 30_000);
-export const useIssues = () => useAdminQuery<Issue[]>(adminKeys.issues, "/admin/issues");
 export const useSettings = () => useAdminQuery<Settings>(adminKeys.settings, "/admin/settings");
 export const useAnalytics = () => useAdminQuery<Analytics>(adminKeys.analytics, "/admin/analytics", 60_000);
 export const useNonBidders = (round: number) =>
@@ -125,8 +122,6 @@ export const adminApi = {
   undoRound: (round: number) => apiSend<Round>("post", `/admin/rounds/${round}/undo`),
   patchJersey: ({ number, quota }: { number: number; quota: { male: number; female: number } }) =>
     apiSend<AdminJersey>("patch", `/admin/jerseys/${number}`, { quota }),
-  patchIssue: ({ id, resolved }: { id: string; resolved: boolean }) =>
-    apiSend<Issue>("patch", `/admin/issues/${id}`, { resolved }),
   patchSettings: (body: Settings) => apiSend<Settings>("patch", "/admin/settings", body),
   assignPreview: (upToRound?: number) =>
     apiSend<AssignPreview>("post", "/admin/assign-remaining/preview", upToRound ? { upToRound } : {}),

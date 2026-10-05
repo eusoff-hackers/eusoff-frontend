@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import {
-  AlertTriangle,
   BarChart3,
   CalendarClock,
   Hash,
@@ -21,7 +20,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 
-import { useOverview } from "@/src/app/admin/api";
 import { Wordmark } from "@/src/app/components/Brand";
 import ThemeToggle from "@/src/app/components/ThemeToggle";
 import { apiGet, toUser } from "@/src/app/lib/api";
@@ -35,7 +33,6 @@ const NAV = [
   { href: "/admin/rounds", label: "Rounds", icon: CalendarClock },
   { href: "/admin/numbers", label: "Numbers", icon: Hash },
   { href: "/admin/bids", label: "Bids", icon: ListOrdered },
-  { href: "/admin/issues", label: "Data issues", icon: AlertTriangle },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
@@ -84,12 +81,10 @@ const linkBase =
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
-  const { data: overview } = useOverview();
   return (
     <ul className="space-y-0.5">
       {NAV.map(({ href, label, icon: Icon }) => {
         const active = isActive(pathname, href);
-        const count = href === "/admin/issues" ? overview?.issuesOpen : undefined;
         return (
           <li key={href}>
             <Link
@@ -105,11 +100,6 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
               {active && <span aria-hidden className="absolute inset-y-2.5 left-0 w-px bg-biolum" />}
               <Icon className={cn("h-[18px] w-[18px]", active && "text-aqua")} strokeWidth={1.5} aria-hidden />
               <span className="flex-1">{label}</span>
-              {!!count && (
-                <span className="rounded-[5px] bg-warn/10 px-1.5 py-0.5 text-[11px] font-medium tabular-nums text-warn">
-                  {count}
-                </span>
-              )}
             </Link>
           </li>
         );

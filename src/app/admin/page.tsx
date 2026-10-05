@@ -253,8 +253,9 @@ export default function AdminOverviewPage() {
 
       <CurrentRound data={data} now={now} />
 
-      <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3">
         <StatCard
+          className="col-span-2 lg:col-span-1"
           label="Allocated"
           value={fmt(totalAllocated)}
           hint={`${pct(totalAllocated, data.residents)} of ${fmt(data.residents)}`}
@@ -262,22 +263,6 @@ export default function AdminOverviewPage() {
         />
         <StatCard label="Still without" value={fmt(data.unallocated)} hint="No number yet" />
         <StatCard label="Residents" value={fmt(data.residents)} hint={`${data.byGender.male} M, ${data.byGender.female} F`} />
-        <Link
-          href="/admin/issues"
-          className="group rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua"
-        >
-          <StatCard
-            label="Data issues"
-            value={fmt(data.issuesOpen)}
-            hint={
-              <span className="inline-flex items-center gap-1 group-hover:text-heading">
-                Review <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden />
-              </span>
-            }
-            tone={data.issuesOpen > 0 ? "warn" : "default"}
-            className="h-full transition-colors group-hover:border-warn/60"
-          />
-        </Link>
       </div>
 
       <Panel title="All rounds" className="mt-4">
