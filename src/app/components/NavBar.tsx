@@ -1,264 +1,107 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
+import { cn } from "@/lib/utils";
+import { BookOpen, LogOut, Shield, Shirt, User as UserIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { usePathname } from "next/navigation";
+import { useSelector } from "react-redux";
 
-import { removeUser } from "@/src/app/redux/Resources/userSlice";
+import { Wordmark } from "@/src/app/components/Brand";
+import ThemeToggle from "@/src/app/components/ThemeToggle";
+import { useLogout } from "@/src/app/lib/useLogout";
+import { selectUser } from "@/src/app/redux/Resources/userSlice";
 
-const axios = require("axios");
-axios.defaults.withCredentials = true;
-
+/**
+ * Resident navigation: a slim top bar everywhere, plus a fixed bottom tab bar on phones so the
+ * primary destinations sit under the thumb.
+ */
 export default function NavBar() {
-  const handleLogout = async () => {
-    try {
-      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/logout`);
-    } catch (error) {
-      console.error("Logout error");
-    }
-  };
+  const pathname = usePathname();
+  const user = useSelector(selectUser);
+  const logout = useLogout();
+  // The redux user is restored from localStorage, so only read it after mount to avoid hydration mismatches.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
-  const route = useRouter();
-  const dispatch = useDispatch();
-
-  const logout = async () => {
-    dispatch(removeUser());
-    localStorage.clear();
-    await handleLogout();
-    route.push("/");
-  };
-
-  /*
-     <li className="hover:translate-x-1">
-          <Link className="flex items-center gap-3 py-2" href="/dashboard/profile">
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              height="24"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              width="24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-            <span>Profile</span>
-          </Link>
-        </li> 
-
-        
-
-        <li className="hover:translate-x-1">
-          <Link className="flex items-center gap-3 py-2" href="/dashboard/instructions">
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              height="24"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              width="24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect x="3" y="2" width="14" height="20" />
-              <line x1="3" y1="7" x2="17" y2="7" />
-              <line x1="3" y1="11" x2="17" y2="11" />
-              <line x1="3" y1="15" x2="17" y2="15" />
-            </svg>
-            <span>CCA Booklet</span>
-          </Link>
-        </li>
-   */
+  const links = [
+    { href: "/dashboard/jersey", label: "Jersey", icon: Shirt },
+    { href: "/dashboard/instructions", label: "Rules", icon: BookOpen },
+    { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
+    ...(mounted && user?.role === "ADMIN" ? [{ href: "/admin", label: "Admin", icon: Shield }] : []),
+  ];
 
   return (
-    <nav className="w-full bg-gray-800 p-5 text-white lg:min-h-screen">
-      <p className="mb-5 text-2xl">Dashboard</p>
-      <ul className="space-y-2">
-        <li className="hover:translate-x-1">
+    <>
+      <header className="sticky top-0 z-30 bg-brand pt-[env(safe-area-inset-top)] text-band-ink [box-shadow:0_1px_0_rgb(var(--ink)/0.08)]">
+        <div className="mx-auto flex h-14 max-w-5xl items-center gap-4 px-4 sm:h-16 sm:px-6 lg:max-w-6xl">
           <Link
-            className="flex items-center gap-3 py-2"
-            href="/dashboard/profile"
+            href="/dashboard/jersey"
+            className="-ml-1 rounded-md px-1 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-band-ink"
           >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              height="24"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              width="24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect x="3" y="2" width="14" height="20" />
-              <line x1="3" y1="7" x2="17" y2="7" />
-              <line x1="3" y1="11" x2="17" y2="11" />
-              <line x1="3" y1="15" x2="17" y2="15" />
-            </svg>
-            <span>Profile</span>
+            <Wordmark />
           </Link>
-        </li>
-        {/* <li className="hover:translate-x-1">
-          <Link
-            className="flex items-center gap-3 py-2"
-            href="/dashboard/instructions"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              height="24"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              width="24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect x="3" y="2" width="14" height="20" />
-              <line x1="3" y1="7" x2="17" y2="7" />
-              <line x1="3" y1="11" x2="17" y2="11" />
-              <line x1="3" y1="15" x2="17" y2="15" />
-            </svg>
-            <span>Instructions</span>
-          </Link>
-        </li> */}
-        {/* <li className="hover:translate-x-1">
-          <Link
-            className="flex items-center gap-3 py-2"
-            href="/dashboard/roomBidding"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              height="24"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              width="24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect x="3" y="2" width="14" height="20" />
-              <line x1="3" y1="7" x2="17" y2="7" />
-              <line x1="3" y1="11" x2="17" y2="11" />
-              <line x1="3" y1="15" x2="17" y2="15" />
-            </svg>
-            <span>Room Bidding</span>
-          </Link>
-        </li> */}
-        <li className="hover:translate-x-1">
-          <Link className="flex items-center gap-3 py-2" href="/dashboard/ccas">
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              height="24"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              width="24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect x="3" y="2" width="14" height="20" />
-              <line x1="3" y1="7" x2="17" y2="7" />
-              <line x1="3" y1="11" x2="17" y2="11" />
-              <line x1="3" y1="15" x2="17" y2="15" />
-            </svg>
-            <span>CCA Signup</span>
-          </Link>
-        </li>
-        <li className="hover:translate-x-1">
-          <Link
-            className="flex items-center gap-3 py-2"
+
+          <nav aria-label="Main" className="ml-auto hidden items-center gap-1 md:flex">
+            {links.map(({ href, label }) => {
+              const active = pathname === href || pathname.startsWith(`${href}/`);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "relative inline-flex h-10 items-center rounded-md px-3 text-[14px] font-medium text-band-ink transition-colors hover:bg-band-ink/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-band-ink",
+                    active && "bg-band-ink/[0.1] font-semibold",
+                  )}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <ThemeToggle className="ml-auto md:ml-2" />
+          <button
+            type="button"
             onClick={logout}
-            href="/"
+            aria-label="Sign out"
+            className="-mr-2 inline-flex h-10 items-center gap-2 rounded-md px-2.5 text-[14px] font-medium text-band-ink transition-colors hover:bg-band-ink/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-band-ink sm:px-3"
           >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              height="24"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              width="24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-            Logout
-          </Link>
-        </li>
-      </ul>
-    </nav>
+            <LogOut className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+            <span className="hidden sm:inline">Sign out</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Phone tab bar */}
+      <nav
+        aria-label="Main"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-hairline bg-recessed/95 backdrop-blur-md md:hidden"
+      >
+        <ul className="mx-auto flex max-w-md items-stretch px-2 pb-safe">
+          {links.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href || pathname.startsWith(`${href}/`);
+            return (
+              <li key={href} className="flex-1">
+                <Link
+                  href={href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "relative flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium tracking-[0.04em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-aqua",
+                    active ? "text-heading" : "text-faint hover:text-silver",
+                  )}
+                >
+                  {active && <span aria-hidden className="absolute inset-x-6 top-0 h-px bg-biolum" />}
+                  <Icon className={cn("h-[22px] w-[22px]", active && "text-aqua")} strokeWidth={1.5} aria-hidden />
+                  {label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </>
   );
 }
-/*  const menus = [
-      { name: "Profile", link: "/profile", icon: MdOutlineDashboard },
-      { name: "Instructions", link: "/dashboard/instructions", icon: AiOutlineUser },
-      { name: "Room Bidding", link: "/roomBidding", icon: FiMessageSquare },
-      { name: "Logout", link: "/", icon: TbReportAnalytics, margin: true },
-      { name: "File Manager", link: "/", icon: FiFolder },
-      { name: "Cart", link: "/", icon: FiShoppingCart },
-      { name: "Saved", link: "/", icon: AiOutlineHeart, margin: true },
-      { name: "Setting", link: "/", icon: RiSettings4Line },
-    ]; 
-
-
-const menus = [
-  { name: "Profile", link: "/profile", icon: MdOutlineDashboard },
-  { name: "Instructions", link: "/dashboard/instructions", icon: AiOutlineUser },
-  { name: "Room Bidding", link: "/roomBidding", icon: FiMessageSquare },
-  { name: "Logout", link: "/", icon: TbReportAnalytics, margin: true },
-];
-
-    console.log(open)
-
-   return (
-      <section className={`absolute ${ open ? "w-full lg:w-48" : "hidden"}  flex gap-6`}>
-        <div
-          className={`bg-[#0e0e0e] min-h-screen duration-1000 text-gray-100 px-4`}>
-          
-          <div className="mt-4 flex flex-col gap-4 relative">
-            {menus?.map((menu, i) => (
-              <>
-                <h2
-                  style={{
-                    transitionDelay: `${i }00ms`,
-                  }}
-                  className={`whitespace-pre duration-500 ${
-                    !open && "opacity-0 translate-x-28 overflow-hidden"
-                  }`}
-                >
-                  {menu?.name}
-                </h2>
-                <h2
-                  className={`${
-                    open && "hidden"
-                  } absolute left-48 bg-white font-semibold whitespace-pre text-gray-900 rounded-md drop-shadow-lg px-0 py-0 w-0 overflow-hidden group-hover:px-2 group-hover:py-1 group-hover:left-14 group-hover:duration-300 group-hover:w-fit  `}
-                >
-                  {menu?.name}
-                </h2>
-                </>
-            ))}
-          </div>
-        </div>
-    </section>
-  )
-}*/

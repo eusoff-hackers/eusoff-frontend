@@ -3,67 +3,253 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+  /*
+   * Theme tokens. Colours are RGB channel triplets so Tailwind opacity modifiers work (bg-aqua/10).
+   * Eusoff colourway (sampled from the original login): sunflower > apricot > coral gradient as the
+   * brand moment, white cards on a warm off-white canvas, navy-slate ink, green primary action,
+   * crest maroon for big numbers and gold for highlights. Token *names* are historical
+   * (aqua = positive/primary green, lavender = big-stat accent) so components stay unchanged.
+   * Light is the default; dark is a warm maroon/charcoal counterpart. Switched by data-theme.
+   */
+  :root,
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --canvas: 251 246 240; /* warm off-white, tinted from the gradient */
+    --recessed: 243 235 225; /* wells, grid "taken" */
+    --raised: 255 255 255; /* cards */
+    --field: 255 255 255; /* inputs */
+    --low: 156 163 175; /* disabled ink */
+    --heading: 31 41 55; /* navy-slate #1f2937 */
+    --silver: 75 85 99; /* body #4b5563, 7:1 on canvas */
+    --mist: 17 24 39; /* emphasis */
+    --faint: 95 102 115; /* tertiary, AA on every surface */
+    --ink: 31 41 55; /* base for hairlines and tints */
+    --lavender: 123 30 43; /* big statistics: crest maroon #7b1e2b */
+    --lavender-fill: 248 221 140; /* gold highlight fill, always with dark text */
+    --on-accent: 31 41 55;
+    --aqua: 43 117 54; /* positive / open / links: green, AA as text */
+    --primary: 55 134 64; /* Sign In green, 4.5:1 with white */
+    --on-primary: 255 255 255;
+    --gold: 212 160 23; /* crest gold, decorative only */
+    --warn: 138 90 0;
+    --danger: 180 35 24;
+    --viz-1: 63 111 181;
+    --viz-2: 181 64 79;
+    --viz-3: 184 134 11;
+    /* 5-step magnitude ramp, apricot to maroon; steps 1-3 take --seq-on-lo ink, 4-5 --seq-on-hi */
+    --seq-1: 251 230 200;
+    --seq-2: 244 195 143;
+    --seq-3: 233 154 104;
+    --seq-4: 168 71 58;
+    --seq-5: 123 30 43;
+    --seq-on-lo: 31 41 55;
+    --seq-on-hi: 255 255 255;
+    /* Number-grid popularity (bidders vs slots): some interest, contested, oversubscribed */
+    --pop-1: 251 231 168;
+    --pop-2: 244 176 102;
+    --pop-3: 168 50 58;
+    --pop-on-1: 31 41 55;
+    --pop-on-2: 31 41 55;
+    --pop-on-3: 255 255 255;
+    /* Your picks on the grid: solid ink so they outrank every popularity fill */
+    --pick: 31 41 55;
+    --on-pick: 255 255 255;
+    --scrim: 31 41 55 / 0.4;
+    --brand: linear-gradient(135deg, #f7db65 0%, #efab6a 52%, #e87d74 100%);
+    --band-ink: 31 41 55;
+    --aurora: var(--brand);
+    --biolum: linear-gradient(90deg, #e9b949, #e87d74);
+    --card-shadow: 0 1px 2px rgb(124 74 40 / 0.06), 0 4px 14px -6px rgb(124 74 40 / 0.1);
+    --pop-shadow: 0 18px 44px rgb(124 74 40 / 0.18), 0 2px 6px rgb(31 41 55 / 0.06);
+    --glow-a: rgb(247 219 101 / 0.14);
+    --glow-b: rgb(232 125 116 / 0.08);
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --canvas: 27 19 21;
+    --recessed: 20 13 15;
+    --raised: 38 26 29;
+    --field: 20 13 15;
+    --low: 110 98 96;
+    --heading: 248 241 234;
+    --silver: 212 198 191;
+    --mist: 252 247 242;
+    --faint: 168 150 143;
+    --ink: 255 244 236;
+    --lavender: 242 199 92; /* big stats: gold */
+    --lavender-fill: 242 199 92;
+    --on-accent: 27 19 21;
+    --aqua: 108 199 119;
+    --primary: 55 134 64;
+    --on-primary: 255 255 255;
+    --gold: 242 199 92;
+    --warn: 244 160 127; /* coral */
+    --danger: 255 143 143;
+    --viz-1: 85 133 204;
+    --viz-2: 207 90 104;
+    --viz-3: 185 138 38;
+    --seq-1: 58 34 38;
+    --seq-2: 92 47 47;
+    --seq-3: 135 67 47;
+    --seq-4: 212 138 90;
+    --seq-5: 242 195 117;
+    --seq-on-lo: 255 255 255;
+    --seq-on-hi: 27 19 21;
+    --pop-1: 75 58 27;
+    --pop-2: 154 85 36;
+    --pop-3: 240 138 115;
+    --pop-on-1: 255 255 255;
+    --pop-on-2: 255 255 255;
+    --pop-on-3: 27 19 21;
+    --pick: 252 247 242;
+    --on-pick: 27 19 21;
+    --scrim: 0 0 0 / 0.6;
+    --brand: linear-gradient(135deg, #4a2a1f 0%, #5a2430 55%, #3a1b24 100%);
+    --band-ink: 248 241 234;
+    --aurora: var(--brand);
+    --biolum: linear-gradient(90deg, #f2c75c, #e87d74);
+    --card-shadow: none;
+    --pop-shadow: 0 18px 44px rgb(0 0 0 / 0.45);
+    --glow-a: rgb(232 125 116 / 0.07);
+    --glow-b: rgb(242 199 92 / 0.05);
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
+
+  html {
+    background-color: rgb(var(--canvas));
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-canvas font-sans text-[15px] leading-[1.45] text-silver antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "ss01" on, "cv11" on;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* Atmosphere: two very low-opacity glows, fixed so they never repaint on scroll. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(60rem 40rem at 12% -10%, var(--glow-a), transparent 60%),
+      radial-gradient(50rem 36rem at 110% 105%, var(--glow-b), transparent 60%);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-medium text-heading;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: rgb(var(--aqua) / 0.24);
+    color: rgb(var(--heading));
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--aqua));
+    outline-offset: 2px;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    opacity: 0.4;
+  }
+
+  input::-webkit-calendar-picker-indicator {
+    opacity: 0.7;
+    cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Small tracked uppercase label (used sparingly: section labels, stat captions). */
+  .eyebrow {
+    @apply text-[11px] font-medium uppercase leading-none tracking-eyebrow text-silver;
+  }
+  .display {
+    @apply font-medium leading-none tracking-display text-heading;
+  }
+  .stat {
+    @apply font-medium leading-none tracking-display text-lavender tabular-nums;
+  }
+  .surface-card {
+    @apply rounded-2xl border border-hairline bg-raised;
+    box-shadow: var(--card-shadow);
+  }
+  .surface-well {
+    @apply rounded-xl bg-recessed;
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Theme switch: circular reveal via View Transitions; fallback is a short colour cross-fade. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html.theme-fade,
+html.theme-fade *,
+html.theme-fade *::before,
+html.theme-fade *::after {
+  transition:
+    background-color 200ms ease-out,
+    border-color 200ms ease-out,
+    color 200ms ease-out,
+    fill 200ms ease-out !important;
+}
+
+/* Login backdrop: the Eusoff gradient with a very slow drift (static under reduced motion). */
+.login-backdrop {
+  background: var(--brand);
+  background-size: 160% 160%;
+  background-position: 0% 0%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .login-backdrop {
+    animation: brand-drift 28s ease-in-out infinite alternate;
+  }
+}
+@keyframes brand-drift {
+  to {
+    background-position: 100% 100%;
+  }
+}
+
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }

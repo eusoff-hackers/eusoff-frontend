@@ -182,7 +182,7 @@ const Leaderboard: React.FC = () => {
     <div className="container">
       <div className="header">
         <div className="left">
-          <Image className="eusoff" alt="eusoffLogo" src="/path/to/eusoffLogo.png" />
+          <Image className="eusoff" alt="Eusoff Hall crest" src="/eusoff-logo.png" width={48} height={55} />
           <div className="text">
             <h1>Eusoff Hall</h1>
             <h5>Excellence and Glory</h5>

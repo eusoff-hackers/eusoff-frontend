@@ -1,10 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { RoundWindow } from "@/src/app/lib/rounds";
+
+export interface PointsBreakdown {
+  finalCut2526: number;
+  firstCut2627: number;
+  captain: number;
+  adjustment: number;
+}
+
 export interface UserInfo {
   round: number;
   points: number;
   isAllocated: boolean;
   jersey?: JerseyType; // Only present if isAllocated is true
+  allocatedRound?: number;
+  /** Internal to the committee; the backend no longer sends it to residents. Never render it. */
+  breakdown?: PointsBreakdown;
   teams: TeamContainer[];
+  previousResident?: boolean;
+  /** Team codes this resident captains. */
+  captainOf?: string[];
 }
 
 export interface JerseyType {
@@ -21,7 +36,7 @@ export interface Quota {
   female: number;
 }
 
-interface Team {
+export interface Team {
   name: string;
   shareable: boolean;
 }
@@ -30,15 +45,17 @@ interface TeamContainer {
   team: Team;
 }
 
-interface Bid {
-  jersey: JerseyType;
-  priority: number;
+export interface Bid {
+  jersey: Pick<JerseyType, "number">;
+  priority: number; // 0 = top choice
+  round?: number;
 }
 
 interface System {
-  bidOpen: string; // Assuming it's a string (ISO date)
-  bidClose: string; // Assuming it's a string (ISO date)
+  bidOpen: number; // epoch ms, current/next round window
+  bidClose: number;
   bidRound: number;
+  rounds?: RoundWindow[];
 }
 
 export interface UserBid {
@@ -46,6 +63,8 @@ export interface UserBid {
   bids: Bid[];
   system: System;
   canBid: boolean;
+  /** Set when the resident can't bid for a reason other than the clock (e.g. gender missing). */
+  blockedReason?: string;
 }
 
 export interface Bidding {
