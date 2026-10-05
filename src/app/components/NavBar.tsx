@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { LogOut, Shield, Shirt, User as UserIcon } from "lucide-react";
+import { BookOpen, LogOut, Shield, Shirt, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -27,6 +27,7 @@ export default function NavBar() {
 
   const links = [
     { href: "/dashboard/jersey", label: "Jersey", icon: Shirt },
+    { href: "/dashboard/instructions", label: "Rules", icon: BookOpen },
     { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
     ...(mounted && user?.role === "ADMIN" ? [{ href: "/admin", label: "Admin", icon: Shield }] : []),
   ];

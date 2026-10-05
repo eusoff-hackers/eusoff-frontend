@@ -1,182 +1,293 @@
-"use client";
-
-// This is a client component
 import React from "react";
 
-import PDFViewer from "@/src/app/components/PDFViewer";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Ban,
+  Info,
+  Shuffle,
+  Trophy,
+  Users,
+} from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
 
-const InstructionsPage = () => {
-  /*const [isNav, setIsNav] = useState(false);
+import { Callout, PageHeader, Panel } from "@/src/app/components/system";
 
-  useEffect(() => {
-    setIsNav(true);
-  }, [])*/
-  return (
-    /*<div className="bg-gradient-to-tl h-full w-full flex flex-col lg:flex-row">
-      <main className="bg-gradient-to-tl h-fit w-full">
-        <article className="bg-slate-200 shadow-2xl py-5 p-2 border-4 lg:rounded-r-lg lg:rounded-bl-none rounded-b-lg font-mono border-slate-800">
-
-          {/*-------------General Information-----------}
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8 stroke-red-400 m-2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-          </svg>
-          <h1 className="text-black md:text-3xl text-2xl font-black px-2 inline">
-            General Information
-          </h1>
-
-          <div className="text-black md:text-xl text-base px-2 py-1 leading-normal">
-            1. There will be a total of 4 rounds (<strong>take note: if you made the IHG cut of any sport last AY regardless of whether IHG happened for your sport, it would be considered as 1 IHG played</strong>)
-
-            <ol className="list-outside list-disc ml-8">
-            <br />
-              <li><strong>Round 1</strong>: For those who have played at least <strong>3 IHG </strong></li>
-
-              <li><strong>Round 2</strong>: For those who have played at least <strong>2 IHG</strong> </li>
-
-              <li><strong>Round 3</strong>: For those who have played at least <strong>1 IHG</strong> </li>
-
-              <li><strong>Round 4</strong>: For those who have <strong>not played</strong> IHG at all </li>
-            </ol>
-            <br />
-
-            2. Bidding points are calculated as follows:
-            <ol className="list-outside list-disc ml-8">
-            <br />
-              <li>Captain = 1 point</li>
-
-              <li>Made it through the 1st cut = 1 point (each sport)</li>
-
-              <li>Made it through final cut last year = 1 point (each sport)</li>
-            </ol>
-            <br />
-            <p>3. Eusoffians bid in their own round. If you don&apos;t get a number, you may bid again in later rounds. </p>
-            <br />
-
-            <p>4. Eusoffians are to enter the website using the given username and password and submit their top 5 numbers.</p>
-            <br />
-
-            <h2 className="underline font-bold">Bidding</h2>
-            <ol className="list-outside list-disc ml-8 space-y-2">
-              <li>Available numbers and blocked numbers are clearly distinguishable on the website. You can only click on and place bids for numbers that have not hit the quota.</li>
-
-              <li>To help you place your bids more strategically, the website allows you to see the number of people who are bidding for each number, as well as each of their points (each person is identified only through their room number due to PDPA).</li>
-
-              <li>Rank the jersey numbers you wish to bid for, and hit the Submit button. You should see a confirmation message when the system registers your bids.</li>
-
-              <li>If you wish to delete or re-order your bids, you will need to press Submit again after making those changes.</li>
-            </ol>
-
-            <br/>
-            <h2 className="underline font-bold ">Number Quota</h2>
-            <ul className="list-outside list-disc ml-8 space-y-2">
-
-              <li>Since there are more Eusoffians than unique jersey numbers, the numbers will be shared, but only to a certain limit, and with some exceptions. </li>
-
-              <li>#0 - #9 will <strong>not</strong> be shared.</li>
-
-              <li>Numbers are <strong>not</strong> shared within Round 1. Only one person of each gender can get a specific number in that round, eg. If Jason (M), Lily (F) and Anna (F) all bid for #17 in Round 1, only Jason and one of Lily or Anna will get it. </li>
-
-              <li>A number won in Round 1 is closed to that gender in all later rounds. From Round 2 onwards, other numbers can be shared by up to 3 people per gender. </li>
-
-              <li>However, there will be no sharing of numbers in the team sports below.</li>
-              
-              <ol className = "indent-4 list-outside ml-4">
-                  <li>a. Basketball (Male, Female) </li>
-
-                  <li>b. Floorball (Male, Female) </li>
-
-                  <li>c. Frisbee (Mixed) </li>
-
-                  <li>d. Handball (Male, Female) </li>
-
-                  <li>e. Soccer (Male, Female) </li>
-
-                  <li>f. Softball (Mixed) </li>
-
-                  <li>g. Touch Rugby (Male, Female) </li>
-
-                  <li>h. Volleyball (Male, Female) </li>
-              </ol>
-            </ul>
-
-            <br />
-            <h2 className="underline font-bold">Allocation of Numbers</h2>
-            <ul className="list-outside list-disc ml-8 space-y-2">
-              <li>Numbers will be allocated after each round. </li>
-
-              <li>The allocation will be done by a computer script based on: </li>
-              <ol className = "indent-4 list-inside list-decimal ml-4">
-                  <li>Ranking of the numbers </li>
-
-                  <li>Points </li>
-
-                  <li>Seniority </li>
-              </ol>
-
-              <li>In the event of a tie in the above criteria, the top choice number will be given to a <strong>random</strong> person in the conflicting group. For instance, If Tom, Jerry, and Mike bid #20 as their top choice, the same bidding points, and are all in year 2, the system will randomly select one of the three bidders. The others will be given their next highest choices if possible. </li>
-
-              <li>Allocation of numbers is <strong>not</strong> based on a first come first serve basis. </li>
-              
-              <li>The allocation will also take into account the aforementioned quota, as well as each bidder&apos;s CCA. </li>
-
-              <li>Once the bids of one round have been processed, numbers that hit the quota (3 per gender) will be blocked for subsequent rounds. </li>
-
-              <li>After Round 4, anyone still without a number will be assigned an available number automatically. </li>
-            </ul>
-          </div>
-          <br/>
-          {/*-------------General Information-----------}
-
-          {/*-------------FAQ-----------}
-          <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-messages stroke-blue-300 w-10 h-10 m-2" width="40" height="40" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-            <path d="M21 14l-3 -3h-7a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1h9a1 1 0 0 1 1 1v10"></path>
-            <path d="M14 15v2a1 1 0 0 1 -1 1h-7l-3 3v-10a1 1 0 0 1 1 -1h2"></path>
-          </svg>
-          <h1 className="text-black md:text-3xl text-2xl font-black px-2 font-mono inline">
-            FAQs
-          </h1>
-          <div className="text-black md:text-xl text-base font-bold px-2 py-1 font-mono leading-normal">
-            1. I&apos;m having some issues with the website, what should I do?
-            <ul className="list-disc list-outside font-normal ml-8 space-y-2">
-              <li>You can contact any of the Eusoff Hackers members, and we will assist you to the best of our abilities. Please share as much details as you can, like what you see on your screen, how you ran into the issue, etc.</li>
-            </ul>
-            <br />
-            
-            2. What if I got outbid for all my choices?
-            <ul className="list-disc list-outside font-normal ml-8 space-y-2">
-              <li>Don&apos;t worry, you&apos;ll be asked to try again in the next round. Hopefully it doesn&apos;t come to that, though! </li>
-            </ul>
-            <br />
-
-            3. What happens if I don&apos;t bid for a number?
-            <ul className="list-disc list-outside font-normal ml-8 space-y-2">
-              <li>You will be randomly assigned one of the remaining available numbers after Round 4.</li>
-            </ul>
-            <br />
-
-            4. I don&apos;t quite get how the quota will apply to CCAs.
-            <ul className="list-disc list-outside font-normal ml-8 space-y-1">
-            <li>Some team sports (listed above) only allow one member to have a certain number. </li>
-            <li>Take the following scenario: </li>
-              <ol className = "list-outside list-disc ml-8 space-y-1">
-                <li>David is in Volleyball (M) and Softball. He bids for #20 and #45, in that order. </li>
-                <li>Juan is in Volleyball (M) and Swimming. He bids for #20 and #67. </li>
-                <li>Michelle is in Volleyball (F) and Swimming. She bids for #67 and #20. </li>
-                <li>Let&apos;s say David is allocated the #20. Juan can no longer get the number because Volleyball (M) does not allow sharing of numbers within the team.</li>
-                <li>If Juan successfully gets his second choice #67, Michelle is still able to get her first choice since she can share #67 with Juan.</li>
-                <li>If Michelle is unable to get #67, she is still eligible for #20. Even though David already has #20, the “no sharing” rule does not apply across Volleyball (M) and Volleyball (F).</li>
-              </ol>
-            </ul>
-          </div>
-          {/*-------------FAQ-----------}
-        </article>
-      </main>
-    </div>*/
-    <div className="flex min-h-screen w-full flex-col bg-gradient-to-tl lg:flex-row">
-      <PDFViewer />
-    </div>
-  );
+export const metadata: Metadata = {
+  title: "Jersey Bidding Rules · Eusoff Hall",
 };
 
-export default InstructionsPage;
+/** Jersey bidding rules (AY26/27): the committee's rules document plus its confirmed clarifications. */
+
+const RULES_DOC =
+  "https://docs.google.com/document/d/1Da-5_QC4qO3-yr_Roy8kNu5amV4m99BTDXMeOf9KvuI/edit";
+
+const ROUNDS = [
+  { round: 1, who: "Played at least 3 years of IHG", day: "Wed 7 Oct" },
+  { round: 2, who: "Played at least 2 years of IHG", day: "Thu 8 Oct" },
+  { round: 3, who: "Played at least 1 year of IHG", day: "Fri 9 Oct" },
+  { round: 4, who: "Have not played IHG", day: "Sat 10 Oct" },
+];
+
+const NO_SHARE = [
+  ["Basketball", "M · F"],
+  ["Floorball", "M · F"],
+  ["Frisbee", "Mixed"],
+  ["Handball", "M · F"],
+  ["Soccer", "M · F"],
+  ["Softball", "Mixed"],
+  ["Touch Rugby", "M · F"],
+  ["Volleyball", "M · F"],
+];
+
+const ALLOCATION_STEPS = [
+  {
+    icon: Trophy,
+    title: "1 · Your ranking",
+    body: "Your 1st choice is tried before your 2nd, and so on.",
+  },
+  {
+    icon: Users,
+    title: "2 · Points, then seniority",
+    body: "Same number at the same rank? More points wins, then the more senior Eusoffian.",
+  },
+  {
+    icon: Shuffle,
+    title: "3 · Random tie-break",
+    body: "Still tied? The system picks at random. Everyone else moves to their next choice.",
+  },
+];
+
+function Fact({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="surface-card px-4 py-3.5">
+      <p className="text-[22px] font-medium leading-none tracking-display text-lavender tabular-nums">
+        {value}
+      </p>
+      <p className="mt-1.5 text-[13px] leading-snug text-silver">{label}</p>
+    </div>
+  );
+}
+
+function Rule({
+  children,
+  strong,
+}: {
+  children: React.ReactNode;
+  strong?: boolean;
+}) {
+  return (
+    <li className="flex gap-2.5">
+      <span
+        aria-hidden
+        className={cn(
+          "mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full",
+          strong ? "bg-lavender" : "bg-silver/50",
+        )}
+      />
+      <span className={cn(strong && "text-heading")}>{children}</span>
+    </li>
+  );
+}
+
+export default function JerseyRulesPage() {
+  return (
+    <div className="mx-auto w-full max-w-4xl space-y-4 px-4 py-6 sm:px-6 sm:py-10">
+      <PageHeader
+        eyebrow="Jersey Bidding 26/27"
+        title="How jersey bidding works"
+        description="Everything that decides who gets which number. Bid on this site with the username and password you were emailed."
+        actions={
+          <Link
+            href="/dashboard/jersey"
+            className={cn(buttonVariants({ variant: "cta" }), "gap-1.5")}
+          >
+            Go to bidding <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
+        }
+      />
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Fact value="4" label="rounds, by years of IHG played" />
+        <Fact value="Top 5" label="numbers you rank in order" />
+        <Fact value="0–9" label="never shared" />
+        <Fact value="3" label="per gender per number, from Round 2" />
+      </div>
+
+      <Panel
+        title="Rounds"
+        description="Each round runs 9am – 9pm, Singapore time. Bid in your round."
+      >
+        <ol className="grid gap-2.5 sm:grid-cols-2">
+          {ROUNDS.map((r) => (
+            <li
+              key={r.round}
+              className="flex items-start gap-3 rounded-xl bg-recessed p-3.5"
+            >
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-lavender-fill text-sm font-semibold text-on-accent tabular-nums">
+                R{r.round}
+              </span>
+              <span className="min-w-0">
+                <span className="block font-medium text-heading">{r.who}</span>
+                <span className="block text-[13px] text-silver tabular-nums">
+                  {r.day}, 9am – 9pm
+                </span>
+              </span>
+            </li>
+          ))}
+        </ol>
+        <Callout icon={Info} className="mt-3">
+          Didn&apos;t get a number in your round? You can bid again in the later
+          rounds.
+        </Callout>
+      </Panel>
+
+      <Panel
+        title="Bidding points"
+        description="Points decide between people who rank the same number at the same position."
+      >
+        <ul className="space-y-2 text-[15px]">
+          <Rule strong>Captain this year: 1 point</Rule>
+          <Rule strong>Previous year final cut: 1 point for each sport</Rule>
+          <Rule strong>
+            Made it through the first cut this year: 1 point for each sport
+          </Rule>
+        </ul>
+        <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+          <div className="rounded-xl bg-recessed p-3.5 text-[14px] leading-relaxed">
+            <p className="mb-1 font-medium text-heading">
+              Amy · <span className="text-lavender">3 points</span> · Round 4
+            </p>
+            Year 3, never played IHG and no final cut last year. Made the first
+            cut for 3 sports this year.
+          </div>
+          <div className="rounded-xl bg-recessed p-3.5 text-[14px] leading-relaxed">
+            <p className="mb-1 font-medium text-heading">
+              John · <span className="text-lavender">9 points</span> · Round 3
+            </p>
+            Year 2, played IHG last year with final cut in 3 sports, captain
+            this year, first cut in 5 sports: 3 + 1 + 5.
+          </div>
+        </div>
+      </Panel>
+
+      <Panel title="Sharing numbers">
+        <ul className="space-y-2.5 text-[15px]">
+          <Rule strong>
+            Round 1 numbers are never shared. Only one person of each gender
+            gets a number in Round 1, and that number stays closed to that
+            gender in every later round.
+          </Rule>
+          <Rule strong>Numbers 0 – 9 are never shared.</Rule>
+          <Rule>
+            From Round 2, numbers are shared when more than one person bids for
+            them: up to 3 people per gender per number.
+          </Rule>
+          <Rule>
+            Once a number&apos;s quota is full it closes, and later rounds
+            can&apos;t bid for it. For example, if number 10 fills up in Round
+            2, Rounds 3 and 4 can&apos;t pick 10.
+          </Rule>
+        </ul>
+        <div className="mt-4">
+          <p className="mb-2 flex items-center gap-2 text-[13px] font-medium text-heading">
+            <Ban className="h-4 w-4 text-danger" aria-hidden /> No sharing
+            within these team sports
+          </p>
+          <ul className="flex flex-wrap gap-2">
+            {NO_SHARE.map(([sport, who]) => (
+              <li
+                key={sport}
+                className="rounded-full border border-hairline bg-recessed px-3 py-1.5 text-[13px]"
+              >
+                <span className="text-heading">{sport}</span>{" "}
+                <span className="text-silver">· {who}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-[13px] text-silver">
+            Teammates on these teams can&apos;t hold the same number. Frisbee
+            and Softball are mixed, so this applies across genders too.
+          </p>
+        </div>
+      </Panel>
+
+      <Panel title="How bids are allocated">
+        <div className="grid gap-2.5 sm:grid-cols-3">
+          {ALLOCATION_STEPS.map((s) => (
+            <div key={s.title} className="rounded-xl bg-recessed p-3.5">
+              <s.icon
+                className="mb-2 h-5 w-5 text-lavender"
+                strokeWidth={1.75}
+                aria-hidden
+              />
+              <p className="font-medium text-heading">{s.title}</p>
+              <p className="mt-1 text-[13px] leading-snug text-silver">
+                {s.body}
+              </p>
+            </div>
+          ))}
+        </div>
+        <ul className="mt-4 space-y-2.5 text-[15px]">
+          <Rule strong>
+            It&apos;s not first come, first served. Numbers are allocated after
+            each round closes.
+          </Rule>
+          <Rule>
+            Your most recent submission before the round closes is final. You
+            can change your picks until then.
+          </Rule>
+          <Rule>
+            Example: Tom, Jerry and Moose all put 20 as their top choice with
+            the same points. The most senior gets 20; if they&apos;re equally
+            senior, one is picked at random. The others get their next choices
+            if possible.
+          </Rule>
+        </ul>
+      </Panel>
+
+      <Panel title="What you can see while bidding">
+        <ul className="space-y-2.5 text-[15px]">
+          <Rule>
+            How many people are bidding for each number, and whether it&apos;s
+            still available to you.
+          </Rule>
+          <Rule>
+            For each of your sports, the numbers your teammates are bidding for.
+            Everyone is shown only by room number (PDPA).
+          </Rule>
+        </ul>
+      </Panel>
+
+      <Panel title="After the rounds">
+        <ul className="space-y-2.5 text-[15px]">
+          <Rule>
+            If there aren&apos;t enough numbers in Round 4, numbers from Round 3
+            can be shared, still up to 3 per gender.
+          </Rule>
+          <Rule>
+            After Round 4, anyone still without a number is assigned an
+            available one.
+          </Rule>
+        </ul>
+      </Panel>
+
+      <p className="px-1 text-center text-[13px] text-silver">
+        Questions or a discrepancy in your points? Message @kkewinee or
+        @thexianguy.{" "}
+        <a
+          href={RULES_DOC}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-0.5 text-heading underline decoration-hairline underline-offset-4 hover:decoration-current"
+        >
+          Original rules document{" "}
+          <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+        </a>
+      </p>
+    </div>
+  );
+}
