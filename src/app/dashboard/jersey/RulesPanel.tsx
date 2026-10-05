@@ -77,9 +77,9 @@ function RulesBody({ rounds, myRound }: { rounds: RoundWindow[]; myRound?: numbe
 
       <Block title="Sharing">
         <ul className="list-disc space-y-1 pl-5 marker:text-faint">
-          <li>Round 1: one person per gender per number.</li>
+          <li>Round 1: one person per gender per number, and that number stays closed to their gender afterwards.</li>
           <li>From Round 2: up to 3 per gender per number.</li>
-          <li>#1 to #9 are never shared.</li>
+          <li>#0 to #9 are never shared.</li>
           <li>
             No sharing within: {NO_SHARE_TEAMS}. Frisbee and Softball also can&apos;t share across genders.
           </li>

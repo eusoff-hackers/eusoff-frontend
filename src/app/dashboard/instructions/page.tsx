@@ -72,11 +72,11 @@ const InstructionsPage = () => {
 
               <li>Since there are more Eusoffians than unique jersey numbers, the numbers will be shared, but only to a certain limit, and with some exceptions. </li>
 
-              <li>#1 - #9 will <strong>not</strong> be shared. #0 can be shared like any other number.</li>
+              <li>#0 - #9 will <strong>not</strong> be shared.</li>
 
               <li>Numbers are <strong>not</strong> shared within Round 1. Only one person of each gender can get a specific number in that round, eg. If Jason (M), Lily (F) and Anna (F) all bid for #17 in Round 1, only Jason and one of Lily or Anna will get it. </li>
 
-              <li>From Round 2 onwards, every number (including those given out in Round 1) can be shared by up to 3 people per gender in total. </li>
+              <li>A number won in Round 1 is closed to that gender in all later rounds. From Round 2 onwards, other numbers can be shared by up to 3 people per gender. </li>
 
               <li>However, there will be no sharing of numbers in the team sports below.</li>
               
