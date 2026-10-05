@@ -14,7 +14,7 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { Callout, PageHeader, Panel } from "@/src/app/components/system";
+import { PageHeader, Panel } from "@/src/app/components/system";
 
 export const metadata: Metadata = {
   title: "Jersey Bidding Rules · Eusoff Hall",
@@ -139,10 +139,11 @@ export default function JerseyRulesPage() {
             </li>
           ))}
         </ol>
-        <Callout icon={Info} className="mt-3">
-          Didn&apos;t get a number in your round? You can bid again in the later
-          rounds.
-        </Callout>
+        <p className="mt-3 flex gap-3 rounded-xl border border-hairline bg-recessed p-3.5 text-sm text-silver sm:p-4">
+          <Info className="mt-0.5 h-[18px] w-[18px] shrink-0" strokeWidth={1.5} aria-hidden />
+          <span>Didn&apos;t get a number in your round? You can bid again in the later
+          rounds.</span>
+        </p>
       </Panel>
 
       <Panel
