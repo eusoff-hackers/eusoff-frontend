@@ -277,14 +277,6 @@ const BiddingTable: React.FC<BiddingTableProps> = ({
         )}
       </section>
 
-      {/* Teammates' bids (rules: visible per team, by room only). Sits between your picks and the grid. */}
-      <TeamBids
-        teams={userBids.info.teams.map(t => t.team)}
-        biddings={biddings}
-        myRoom={user.room}
-        myPicks={numbers}
-      />
-
       {rulesSlot}
 
       {/* Number grid */}
@@ -463,6 +455,14 @@ const BiddingTable: React.FC<BiddingTableProps> = ({
             : `Corner counts are other ${myGender ?? "resident"} bidders this round over slots left. Allocation is by choice rank, then points.`}
         </p>
       </section>
+
+      {/* Teammates' bids (rules: visible per team, by room only). Below the grid: the grid is the primary task. */}
+      <TeamBids
+        teams={userBids.info.teams.map(t => t.team)}
+        biddings={biddings}
+        myRoom={user.room}
+        myPicks={numbers}
+      />
 
       <Dialog open={selectedNumber != null} onOpenChange={open => !open && setSelectedNumber(null)}>
         <DialogContent className="flex max-w-md flex-col">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { ChevronDown, Lock, Users } from "lucide-react";
@@ -12,6 +12,9 @@ interface ListBidder {
   user?: { room?: string; gender?: string };
   teams?: { team?: { name?: string; shareable?: boolean } }[];
 }
+
+/** Rows shown per team before "Show all". */
+const ROW_CAP = 6;
 
 interface Teammate {
   room: string;
@@ -53,11 +56,9 @@ export default function TeamBids({
   myRoom: string | undefined;
   myPicks: number[];
 }) {
-  // Open by default on wider screens; collapsed on phones so the grid stays close.
+  // Collapsed by default everywhere: the summary line carries the signal, the list is on demand.
   const [open, setOpen] = useState(false);
-  useEffect(() => {
-    setOpen(window.matchMedia("(min-width: 768px)").matches);
-  }, []);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const data = useMemo(() => {
     const grouped = teammatesByTeam(biddings, teams, myRoom);
@@ -117,7 +118,13 @@ export default function TeamBids({
             Teammates are shown by room number only. Numbers are what they&apos;re bidding on this round, not in
             choice order.
           </p>
-          {data.map(({ team, mates }) => (
+          {data.map(({ team, mates: all }) => {
+            // Clashing rows first (no-sharing teams), then by room; cap at 6 unless expanded.
+            const isClash = (m: Teammate) => !team.shareable && m.numbers.some(n => picks.has(n));
+            const ordered = [...all].sort((a, b) => Number(isClash(b)) - Number(isClash(a)));
+            const showAll = !!expanded[team.name];
+            const mates = showAll ? ordered : ordered.slice(0, ROW_CAP);
+            return (
             <div key={team.name}>
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 <h3 className="text-[15px] font-medium text-heading">{teamName(team.name)}</h3>
@@ -126,9 +133,7 @@ export default function TeamBids({
                     <Lock className="h-3 w-3" strokeWidth={1.75} aria-hidden /> No sharing
                   </span>
                 )}
-                <span className="text-[12px] tabular-nums text-faint">
-                  {mates.length} bidding
-                </span>
+                <span className="text-[12px] tabular-nums text-faint">{all.length} bidding</span>
               </div>
               {mates.length === 0 ? (
                 <p className="rounded-xl bg-recessed px-3 py-2.5 text-[13px] text-silver">No teammates have bid yet.</p>
@@ -172,8 +177,18 @@ export default function TeamBids({
                   })}
                 </ul>
               )}
+              {all.length > ROW_CAP && (
+                <button
+                  type="button"
+                  onClick={() => setExpanded(e => ({ ...e, [team.name]: !showAll }))}
+                  className="mt-1.5 inline-flex h-10 items-center rounded-md px-1 text-[13px] font-medium text-aqua underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aqua"
+                >
+                  {showAll ? "Show fewer" : `Show all ${all.length}`}
+                </button>
+              )}
             </div>
-          ))}
+            );
+          })}
           {clashes > 0 && (
             <p className="text-[12px] text-silver">
               <span className="text-warn">Amber</span> numbers are on your list too. On a no-sharing team only one of
